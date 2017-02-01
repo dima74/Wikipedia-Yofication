@@ -71,40 +71,12 @@ public:
         for (int ipage = 0; ipage < number_pages; ++ipage) {
             string title = get_title();
             string text = get_text();
-
-            if (starts_with(text, "#redirect")
-                || starts_with(text, "#Redirect")
-                || starts_with(text, "#REdirect")
-                || starts_with(text, "#REDIRECt")
-                || starts_with(text, "#REDIRECT")
-                || starts_with(text, " #REDIRECT")
-                || starts_with(text, "  #REDIRECT")
-                || starts_with(text, "#перенаправление")
-                || starts_with(text, "#Перенаправление")
-                || starts_with(text, "#ПЕРЕНАПРАВЛЕНИЕ")
-                || ends_with(text, "{{disambig}}")
-                || ends_with(text, "{{неоднозначность}}")
-                || ends_with(text, "{{Неоднозначность}}")
-                || ends_with(text, "{{многозначность}}")
-                || ends_with(text, "{{Многозначность}}")
-                || ends_with(text, "{{список однофамильцев}}")
-                || ends_with(text, "{{Список однофамильцев-тёзок}}")
-                || starts_with(title, "Википедия:")
-                || starts_with(title, "MediaWiki:")
-                || starts_with(title, "Категория:")
-                || starts_with(title, "Файл:")
-                || starts_with(title, "Шаблон:")
-                || starts_with(title, "Портал:")
-                || starts_with(title, "Проект:")
-                    ) {
-                continue;
-            }
         }
     }
 };
 
 int main() {
     WikipediaParser().parse();
-//    printf("%.3f seconds\n", clock() / float(CLOCKS_PER_SEC));
+    printf("%.3f seconds\n", clock() / float(CLOCKS_PER_SEC));
     return 0;
 }
