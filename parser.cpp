@@ -96,70 +96,27 @@ struct WikipediaParser {
     }
 };
 
-struct XmlParser {
-    const string page = "  <page>";
-    const string title_start = "    <title>";
-    const string title_end = "</title>";
-    const string text_start = "      <text xml:space=\"preserve\">";
-    const string text_end = "</text>";
-
-    ifstream in = ifstream("../ruwiki-20161201-pages-articles.xml");
+struct TxtParser {
+    ifstream in = ifstream("ruwiki-my.txt");
     WikipediaParser parser;
 
-    string get_title() {
-        string line;
-        while (getline(in, line)) {
-            if (line == page) {
-                string title;
-                getline(in, title);
-                assert(starts_with(title, title_start));
-                return title.substr(title_start.length(), title.length() - title_start.length() - title_end.length());
-            }
-        }
-        assert(0);
-        throw;
-    }
-
-    string get_text() {
-        string line;
-        while (getline(in, line)) {
-            if (starts_with(line, text_start)) {
-                string text = line.substr(text_start.length());
-                if (ends_with(text, text_end)) {
-                    return text.substr(0, text.length() - text_end.length());
-                }
-                while (getline(in, line)) {
-                    if (ends_with(line, text_end)) {
-                        text += "\n" + line.substr(0, line.length() - text_end.length());
-
-                        while (text.front() == '\n') {
-                            text = text.substr(1);
-                        }
-                        while (text.back() == '\n') {
-                            text.pop_back();
-                        }
-
-                        return text;
-                    } else {
-                        text += "\n" + line;
-                    }
-                }
-                assert(0);
-            }
-        }
-        assert(0);
-        throw;
-    }
-
     void parse() {
-//        результат cat ... | grep '<page>' | wc -l
-//        int number_pages = 3849882;
-//        столько страниц видит моя программа
-//        int number_pages = 3849745;
+        string title;
         int number_pages = 10000;
-        for (int ipage = 0; ipage < number_pages; ++ipage) {
-            string title = get_title();
-            string text = get_text();
+        int ipage = 0;
+        while (getline(in, title) && ipage++ < number_pages) {
+            size_t number_lines;
+            in >> number_lines;
+
+            string text;
+            getline(in, text); //  считает пустую строку, ибо number_lines занимало всю строку
+            assert(text.empty());
+            for (int i = 0; i < number_lines; ++i) {
+                string line;
+                getline(in, line);
+                text += line + "\n";
+            }
+
             parser.parse(title, text);
         }
         parser.summary();
@@ -168,7 +125,7 @@ struct XmlParser {
 
 int main() {
     freopen("results/frequencies.txt", "w", stdout);
-    XmlParser parser;
+    TxtParser parser;
     parser.parse();
     return 0;
 }

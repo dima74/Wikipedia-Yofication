@@ -5,6 +5,6 @@ set(CMAKE_CXX_STANDARD 14)
 #set(CMAKE_CXX_FLAGS "-DLOCAL -g")
 set(CMAKE_CXX_FLAGS "-DLOCAL -O3")
 
-#set(SOURCE_FILES parser.cpp u32string.h string_helper.h)
-set(SOURCE_FILES converter.cpp string_helper.h)
+set(SOURCE_FILES parser.cpp u32string.h string_helper.h)
+#set(SOURCE_FILES converter.cpp string_helper.h)
 add_executable(parse ${SOURCE_FILES})
