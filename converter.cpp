@@ -3,7 +3,6 @@
 #include "/home/dima/C++/debug.h"
 using namespace std;
 
-const string page = "  <page>";
 const string title_start = "    <title>";
 const string title_end = "</title>";
 const string text_start = "      <text xml:space=\"preserve\">";
@@ -18,8 +17,8 @@ int main() {
 //    <number lines in text>
 //    <text>
 
-//    3849882 pages
-//    3849746 pages with text
+//    3894400 pages
+//    3894251 pages with text
 
     string line;
     string title;

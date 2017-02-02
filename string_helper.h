@@ -10,15 +10,24 @@ bool ends_with(string s, const string with) {
 }
 
 bool isRussianLower(char32_t c) {
-    return U'а' <= c || U'я' <= c || c == U'ё';
+    return (U'а' <= c && c <= U'я') || c == U'ё';
 }
 
 bool isRussianUpper(char32_t c) {
-    return U'А' <= c || U'Я' <= c || c == U'Ё';
+    return (U'А' <= c && c <= U'Я') || c == U'Ё';
 }
 
 bool isRussian(char32_t c) {
     return isRussianLower(c) || isRussianUpper(c);
+}
+
+bool isDigit(char32_t c) {
+    return U'0' <= c && c <= U'9';
+}
+
+bool isSentence(char32_t c) {
+    const u32string allowedChars = U" ,():—";
+    return isRussian(c) || isDigit(c) || allowedChars.find(c) != string::npos;
 }
 
 bool isE(char32_t c) {

@@ -22,3 +22,11 @@ ostream &operator<<(ostream &out, u32string s) {
 ostream &operator<<(ostream &out, char32_t c) {
     return out << u32string(1, c);
 }
+
+istream &operator>>(istream &in, u32string &s32) {
+    string s8;
+    if (in >> s8) {
+        s32 = to32(s8);
+    }
+    return in;
+}
