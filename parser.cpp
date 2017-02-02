@@ -169,16 +169,30 @@ struct SentencesParser : public AbstractParser {
             }
         }
     }
+
+    void summary() {
+        cout << "==  Summary  ==" << endl;
+        boundChars.erase('\n');
+        for (char32_t c : boundChars) {
+            cout << c;
+        }
+        cout << endl;
+    }
+};
+
+struct TitlesParser : public AbstractParser {
+    void parse(string title, string text_s) {
+        cout << title << endl;
+    }
 };
 
 struct TxtReader {
     ifstream in = ifstream("results/ruwiki-my.txt");
 
-    void readTo(AbstractParser &parser) {
+    void readTo(AbstractParser &parser, int number_pages = -1) {
         string title;
-//        int number_pages = 100;
-//        int ipage = 0;
-        while (getline(in, title)/* && ipage++ < number_pages*/) {
+        int ipage = 0;
+        while (getline(in, title) && (number_pages == -1 || ipage++ < number_pages)) {
             size_t number_lines;
             in >> number_lines;
 
@@ -191,7 +205,9 @@ struct TxtReader {
                 text += line + "\n";
             }
 
-            parser.parse(title, text);
+            if (title.find(':') == string::npos) {
+                parser.parse(title, text);
+            }
         }
     }
 };
@@ -205,11 +221,19 @@ void createFrequencies() {
 
 void createSentences() {
     SentencesParser parser;
+    TxtReader().readTo(parser, 100);
+    parser.summary();
+}
+
+void createAllTitles() {
+    freopen("results/all_titles.txt", "w", stdout);
+    TitlesParser parser;
     TxtReader().readTo(parser);
 }
 
 int main() {
     createFrequencies();
 //    createSentences();
+//    createAllTitles();
     return 0;
 }

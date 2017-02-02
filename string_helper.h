@@ -21,13 +21,25 @@ bool isRussian(char32_t c) {
     return isRussianLower(c) || isRussianUpper(c);
 }
 
+bool isEnglishLower(char32_t c) {
+    return U'a' <= c && c <= U'z';
+}
+
+bool isEnglishUpper(char32_t c) {
+    return U'A' <= c && c <= U'Z';
+}
+
+bool isEnglish(char32_t c) {
+    return isEnglishLower(c) || isEnglishUpper(c);
+}
+
 bool isDigit(char32_t c) {
     return U'0' <= c && c <= U'9';
 }
 
 bool isSentence(char32_t c) {
-    const u32string allowedChars = U" ,():—";
-    return isRussian(c) || isDigit(c) || allowedChars.find(c) != string::npos;
+    const u32string allowedChars = U"  ,()[]{}«»:-—|";
+    return isRussian(c) || isEnglish(c) || isDigit(c) || allowedChars.find(c) != string::npos;
 }
 
 bool isE(char32_t c) {
