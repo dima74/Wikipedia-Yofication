@@ -1,6 +1,7 @@
 #include <bits/stdc++.h>
 #include "u32string.h"
 #include "string_helper.h"
+#include "/home/dima/C++/debug.h"
 using namespace std;
 
 void nop() {}
@@ -23,7 +24,7 @@ struct WordInfoBest {
 };
 
 ostream &operator<<(ostream &out, WordInfoBest info) {
-    return out << info.eword << " " << info.number << "/" << info.numberAll;
+    return out << info.eword << " " << info.number << " " << info.numberAll;
 }
 
 struct WordInfo {
@@ -89,8 +90,8 @@ struct WikipediaParser {
             }
         }
         sort(bests.begin(), bests.end());
-        for (int i = 0; i < bests.size(); ++i) {
-            cout << bests[i] << endl;
+        for (WordInfoBest best : bests) {
+            cout << best << endl;
         }
     }
 };
@@ -151,8 +152,11 @@ struct XmlParser {
     }
 
     void parse() {
+//        результат cat ... | grep '<page>' | wc -l
 //        int number_pages = 3849882;
-        int number_pages = 100;
+//        столько страниц видит моя программа
+//        int number_pages = 3849745;
+        int number_pages = 10000;
         for (int ipage = 0; ipage < number_pages; ++ipage) {
             string title = get_title();
             string text = get_text();
@@ -163,9 +167,8 @@ struct XmlParser {
 };
 
 int main() {
+    freopen("results/frequencies.txt", "w", stdout);
     XmlParser parser;
     parser.parse();
-    printf("%.3f seconds\n", clock() / float(CLOCKS_PER_SEC));
     return 0;
 }
-
