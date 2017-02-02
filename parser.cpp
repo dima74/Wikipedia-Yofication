@@ -176,9 +176,9 @@ struct TxtReader {
 
     void readTo(AbstractParser &parser) {
         string title;
-        int number_pages = 100;
-        int ipage = 0;
-        while (getline(in, title) && ipage++ < number_pages) {
+//        int number_pages = 100;
+//        int ipage = 0;
+        while (getline(in, title)/* && ipage++ < number_pages*/) {
             size_t number_lines;
             in >> number_lines;
 
