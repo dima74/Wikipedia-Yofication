@@ -2,6 +2,7 @@
 #include "u32string.h"
 #include "string_helper.h"
 #include "colors.h"
+#include "page.h"
 using namespace std;
 
 void nop() {}
@@ -59,7 +60,7 @@ struct WordInfo {
 };
 
 struct AbstractParser {
-    virtual void parse(string title, string text) = 0;
+    virtual void parse(Page page) = 0;
 
     virtual ~AbstractParser() {}
 };
@@ -68,8 +69,8 @@ struct FrequenciesParser : public AbstractParser {
     // ключи --- dword
     map<u32string, WordInfo> infos;
 
-    void parse(string title, string text_s) {
-        u32string text = to32(text_s);
+    void parse(Page page) {
+        u32string text = to32(page.getText());
         for (size_t i = 0; i < text.length(); ++i) {
             if (isRussian(text[i])) {
                 bool containsE = false;
@@ -122,9 +123,9 @@ struct SentencesParser : public AbstractParser {
         }
     }
 
-    void parse(string title, string text_s) {
+    void parse(Page page) {
         bool printTitle = false;
-        u32string text = to32(text_s);
+        u32string text = to32(page.getText());
         for (size_t i = 0; i < text.length(); ++i) {
             if (isRussian(text[i])) {
                 bool containsE = false;
@@ -153,7 +154,7 @@ struct SentencesParser : public AbstractParser {
                             }
 
                             if (!printTitle) {
-                                cout << "==  " << title << "  ==" << endl;
+                                cout << "==  " << page.title << "  ==" << endl;
                                 printTitle = true;
                             }
                             u32string sentence0 = text.substr(sentenceStart, i - sentenceStart);
@@ -181,8 +182,8 @@ struct SentencesParser : public AbstractParser {
 };
 
 struct TitlesParser : public AbstractParser {
-    void parse(string title, string text_s) {
-        cout << title << endl;
+    void parse(Page page) {
+        cout << page.title << endl;
     }
 };
 
@@ -190,24 +191,10 @@ struct TxtReader {
     ifstream in = ifstream("results/ruwiki-my.txt");
 
     void readTo(AbstractParser &parser, int number_pages = -1) {
-        string title;
+        Page page;
         int ipage = 0;
-        while (getline(in, title) && (number_pages == -1 || ipage++ < number_pages)) {
-            size_t number_lines;
-            in >> number_lines;
-
-            string text;
-            getline(in, text); //  считает пустую строку, ибо number_lines занимало всю строку
-            assert(text.empty());
-            for (int i = 0; i < number_lines; ++i) {
-                string line;
-                getline(in, line);
-                text += line + "\n";
-            }
-
-            if (title.find(':') == string::npos) {
-                parser.parse(title, text);
-            }
+        while ((in >> page) && (number_pages == -1 || ipage++ < number_pages)) {
+            parser.parse(page);
         }
     }
 };
@@ -221,7 +208,7 @@ void createFrequencies() {
 
 void createSentences() {
     SentencesParser parser;
-    TxtReader().readTo(parser, 100);
+    TxtReader().readTo(parser, 1000);
     parser.summary();
 }
 
@@ -232,8 +219,8 @@ void createAllTitles() {
 }
 
 int main() {
-    createFrequencies();
-//    createSentences();
+//    createFrequencies();
+    createSentences();
 //    createAllTitles();
     return 0;
 }

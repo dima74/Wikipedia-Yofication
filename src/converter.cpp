@@ -1,35 +1,35 @@
 #include <bits/stdc++.h>
 #include "string_helper.h"
+#include "page.h"
 using namespace std;
 
 const string title_start = "    <title>";
 const string title_end = "</title>";
 const string id_start = "      <id>";
 const string id_end = "</id>";
+const string namespace_start = "    <ns>";
+const string namespace_end = "</ns>";
 const string text_start = "      <text xml:space=\"preserve\">";
 const string text_end = "</text>";
 
 int main() {
-//    ifstream in("ruwiki-pages-articles.xml");
-//    ofstream out("results/ruwiki-my.txt");
-//    auto &out = cout;
-//    out format:
-//    <title>
-//    <id>
-//    <number lines in text>
-//    <text>
-
+//    freopen("xmls/ruwiki-pages-articles.xml", "r", stdin);
+//    freopen("results/ruwiki-my.txt", "w", stdout);
     string line;
-    string title;
-    string id;
+    Page page;
+    string namespace_;
     while (getline(cin, line)) {
         if (starts_with(line, title_start)) {
-            title = line.substr(title_start.length(), line.length() - title_start.length() - title_end.length());
+            page.title = line.substr(title_start.length(), line.length() - title_start.length() - title_end.length());
         } else if (starts_with(line, id_start)) {
-            id = line.substr(id_start.length(), line.length() - id_start.length() - id_end.length());
+            page.id = line.substr(id_start.length(), line.length() - id_start.length() - id_end.length());
+        } else if (starts_with(line, namespace_start)) {
+            namespace_ = line.substr(namespace_start.length(), line.length() - namespace_start.length() - namespace_end.length());
         } else if (starts_with(line, text_start)) {
-            assert(!title.empty());
-            assert(!id.empty());
+            assert(!page.title.empty());
+            assert(!page.id.empty());
+            assert(!namespace_.empty());
+
             vector<string> text = {line.substr(text_start.length())};
             while (!ends_with(text.back(), text_end)) {
                 getline(cin, line);
@@ -42,16 +42,12 @@ int main() {
             while (!text.empty() && text.back().empty()) {
                 text.pop_back();
             }
+            page.text = text;
 
-            if (title.find(':') == string::npos) {
-                cout << title << endl;
-                cout << id << endl;
-                cout << text.size() << endl;
-                for (string text_line : text) {
-                    cout << text_line << endl;
-                }
+            if (namespace_ == "0") {
+                cout << page;
             }
-            title.clear();
+            page = {};
         }
     }
     return 0;
