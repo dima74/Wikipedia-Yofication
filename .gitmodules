@@ -1,0 +1,6 @@
+[submodule "cpr"]
+	path = cpr
+	url = git@github.com:whoshuu/cpr.git
+[submodule "fmt"]
+	path = fmt
+	url = https://github.com/fmtlib/fmt

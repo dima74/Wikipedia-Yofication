@@ -95,7 +95,72 @@ void createSentences() {
     parser.summary();
 }
 
+#include <cpr/cpr.h>
+using namespace cpr;
+#include "json.hpp"
+using json = nlohmann::json;
+#include <fmt/format.h>
+#include <fmt/format.cc>
+using namespace fmt;
+
+Session session;
+
+json get(string url) {
+    session.SetOption(Url{url});
+    session.SetOption(Body{});
+    return json::parse(session.Get().text);
+}
+
+json post(string url) {
+    session.SetOption(Url{url});
+    session.SetOption(Body{"bug"});
+    return json::parse(session.Post().text);
+}
+
+const string BOT_NAME = "Дима74 (Бот)";
+//const string BOT_NAME = "Ihatewikipedialoginapi";
+const string BOT_PASSWORD = "zkexibq";
+
+void checkForLogin() {
+    json response = get("https://ru.wikipedia.org/w/api.php?format=json&action=query&meta=userinfo&uiprop=rights%7Chasmsg");
+    string currentUserName = response["query"]["userinfo"]["name"];
+    cout << currentUserName << endl;
+    assert(currentUserName == BOT_NAME);
+}
+
+string getToken() {
+    json response = get("https://ru.wikipedia.org/w/api.php?format=json&action=query&meta=tokens&type=login");
+    return response["query"]["tokens"]["logintoken"];
+}
+
+void login(string token) {
+    json response = post(format("https://ru.wikipedia.org/w/api.php?format=json&action=login&lgname=%s&lgpassword=%s&lgtoken=%s", BOT_NAME, BOT_PASSWORD, token));
+    cout << response << endl;
+}
+
 int main() {
 //    createSentences();
+//    string token = getToken();
+//    login(token);
+//    checkForLogin();
+
+    Session session;
+    session.SetOption(Url{"https://ru.wikipedia.org/w/api.php?format=json&action=query&meta=tokens&type=login"});
+    string token = json::parse(session.Get().text)["query"]["tokens"]["logintoken"];
+    cout << token << endl;
+
+//    session.SetOption(Url{format("https://ru.wikipedia.org/w/api.php?format=json&action=login&lgname=%s", BOT_NAME)});
+    session.SetOption(Url{"https://ru.wikipedia.org/w/api.php?format=json&action=login"});
+//    session.SetOption(Body{"bug"});
+//    session.SetOption(Payload{{"lgpassword", BOT_PASSWORD},
+//                              {"lgtoken",    token}});
+    session.SetOption(Payload{{"lgname",     BOT_NAME},
+                              {"lgpassword", BOT_PASSWORD},
+                              {"lgtoken",    token}});
+    cout << json::parse(session.Post().text) << endl;
+
+//    Get(Url{"http://188.166.77.217/get"});
+//    Post(Url{"http://188.166.77.217/without"});
+//    Post(Url{"http://188.166.77.217/with"}, cpr::Body{"Hello"});
     return 0;
 }
