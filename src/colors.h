@@ -1,3 +1,6 @@
+#ifndef PARSE_COLORS_H
+#define PARSE_COLORS_H
+
 #include <bits/stdc++.h>
 using namespace std;
 
@@ -24,3 +27,5 @@ Color blue("34;1");
 Color magenta("35;1");
 Color cyan("36;1");
 Color white("37;1");
+
+#endif //PARSE_COLORS_H

@@ -1,3 +1,6 @@
+#ifndef PARSE_STRING_HELPER_H
+#define PARSE_STRING_HELPER_H
+
 #include <bits/stdc++.h>
 using namespace std;
 
@@ -57,3 +60,5 @@ u32string deefication(u32string s) {
     }
     return s;
 }
+
+#endif //PARSE_STRING_HELPER_H

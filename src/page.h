@@ -1,6 +1,8 @@
+#ifndef PARSE_PAGE_H
+#define PARSE_PAGE_H
+
 #include <bits/stdc++.h>
 using namespace std;
-
 
 // Format:
 // <title>
@@ -50,3 +52,5 @@ struct Page {
         return ret;
     }
 };
+
+#endif //PARSE_PAGE_H

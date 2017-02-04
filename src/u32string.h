@@ -1,3 +1,6 @@
+#ifndef PARSE_U32STRING_H
+#define PARSE_U32STRING_H
+
 #include <bits/stdc++.h>
 using namespace std;
 
@@ -30,3 +33,5 @@ istream &operator>>(istream &in, u32string &s32) {
     }
     return in;
 }
+
+#endif //PARSE_U32STRING_H

@@ -1,4 +1,4 @@
-#!/bin/zsh -e
+#!/bin/sh -e
 # https://dumps.wikimedia.org/backup-index.html
 # ruwiki -> ruwiki-*-pages-articles.xml.bz2
 mkdir -p results bin
