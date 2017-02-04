@@ -103,26 +103,48 @@ using json = nlohmann::json;
 #include <fmt/format.cc>
 using namespace fmt;
 
-Session session;
+Cookies cookies;
+
+json get(Session &session) {
+    session.SetOption(cookies);
+    Response response = session.Get();
+//    cout << endl;
+//    cout << cookies.GetEncoded() << endl;
+//    cout << response.cookies.GetEncoded() << endl;
+    cookies = response.cookies;
+    return json::parse(response.text);
+}
+
+json post(Session &session) {
+    session.SetOption(cookies);
+    Response response = session.Post();
+//    cout << endl;
+//    cout << cookies.GetEncoded() << endl;
+//    cout << response.cookies.GetEncoded() << endl;
+    cookies = response.cookies;
+    return json::parse(response.text);
+}
 
 json get(string url) {
+    Session session;
     session.SetOption(Url{url});
-    session.SetOption(Body{});
-    return json::parse(session.Get().text);
+    return get(session);
 }
 
 json post(string url) {
+    Session session;
     session.SetOption(Url{url});
-    session.SetOption(Body{"bug"});
-    return json::parse(session.Post().text);
+    return get(session);
 }
 
 const string BOT_NAME = "Дима74 (Бот)";
-//const string BOT_NAME = "Ihatewikipedialoginapi";
 const string BOT_PASSWORD = "zkexibq";
 
 void checkForLogin() {
     json response = get("https://ru.wikipedia.org/w/api.php?format=json&action=query&meta=userinfo&uiprop=rights%7Chasmsg");
+    cout << response << endl;
+    return;
+
     string currentUserName = response["query"]["userinfo"]["name"];
     cout << currentUserName << endl;
     assert(currentUserName == BOT_NAME);
@@ -134,8 +156,15 @@ string getToken() {
 }
 
 void login(string token) {
-    json response = post(format("https://ru.wikipedia.org/w/api.php?format=json&action=login&lgname=%s&lgpassword=%s&lgtoken=%s", BOT_NAME, BOT_PASSWORD, token));
-    cout << response << endl;
+//    json response = post(format("https://ru.wikipedia.org/w/api.php?format=json&action=login&lgname=%s&lgpassword=%s&lgtoken=%s", BOT_NAME, BOT_PASSWORD, token));
+//    cout << response << endl;
+
+    Session session;
+    session.SetOption(Url{"https://ru.wikipedia.org/w/api.php?format=json&action=login"});
+    session.SetOption(Payload{{"lgname",     BOT_NAME},
+                              {"lgpassword", BOT_PASSWORD},
+                              {"lgtoken",    token}});
+    cout << post(session) << endl;
 }
 
 int main() {
@@ -143,24 +172,22 @@ int main() {
 //    string token = getToken();
 //    login(token);
 //    checkForLogin();
+    return 0;
 
-    Session session;
-    session.SetOption(Url{"https://ru.wikipedia.org/w/api.php?format=json&action=query&meta=tokens&type=login"});
-    string token = json::parse(session.Get().text)["query"]["tokens"]["logintoken"];
-    cout << token << endl;
+    {
+        Session session;
+        session.SetOption(Url{"https://ru.wikipedia.org/w/api.php?format=json&action=query&meta=tokens&type=login"});
+        string token = json::parse(session.Get().text)["query"]["tokens"]["logintoken"];
 
-//    session.SetOption(Url{format("https://ru.wikipedia.org/w/api.php?format=json&action=login&lgname=%s", BOT_NAME)});
-    session.SetOption(Url{"https://ru.wikipedia.org/w/api.php?format=json&action=login"});
-//    session.SetOption(Body{"bug"});
-//    session.SetOption(Payload{{"lgpassword", BOT_PASSWORD},
-//                              {"lgtoken",    token}});
-    session.SetOption(Payload{{"lgname",     BOT_NAME},
-                              {"lgpassword", BOT_PASSWORD},
-                              {"lgtoken",    token}});
-    cout << json::parse(session.Post().text) << endl;
+        session.SetOption(Url{"https://ru.wikipedia.org/w/api.php?format=json&action=login"});
+        session.SetOption(Payload{{"lgname",     BOT_NAME},
+                                  {"lgpassword", BOT_PASSWORD},
+                                  {"lgtoken",    token}});
+        cout << json::parse(session.Post().text) << endl;
 
-//    Get(Url{"http://188.166.77.217/get"});
-//    Post(Url{"http://188.166.77.217/without"});
-//    Post(Url{"http://188.166.77.217/with"}, cpr::Body{"Hello"});
+        session.SetOption(Payload{});
+        session.SetOption(Url{"https://ru.wikipedia.org/w/api.php?format=json&action=query&meta=userinfo&uiprop=rights%7Chasmsg"});
+        cout << json::parse(session.Get().text) << endl;
+    }
     return 0;
 }
