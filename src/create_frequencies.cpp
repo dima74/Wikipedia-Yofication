@@ -7,7 +7,7 @@ using namespace std;
 
 struct FrequenciesParser : public AbstractParser {
     // ключи --- dword
-    map<u32string, WordInfo> infos;
+    map<u32string, DwordInfo> infos;
 
     void parse(Page page) {
         u32string text = to32(page.getText());
@@ -33,15 +33,15 @@ struct FrequenciesParser : public AbstractParser {
     }
 
     void summary() {
-        vector<WordInfoBest> bests;
-        for (pair<u32string, WordInfo> p : infos) {
-            WordInfoBest best = p.second.getBest();
+        vector<EwordInfo> bests;
+        for (pair<u32string, DwordInfo> p : infos) {
+            EwordInfo best = p.second.getBest();
             if (best.number != best.numberAll) {
                 bests.push_back(best);
             }
         }
         sort(bests.begin(), bests.end());
-        for (WordInfoBest best : bests) {
+        for (EwordInfo best : bests) {
             cout << best << endl;
         }
     }

@@ -21,7 +21,7 @@ struct SentencesParser : public AbstractParser {
 
         int number_words = 100;
         int iword = 0;
-        WordInfoBest info;
+        EwordInfo info;
         while (in >> info && iword < number_words) {
             if (isRussianLower(info.eword[0])) {
                 right[deefication(info.eword)] = info.eword;

@@ -8,7 +8,7 @@ using namespace std;
 // dword --- деёфицированное слово
 // eword --- слово с ё
 
-struct WordInfoBest {
+struct EwordInfo {
     u32string eword;
     size_t number;
     size_t numberAll;
@@ -17,20 +17,20 @@ struct WordInfoBest {
         return number / (float) numberAll;
     }
 
-    bool operator<(WordInfoBest info) {
+    bool operator<(EwordInfo info) {
         return getFrequency() > info.getFrequency();
     }
 };
 
-ostream &operator<<(ostream &out, WordInfoBest info) {
+ostream &operator<<(ostream &out, EwordInfo info) {
     return out << info.eword << " " << info.number << " " << info.numberAll;
 }
 
-istream &operator>>(istream &in, WordInfoBest &info) {
+istream &operator>>(istream &in, EwordInfo &info) {
     in >> info.eword >> info.number >> info.numberAll;
 }
 
-struct WordInfo {
+struct DwordInfo {
     size_t number = 0;
     // ключи --- eword
     map<u32string, size_t> numbers;
@@ -43,7 +43,7 @@ struct WordInfo {
         return numberAll;
     }
 
-    WordInfoBest getBest() {
+    EwordInfo getBest() {
         vector<pair<size_t, u32string>> numbers_v;
         for (auto p : numbers) {
             numbers_v.emplace_back(p.second, p.first);
