@@ -11,9 +11,10 @@ using namespace std;
 void nop() {}
 
 struct SentencesParser : public AbstractParser {
+    const size_t MAX_WIDTH = 120;
+
 //    dword -> eword
     map<u32string, u32string> right;
-    set<char32_t> boundChars;
 
     SentencesParser() {
         ifstream in("results/frequencies.txt");
@@ -42,32 +43,24 @@ struct SentencesParser : public AbstractParser {
                         auto it = right.find(word);
                         if (it != right.end()) {
                             u32string eword = it->second;
+                            assert(eword.length() < MAX_WIDTH);
+                            size_t length = eword.length();
+                            size_t length0 = (MAX_WIDTH - length) / 2;
+                            size_t length1 = MAX_WIDTH - length0 - length;
+                            u32string sentence0 = text.substr(max((size_t) 0, i - length0), length0);
+                            u32string sentence1 = text.substr(i + length, length1);
 
-                            size_t sentenceStart = i;
-                            size_t sentenceEnd = j;
-                            while (sentenceStart > 0 && isSentence(text[sentenceStart - 1])) {
-                                --sentenceStart;
-                            }
-                            while (sentenceEnd < text.length() && isSentence(text[sentenceEnd])) {
-                                ++sentenceEnd;
-                            }
+                            sentence0 = sentence0.substr(sentence0.rfind(U'\n') + 1);
+                            sentence1 = sentence1.substr(0, sentence1.find(U'\n'));
 
-                            --sentenceStart;
-                            ++sentenceEnd;
-
-                            if (sentenceStart > 0) {
-                                boundChars.insert(text[sentenceStart - 1]);
-                            }
-                            if (sentenceEnd < text.length()) {
-                                boundChars.insert(text[sentenceEnd]);
-                            }
+                            sentence0 = u32string(length0 - sentence0.length(), U' ') + sentence0;
+                            sentence1 += u32string(length1 - sentence1.length(), U' ');
 
                             if (!printTitle) {
-                                cout << "==  " << page.title << "  ==" << endl;
+                                string titleToPrint = "==  " + page.title + "  ==";
+                                cout << u32string((MAX_WIDTH - to32(titleToPrint).length()) / 2, U' ') << titleToPrint << endl;
                                 printTitle = true;
                             }
-                            u32string sentence0 = text.substr(sentenceStart, i - sentenceStart);
-                            u32string sentence1 = text.substr(j, sentenceEnd - j);
                             cout << sentence0 << cyan << word << def << sentence1 << endl;
                             cout << sentence0 << cyan << eword << def << sentence1 << endl;
                             cout << endl;
@@ -79,21 +72,11 @@ struct SentencesParser : public AbstractParser {
             }
         }
     }
-
-    void summary() {
-        cout << "==  Summary  ==" << endl;
-        boundChars.erase('\n');
-        for (char32_t c : boundChars) {
-            cout << c;
-        }
-        cout << endl;
-    }
 };
 
 void createSentences() {
     SentencesParser parser;
     TxtReader().readTo(parser, 1000);
-    parser.summary();
 }
 
 int main() {
