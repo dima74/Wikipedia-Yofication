@@ -21,7 +21,7 @@ bool isRussianUpper(char32_t c) {
 }
 
 bool isRussian(char32_t c) {
-    return isRussianLower(c) || isRussianUpper(c);
+    return isRussianLower(c) || isRussianUpper(c) || c == U'́' || c == U'-';
 }
 
 bool isEnglishLower(char32_t c) {
@@ -41,7 +41,7 @@ bool isDigit(char32_t c) {
 }
 
 bool isSentence(char32_t c) {
-    const u32string allowedChars = U"  ,()[]{}«»:-—|";
+    const u32string allowedChars = U"  ,()[]{}<>«»:-—|&;'\"/";
     return isRussian(c) || isEnglish(c) || isDigit(c) || allowedChars.find(c) != string::npos;
 }
 

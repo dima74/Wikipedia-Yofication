@@ -18,11 +18,14 @@ struct SentencesParser : public AbstractParser {
     SentencesParser() {
         ifstream in("results/frequencies.txt");
 
-        int number_words = 10;
+        int number_words = 100;
         int iword = 0;
         WordInfoBest info;
-        while (in >> info && iword++ < number_words) {
-            right[deefication(info.eword)] = info.eword;
+        while (in >> info && iword < number_words) {
+            if (isRussianLower(info.eword[0])) {
+                right[deefication(info.eword)] = info.eword;
+                ++iword;
+            }
         }
     }
 
@@ -48,6 +51,9 @@ struct SentencesParser : public AbstractParser {
                             while (sentenceEnd < text.length() && isSentence(text[sentenceEnd])) {
                                 ++sentenceEnd;
                             }
+
+                            --sentenceStart;
+                            ++sentenceEnd;
 
                             if (sentenceStart > 0) {
                                 boundChars.insert(text[sentenceStart - 1]);
@@ -91,9 +97,11 @@ void createSentences() {
 }
 
 int main() {
-    WikipediaApi api;
-    string title = BOT_PAGE + "/тест6";
-    size_t revision = api.createPage(title, "1");
-    api.changePage(title, "2", revision);
+//    WikipediaApi api;
+//    string title = BOT_PAGE + "/тест6";
+//    size_t revision = api.createPage(title, "1");
+//    api.changePage(title, "2", revision);
+
+    createSentences();
     return 0;
 }
