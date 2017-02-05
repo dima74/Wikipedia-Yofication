@@ -5,6 +5,7 @@
 #include "page.h"
 #include "txt_reader.h"
 #include "word_info.h"
+#include "wikipedia_api.h"
 using namespace std;
 
 void nop() {}
@@ -83,81 +84,16 @@ struct SentencesParser : public AbstractParser {
     }
 };
 
-struct TitlesParser : public AbstractParser {
-    void parse(Page page) {
-        cout << page.title << endl;
-    }
-};
-
 void createSentences() {
     SentencesParser parser;
     TxtReader().readTo(parser, 1000);
     parser.summary();
 }
 
-#include <cpr/cpr.h>
-using namespace cpr;
-#include "json.hpp"
-using json = nlohmann::json;
-#include <fmt/format.h>
-#include <fmt/format.cc>
-using namespace fmt;
-
-Session session;
-
-void clearSession() {
-    session.SetOption(Parameters{});
-    session.SetOption(Payload{});
-    session.SetOption(Url{});
-}
-
-json get() {
-    return json::parse(session.Get().text);
-}
-
-json post() {
-    return json::parse(session.Post().text);
-}
-
-json get(string url) {
-    clearSession();
-    session.SetOption(Url{url});
-    return get();
-}
-
-json post(string url) {
-    clearSession();
-    session.SetOption(Url{url});
-    return post();
-}
-
-const string BOT_NAME = "Дима74 (Бот)";
-const string BOT_PASSWORD = "zkexibq";
-
-string getToken() {
-    json response = get("https://ru.wikipedia.org/w/api.php?format=json&action=query&meta=tokens&type=login");
-    return response["query"]["tokens"]["logintoken"];
-}
-
-void login(string token) {
-    clearSession();
-    session.SetOption(Url{"https://ru.wikipedia.org/w/api.php?format=json&action=login"});
-    session.SetOption(Payload{{"lgname",     BOT_NAME},
-                              {"lgpassword", BOT_PASSWORD},
-                              {"lgtoken",    token}});
-    post();
-}
-
-void checkForLogin() {
-    json response = get("https://ru.wikipedia.org/w/api.php?format=json&action=query&meta=userinfo&uiprop=rights%7Chasmsg");
-    string currentUserName = response["query"]["userinfo"]["name"];
-    assert(currentUserName == BOT_NAME);
-}
-
 int main() {
-//    createSentences();
-    string token = getToken();
-    login(token);
-    checkForLogin();
+    WikipediaApi api;
+    string title = BOT_PAGE + "/тест6";
+    size_t revision = api.createPage(title, "1");
+    api.changePage(title, "2", revision);
     return 0;
 }

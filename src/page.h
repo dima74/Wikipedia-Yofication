@@ -12,7 +12,7 @@ using namespace std;
 
 struct Page {
     string title;
-    string id;
+    size_t id;
     vector<string> text;
 
     friend ostream &operator<<(ostream &out, Page page) {
@@ -30,10 +30,9 @@ struct Page {
         if (!getline(in, page.title)) {
             return in;
         }
-        assert(getline(in, page.id));
 
         size_t number_lines;
-        in >> number_lines;
+        in >> page.id >> number_lines;
         string line;
         getline(in, line); // считает пустую строку, ибо number_lines занимало всю строку
         assert(line.empty());

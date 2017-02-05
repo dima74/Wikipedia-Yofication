@@ -10,10 +10,9 @@ set(BUILD_CPR_TESTS OFF)
 add_subdirectory(cpr)
 add_subdirectory(fmt)
 
-#set(SOURCE_FILES src/converter.cpp src/string_helper.h src/page.h)
-#set(SOURCE_FILES src/create_frequencies.cpp src/txt_reader.h src/word_info.h)
-set(SOURCE_FILES src/parser.cpp src/u32string.h src/string_helper.h src/page.h src/txt_reader.h src/word_info.h)
-add_executable(parse ${SOURCE_FILES})
+add_executable(converter src/converter.cpp src/string_helper.h src/page.h)
+add_executable(create_frequencies src/create_frequencies.cpp src/txt_reader.h src/word_info.h)
+add_executable(parse src/parser.cpp src/u32string.h src/string_helper.h src/page.h src/txt_reader.h src/word_info.h src/wikipedia_api.h)
 
 include_directories(${CPR_INCLUDE_DIRS})
 target_link_libraries(parse ${CPR_LIBRARIES})
