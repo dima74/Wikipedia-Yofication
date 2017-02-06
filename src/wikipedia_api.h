@@ -16,6 +16,25 @@ const string BOT_NAME = "Дима74 (Бот)";
 const string BOT_PAGE = "Участник:Дима74 (Бот)";
 const string BOT_PASSWORD = "zkexibq";
 
+string stringDiff(string a, string b) {
+    if (a == b) {
+        return "Строки равны";
+    }
+    size_t n = min(a.length(), b.length());
+    for (size_t i = 0; i < n; ++i) {
+        if (a[i] != b[i]) {
+            return format("Различаются в позиции {}\na: '{}'\nb: '{}'", i, a.substr(i), b.substr(i));
+        }
+    }
+
+    pair<string, string> ss[2] = {{"a", a},
+                                  {"b", b}};
+    if (a.length() > b.length()) {
+        swap(ss[0], ss[1]);
+    }
+    return format("Разные длины: {} vs {}. {} --- префикс {}, оставшаяся часть в {}: '{}'", a.length(), b.length(), ss[0].first, ss[1].first, ss[0].first, ss[1].second.substr(ss[0].second.length()));
+}
+
 struct WikipediaApi {
     Session session;
     string token;
@@ -95,6 +114,9 @@ struct WikipediaApi {
                                   {"createonly", "true"},
                                   {"token",      editToken}});
         json response = post();
+        if (response["edit"]["result"] != "Success") {
+            cout << response << endl;
+        }
         assert(response["edit"]["result"] == "Success");
         return response["edit"]["newrevid"];
     }
@@ -114,8 +136,16 @@ struct WikipediaApi {
         return page["revisions"][0]["timestamp"];
     }
 
-    void changePage(string title, string text, size_t revision) {
+    void changePage(string title, string originalText, string text, size_t revision) {
         string timestamp = getTimestamp(title, revision);
+        string currentText = getPageContent(title);
+        originalText.pop_back();
+        text.pop_back();
+        string diff = stringDiff(currentText, originalText);
+        assert(currentText == originalText);
+
+        string diff2 = stringDiff(text, originalText);
+        assert(text != originalText);
 
         clearSession();
         session.SetOption(Payload{{"format",        "json"},
@@ -125,7 +155,31 @@ struct WikipediaApi {
                                   {"token",         editToken},
                                   {"basetimestamp", timestamp}});
         json response = post();
-        assert(response["edit"]["result"] == "Success");
+        if (response["edit"]["result"] != "Success") {
+            cout << response << endl;
+        }
+//        assert(response["edit"]["result"] == "Success");
+    }
+
+    size_t getPageRevision(string title) {
+        clearSession();
+        session.SetOption(Payload{{"format", "json"},
+                                  {"action", "query"},
+                                  {"prop",   "info"},
+                                  {"titles", title}});
+        json response = post();
+        return response["query"]["pages"].front()["lastrevid"];
+    }
+
+    string getPageContent(string title) {
+        clearSession();
+        session.SetOption(Payload{{"format", "json"},
+                                  {"action", "query"},
+                                  {"prop",   "revisions"},
+                                  {"rvprop", "content"},
+                                  {"titles", title}});
+        json response = post();
+        return response["query"]["pages"].front()["revisions"].front()["*"];
     }
 };
 

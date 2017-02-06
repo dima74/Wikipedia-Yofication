@@ -10,16 +10,29 @@ using namespace std;
 
 void nop() {}
 
-struct SentencesParser : public AbstractParser {
-    const size_t MAX_WIDTH = 120;
+const size_t MAX_WIDTH = 120;
 
+struct ReplaceInfo {
+    size_t start_word;
+    u32string eword;
+    u32string sentence0;
+    u32string sentence1;
+
+    ReplaceInfo(size_t start_word, const u32string &eword, const u32string &sentence0, const u32string &sentence1) : start_word(start_word), eword(eword), sentence0(sentence0), sentence1(sentence1) {}
+
+    u32string getWord(u32string text) {
+        return text.substr(start_word, eword.length());
+    }
+};
+
+struct SentencesParser : public AbstractParser {
 //    dword -> eword
     map<u32string, u32string> right;
 
     SentencesParser() {
         ifstream in("results/frequencies.txt");
 
-        int number_words = 100;
+        int number_words = 1000;
         int iword = 0;
         EwordInfo info;
         while (in >> info && iword < number_words) {
@@ -31,7 +44,24 @@ struct SentencesParser : public AbstractParser {
     }
 
     void parse(Page page) {
-        bool printTitle = false;
+        vector<ReplaceInfo> infos = getReplaces(page);
+        if (infos.empty()) {
+            return;
+        }
+
+        string titleToPrint = "==  " + page.title + "  ==";
+        cout << u32string((MAX_WIDTH - to32(titleToPrint).length()) / 2, U' ') << titleToPrint << endl;
+
+        u32string text = to32(page.getText());
+        for (ReplaceInfo info : infos) {
+            cout << info.sentence0 << cyan << info.getWord(text) << def << info.sentence1 << endl;
+            cout << info.sentence0 << cyan << info.eword << def << info.sentence1 << endl;
+            cout << endl;
+        }
+    }
+
+    vector<ReplaceInfo> getReplaces(Page page) {
+        vector<ReplaceInfo> infos;
         u32string text = to32(page.getText());
         for (size_t i = 0; i < text.length(); ++i) {
             if (isRussian(text[i])) {
@@ -56,20 +86,57 @@ struct SentencesParser : public AbstractParser {
                             sentence0 = u32string(length0 - sentence0.length(), U' ') + sentence0;
                             sentence1 += u32string(length1 - sentence1.length(), U' ');
 
-                            if (!printTitle) {
-                                string titleToPrint = "==  " + page.title + "  ==";
-                                cout << u32string((MAX_WIDTH - to32(titleToPrint).length()) / 2, U' ') << titleToPrint << endl;
-                                printTitle = true;
-                            }
-                            cout << sentence0 << cyan << word << def << sentence1 << endl;
-                            cout << sentence0 << cyan << eword << def << sentence1 << endl;
-                            cout << endl;
+                            infos.emplace_back(i, eword, sentence0, sentence1);
                         }
                         i = j - 1;
                         break;
                     }
                 }
             }
+        }
+        return infos;
+    }
+};
+
+struct Interactive : public AbstractParser {
+    SentencesParser parser;
+    WikipediaApi api;
+
+    void parse(Page page) {
+        vector<ReplaceInfo> infos = parser.getReplaces(page);
+        if (infos.empty()) {
+            return;
+        }
+
+        size_t revision = api.getPageRevision(page.title);
+        if (page.revision != revision) {
+            cout << format("Пропускается {}, потому что появилась новая версия (локальная ревизия {}, последняя {})", page.title, page.revision, revision) << endl;
+            return;
+        }
+
+        string titleToPrint = "==  " + page.title + "  ==";
+        cout << u32string((MAX_WIDTH - to32(titleToPrint).length()) / 2, U' ') << titleToPrint << endl;
+
+        string u8text = page.getText();
+        u32string text = to32(u8text);
+        u32string textReplaced = text;
+        bool replaceSomething = false;
+        for (ReplaceInfo info : infos) {
+            cout << info.sentence0 << cyan << info.getWord(text) << def << info.sentence1 << endl;
+            cout << info.sentence0 << cyan << info.eword << def << info.sentence1 << endl;
+            cout << endl;
+
+            string confirm;
+            getline(cin, confirm);
+            if (confirm == "y") {
+                // согласие
+                replaceSomething = true;
+                textReplaced.replace(info.start_word, info.eword.length(), info.eword);
+            }
+        }
+
+        if (replaceSomething) {
+            api.changePage(page.title, u8text, to8(textReplaced), page.revision);
         }
     }
 };
@@ -79,12 +146,12 @@ void createSentences() {
     TxtReader().readTo(parser, 1000);
 }
 
-int main() {
-//    WikipediaApi api;
-//    string title = BOT_PAGE + "/тест6";
-//    size_t revision = api.createPage(title, "1");
-//    api.changePage(title, "2", revision);
+void interactive() {
+    Interactive interactive;
+    TxtReader().readTo(interactive, 1000);
+}
 
-    createSentences();
+int main() {
+    interactive();
     return 0;
 }

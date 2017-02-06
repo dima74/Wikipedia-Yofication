@@ -22,7 +22,7 @@ int main() {
         if (starts_with(line, title_start)) {
             page.title = line.substr(title_start.length(), line.length() - title_start.length() - title_end.length());
         } else if (starts_with(line, revision_id_start)) {
-            page.id = stoull(line.substr(revision_id_start.length(), line.length() - revision_id_start.length() - revision_id_end.length()));
+            page.revision = stoull(line.substr(revision_id_start.length(), line.length() - revision_id_start.length() - revision_id_end.length()));
         } else if (starts_with(line, namespace_start)) {
             namespace_ = line.substr(namespace_start.length(), line.length() - namespace_start.length() - namespace_end.length());
         } else if (starts_with(line, text_start)) {

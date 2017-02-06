@@ -6,18 +6,18 @@ using namespace std;
 
 // Format:
 // <title>
-// <id>
+// <revision>
 // <number lines in text>
 // <text>
 
 struct Page {
     string title;
-    size_t id;
+    size_t revision;
     vector<string> text;
 
     friend ostream &operator<<(ostream &out, Page page) {
         out << page.title << endl;
-        out << page.id << endl;
+        out << page.revision << endl;
         out << page.text.size() << endl;
         for (string text_line : page.text) {
             out << text_line << endl;
@@ -32,7 +32,7 @@ struct Page {
         }
 
         size_t number_lines;
-        in >> page.id >> number_lines;
+        in >> page.revision >> number_lines;
         string line;
         getline(in, line); // считает пустую строку, ибо number_lines занимало всю строку
         assert(line.empty());
