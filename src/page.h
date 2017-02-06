@@ -48,6 +48,7 @@ struct Page {
         for (string line : text) {
             ret += line + "\n";
         }
+        ret.pop_back();
         return ret;
     }
 };

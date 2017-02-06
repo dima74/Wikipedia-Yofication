@@ -11,21 +11,6 @@ struct AbstractParser {
     virtual ~AbstractParser() {}
 };
 
-void replaceAll(string &source, string search, string replace) {
-    size_t pos = 0;
-    while ((pos = source.find(search, pos)) != string::npos) {
-        source.replace(pos, search.length(), replace);
-        pos += replace.length();
-    }
-}
-
-void normalize(string &text) {
-    replaceAll(text, "&lt;", "<");
-    replaceAll(text, "&gt;", ">");
-    replaceAll(text, "&quot;", "\"");
-    replaceAll(text, "&amp;", "&");
-}
-
 struct TxtReader {
     ifstream in = ifstream("results/ruwiki-my.txt");
 
@@ -33,9 +18,6 @@ struct TxtReader {
         Page page;
         int ipage = 0;
         while ((in >> page) && (number_pages == -1 || ipage++ < number_pages)) {
-            for (string &line : page.text) {
-                normalize(line);
-            }
             parser.parse(page);
         }
     }

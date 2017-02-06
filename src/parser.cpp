@@ -114,6 +114,12 @@ struct Interactive : public AbstractParser {
             return;
         }
 
+//        TODO
+//        if (api.isPageGuarded(page.title)) {
+//            cout << format("Пропускается {}, так как она защищена", page.title) << endl;
+//            return;
+//        }
+
         string titleToPrint = "==  " + page.title + "  ==";
         cout << u32string((MAX_WIDTH - to32(titleToPrint).length()) / 2, U' ') << titleToPrint << endl;
 

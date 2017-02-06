@@ -4,12 +4,20 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-bool starts_with(string s, const string with) {
+bool startsWith(string s, const string with) {
     return s.substr(0, with.length()) == with;
 }
 
-bool ends_with(string s, const string with) {
+bool endsWith(string s, const string with) {
     return s.length() >= with.length() && s.substr(s.length() - with.length()) == with;
+}
+
+void replaceAll(string &source, string search, string replace) {
+    size_t pos = 0;
+    while ((pos = source.find(search, pos)) != string::npos) {
+        source.replace(pos, search.length(), replace);
+        pos += replace.length();
+    }
 }
 
 bool isRussianLower(char32_t c) {
