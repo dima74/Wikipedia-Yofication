@@ -1,4 +1,6 @@
 #!/bin/sh -e
+cd `dirname $0`
+cd ..
 # https://dumps.wikimedia.org/backup-index.html
 # ruwiki -> ruwiki-*-pages-articles.xml.bz2
 mkdir results
