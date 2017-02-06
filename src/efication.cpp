@@ -134,7 +134,8 @@ struct Interactive : public AbstractParser {
 
             string confirm;
             getline(cin, confirm);
-            if (confirm == "y") {
+            cout << confirm.length() << " " << confirm << endl;
+            if (confirm.empty()) {
                 // согласие
                 replaceSomething = true;
                 textReplaced.replace(info.start_word, info.eword.length(), info.eword);
