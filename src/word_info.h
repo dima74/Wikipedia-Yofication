@@ -27,7 +27,7 @@ ostream &operator<<(ostream &out, EwordInfo info) {
 }
 
 istream &operator>>(istream &in, EwordInfo &info) {
-    in >> info.eword >> info.number >> info.numberAll;
+    return in >> info.eword >> info.number >> info.numberAll;
 }
 
 struct DwordInfo {

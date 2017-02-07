@@ -13,10 +13,10 @@ bool endsWith(string s, const string with) {
 }
 
 void replaceAll(string &source, string search, string replace) {
-    size_t pos = 0;
-    while ((pos = source.find(search, pos)) != string::npos) {
-        source.replace(pos, search.length(), replace);
-        pos += replace.length();
+    size_t position = 0;
+    while ((position = source.find(search, position)) != string::npos) {
+        source.replace(position, search.length(), replace);
+        position += replace.length();
     }
 }
 
@@ -29,7 +29,10 @@ bool isRussianUpper(char32_t c) {
 }
 
 bool isRussian(char32_t c) {
-    return isRussianLower(c) || isRussianUpper(c) || c == U'́' || c == U'-';
+    return isRussianLower(c) || isRussianUpper(c)
+           || c == U'́'         // ударение
+           || c == U'-'         // обычный дефис
+           || c == U'\u00AD';   // мягкий перенос
 }
 
 bool isEnglishLower(char32_t c) {

@@ -63,7 +63,34 @@ struct SentencesParser : public AbstractParser {
     vector<ReplaceInfo> getReplaces(Page page) {
         vector<ReplaceInfo> infos;
         u32string text = to32(page.getText());
-        for (size_t i = 0; i < text.length(); ++i) {
+
+        size_t textEnd = text.length();
+        textEnd = min(textEnd, text.find(U"== Литература =="));
+        textEnd = min(textEnd, text.find(U"== Ссылки =="));
+        textEnd = min(textEnd, text.find(U"== Примечания =="));
+
+        vector<pair<u32string, u32string>> excludes = {
+                {U"<nowiki>", U"</nowiki>"},
+                {U"<ref>",    U"</ref>"}
+        };
+        map<size_t, size_t> mapExcludes;
+        for (pair<u32string, u32string> exclude : excludes) {
+            size_t start_position = 0;
+            while ((start_position = text.find(exclude.first, start_position)) != string::npos) {
+                size_t end_position = text.find(exclude.second, start_position);
+                mapExcludes[start_position] = end_position;
+                assert(end_position != string::npos);
+                start_position = end_position;
+            }
+        }
+
+        for (size_t i = 0; i < textEnd; ++i) {
+            auto itExclude = mapExcludes.find(i);
+            if (itExclude != mapExcludes.end()) {
+                i = itExclude->second;
+                continue;
+            }
+
             if (isRussian(text[i])) {
                 bool containsE = false;
                 for (size_t j = i; j <= text.length(); ++j) {
@@ -105,20 +132,24 @@ struct Interactive : public AbstractParser {
     void parse(Page page) {
         vector<ReplaceInfo> infos = parser.getReplaces(page);
         if (infos.empty()) {
+            cout << page.title << endl;
             return;
         }
 
-        size_t revision = api.getPageRevision(page.title);
-        if (page.revision != revision) {
-            cout << format("Пропускается {}, потому что появилась новая версия (локальная ревизия {}, последняя {})", page.title, page.revision, revision) << endl;
+        RemotePage remotePage = api.getRemotePage(page.title);
+
+        if (remotePage.protect) {
+            cout << format("Пропускается {}, так как она защищена", page.title) << endl;
             return;
         }
-
-//        TODO
-//        if (api.isPageGuarded(page.title)) {
-//            cout << format("Пропускается {}, так как она защищена", page.title) << endl;
-//            return;
-//        }
+        if (page.revision != remotePage.revision) {
+            cout << format("Пропускается {}, потому что появилась новая версия (локальная ревизия {}, последняя {})", page.title, page.revision, remotePage.revision) << endl;
+            return;
+        }
+        if (remotePage.text != page.getText()) {
+            cerr << stringDiff(remotePage.text, page.getText()) << endl;
+        }
+        assert(remotePage.text == page.getText());
 
         string titleToPrint = "==  " + page.title + "  ==";
         cout << u32string((MAX_WIDTH - to32(titleToPrint).length()) / 2, U' ') << titleToPrint << endl;
@@ -134,7 +165,6 @@ struct Interactive : public AbstractParser {
 
             string confirm;
             getline(cin, confirm);
-            cout << confirm.length() << " " << confirm << endl;
             if (confirm.empty()) {
                 // согласие
                 replaceSomething = true;
@@ -143,7 +173,8 @@ struct Interactive : public AbstractParser {
         }
 
         if (replaceSomething) {
-            api.changePage(page.title, u8text, to8(textReplaced), page.revision);
+            assert(text != textReplaced);
+            api.changePage(page, remotePage, to8(textReplaced));
         }
     }
 };

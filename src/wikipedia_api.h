@@ -35,6 +35,13 @@ string stringDiff(string a, string b) {
     return format("Разные длины: {} vs {}. {} --- префикс {}, оставшаяся часть в {}: '{}'", a.length(), b.length(), ss[0].first, ss[1].first, ss[0].first, ss[1].second.substr(ss[0].second.length()));
 }
 
+struct RemotePage {
+    size_t revision;
+    bool protect;
+    string timestamp;
+    string text;
+};
+
 struct WikipediaApi {
     Session session;
     string token;
@@ -121,65 +128,39 @@ struct WikipediaApi {
         return response["edit"]["newrevid"];
     }
 
-    string getTimestamp(string title, size_t revision) {
-        clearSession();
-        session.SetOption(Payload{{"format", "json"},
-                                  {"action", "query"},
-                                  {"prop",   "info|revisions"},
-                                  {"rvprop", "timestamp"},
-                                  {"titles", title}});
-        json response = post();
-        json page = response["query"]["pages"].front();
-        if (page["lastrevid"] != revision) {
-            throw std::runtime_error(format("revisions doesn't match: your {}, last {}", revision, page["lastrevid"]));
-        }
-        return page["revisions"][0]["timestamp"];
-    }
-
-    void changePage(string title, string originalText, string text, size_t revision) {
-        string timestamp = getTimestamp(title, revision);
-        string currentText = getPageContent(title);
-        originalText.pop_back();
-        text.pop_back();
-        string diff = stringDiff(currentText, originalText);
-        assert(currentText == originalText);
-
-        string diff2 = stringDiff(text, originalText);
-        assert(text != originalText);
-
+    void changePage(Page page, RemotePage remotePage, string newText) {
         clearSession();
         session.SetOption(Payload{{"format",        "json"},
                                   {"action",        "edit"},
-                                  {"title",         title},
-                                  {"text",          text},
+                                  {"title",         page.title},
+                                  {"text",          newText},
                                   {"token",         editToken},
-                                  {"basetimestamp", timestamp}});
+                                  {"basetimestamp", remotePage.timestamp}});
         json response = post();
         if (response["edit"]["result"] != "Success") {
             cout << response << endl;
         }
-//        assert(response["edit"]["result"] == "Success");
+        assert(response["edit"]["result"] == "Success");
     }
 
-    size_t getPageRevision(string title) {
+    RemotePage getRemotePage(string title) {
         clearSession();
         session.SetOption(Payload{{"format", "json"},
                                   {"action", "query"},
-                                  {"prop",   "info"},
+                                  {"prop",   "info|revisions"},
+                                  {"inprop", "protection"},
+                                  {"rvprop", "timestamp|content"},
                                   {"titles", title}});
-        json response = post();
-        return response["query"]["pages"].front()["lastrevid"];
-    }
 
-    string getPageContent(string title) {
-        clearSession();
-        session.SetOption(Payload{{"format", "json"},
-                                  {"action", "query"},
-                                  {"prop",   "revisions"},
-                                  {"rvprop", "content"},
-                                  {"titles", title}});
         json response = post();
-        return response["query"]["pages"].front()["revisions"].front()["*"];
+        RemotePage page;
+        json pageJson = response["query"]["pages"].front();
+        page.revision = pageJson["lastrevid"];
+        page.protect = !pageJson["protection"].empty();
+        json revisionJson = pageJson["revisions"].front();
+        page.timestamp = revisionJson["timestamp"];
+        page.text = revisionJson["*"];
+        return page;
     }
 };
 
