@@ -31,6 +31,7 @@ struct SentencesParser : public AbstractParser {
 
     SentencesParser() {
         ifstream in("results/frequencies.txt");
+        assert(in);
 
         int number_words = 1000;
         int iword = 0;
@@ -52,7 +53,7 @@ struct SentencesParser : public AbstractParser {
         string titleToPrint = "==  " + page.title + "  ==";
         cout << u32string((MAX_WIDTH - to32(titleToPrint).length()) / 2, U' ') << titleToPrint << endl;
 
-        u32string text = to32(page.getText());
+        u32string text = to32(page.text);
         for (ReplaceInfo info : infos) {
             cout << info.sentence0 << cyan << info.getWord(text) << def << info.sentence1 << endl;
             cout << info.sentence0 << cyan << info.eword << def << info.sentence1 << endl;
@@ -62,7 +63,7 @@ struct SentencesParser : public AbstractParser {
 
     vector<ReplaceInfo> getReplaces(Page page) {
         vector<ReplaceInfo> infos;
-        u32string text = to32(page.getText());
+        u32string text = to32(page.text);
 
         size_t textEnd = text.length();
         textEnd = min(textEnd, text.find(U"== Литература =="));
@@ -132,36 +133,35 @@ struct Interactive : public AbstractParser {
     void parse(Page page) {
         vector<ReplaceInfo> infos = parser.getReplaces(page);
         if (infos.empty()) {
-            cout << page.title << endl;
+            cout << "." << flush;
             return;
         }
+        cout << endl;
 
         RemotePage remotePage = api.getRemotePage(page.title);
-
         if (remotePage.protect) {
-            cout << format("Пропускается {}, так как она защищена", page.title) << endl;
+            cout << format("Пропускается '{}', так как она защищена", page.title) << endl;
             return;
         }
         if (page.revision != remotePage.revision) {
             cout << format("Пропускается {}, потому что появилась новая версия (локальная ревизия {}, последняя {})", page.title, page.revision, remotePage.revision) << endl;
             return;
         }
-        if (remotePage.text != page.getText()) {
-            cerr << stringDiff(remotePage.text, page.getText()) << endl;
+        if (remotePage.text != page.text) {
+            cerr << stringDiff(remotePage.text, page.text) << endl;
         }
-        assert(remotePage.text == page.getText());
+        assert(remotePage.text == page.text);
 
         string titleToPrint = "==  " + page.title + "  ==";
         cout << u32string((MAX_WIDTH - to32(titleToPrint).length()) / 2, U' ') << titleToPrint << endl;
 
-        string u8text = page.getText();
+        string u8text = page.text;
         u32string text = to32(u8text);
         u32string textReplaced = text;
         bool replaceSomething = false;
         for (ReplaceInfo info : infos) {
             cout << info.sentence0 << cyan << info.getWord(text) << def << info.sentence1 << endl;
             cout << info.sentence0 << cyan << info.eword << def << info.sentence1 << endl;
-            cout << endl;
 
             string confirm;
             getline(cin, confirm);
@@ -187,6 +187,37 @@ void createSentences() {
 void interactive() {
     Interactive interactive;
     TxtReader().readTo(interactive, 1000);
+}
+
+void showFrequenciesInfo() {
+    ifstream in("results/frequencies.txt");
+    assert(in);
+
+    EwordInfo info;
+    int n = 10;
+    size_t numbers[n] = {0};
+    vector<u32string> words[n];
+    while (in >> info) {
+        if (isRussianLower(info.eword[0])) {
+            size_t frequency = info.number * n / info.numberAll;
+            if (rand() % 100 == 0) {
+                words[frequency].push_back(info.eword);
+            }
+            ++numbers[frequency];
+        }
+    }
+
+    for (int i = 0; i < n; ++i) {
+        printf("%2d %7zu\n", i, numbers[i]);
+    }
+
+    cout << endl;
+    for (int i = 0; i < n; ++i) {
+        cout << i << endl;
+        for (u32string s : words[i]) {
+            cout << "\t" << s << endl;
+        }
+    }
 }
 
 int main() {

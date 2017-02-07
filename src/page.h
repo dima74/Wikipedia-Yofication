@@ -13,15 +13,13 @@ using namespace std;
 struct Page {
     string title;
     size_t revision;
-    vector<string> text;
+    string text;
 
     friend ostream &operator<<(ostream &out, Page page) {
         out << page.title << endl;
         out << page.revision << endl;
-        out << page.text.size() << endl;
-        for (string text_line : page.text) {
-            out << text_line << endl;
-        }
+        out << (count(page.text.begin(), page.text.end(), '\n') + 1) << endl;
+        cout << page.text << endl;
         return out;
     }
 
@@ -38,18 +36,10 @@ struct Page {
         assert(line.empty());
         for (int i = 0; i < number_lines; ++i) {
             getline(in, line);
-            page.text.push_back(line);
+            page.text += line + "\n";
         }
+        page.text.pop_back();
         return in;
-    }
-
-    string getText() {
-        string ret;
-        for (string line : text) {
-            ret += line + "\n";
-        }
-        ret.pop_back();
-        return ret;
     }
 };
 

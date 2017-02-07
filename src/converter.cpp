@@ -10,7 +10,7 @@ const string revisionIdEnd = "</id>";
 const string namespaceStart = "    <ns>";
 const string namespaceEnd = "</ns>";
 const string textStart = "      <text xml:space=\"preserve\">";
-const string textEnd = "</text>";
+const string textEnd = "</text>\n";
 
 void normalize(string &text) {
     replaceAll(text, "&lt;", "<");
@@ -36,15 +36,13 @@ int main() {
             assert(!page.title.empty());
             assert(!namespace_.empty());
 
-            vector<string> text = {line.substr(textStart.length())};
-            while (!endsWith(text.back(), textEnd)) {
+            string text = line.substr(textStart.length());
+            while (!endsWith(text, textEnd)) {
                 getline(cin, line);
-                text.push_back(line);
+                text += line + "\n";
             }
-            text.back() = text.back().substr(0, text.back().length() - textEnd.length());
-            for (string &textLine : text) {
-                normalize(textLine);
-            }
+            text = text.substr(0, text.length() - textEnd.length());
+            normalize(text);
             page.text = text;
 
             if (namespace_ == "0") {
