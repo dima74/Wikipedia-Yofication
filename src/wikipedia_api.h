@@ -135,6 +135,7 @@ struct WikipediaApi {
                                   {"title",         page.title},
                                   {"text",          newText},
                                   {"token",         editToken},
+                                  {"summary",       "ёфикация"},
                                   {"basetimestamp", remotePage.timestamp}});
         json response = post();
         if (response["edit"]["result"] != "Success") {

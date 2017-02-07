@@ -42,7 +42,7 @@ struct SentencesParser : public AbstractParser {
         assert(in);
 
         EwordInfo info;
-        while (in >> info && info.getFrequency() > .9) {
+        while (in >> info && info.getFrequency() > .5) {
             if (isRussianLower(info.eword[0])) {
                 right[deefication(info.eword)] = info.eword;
             }
@@ -76,10 +76,11 @@ struct SentencesParser : public AbstractParser {
         textEnd = min(textEnd, text.find(U"== Примечания =="));
 
         vector<pair<vector<u32string>, vector<u32string>>> excludes = {
-                {{U"<nowiki>"},        {U"</nowiki>"}},
-                {{U"<ref>"},           {U"</ref>"}},
+                {{U"<nowiki"},         {U"/nowiki>"}},
+                {{U"<ref"},            {U"/ref>",          U"/>"}},
                 {{U"{{начало цитаты"}, {U"{{конец цитаты", U"{{Конец цитаты"}},
-                {{U"{{<!--"},          {U"-->"}}
+                {{U"<!--"},            {U"-->"}},
+                {{U"«"},               {U"»"}}
         };
         map<size_t, size_t> mapExcludes;
         for (auto exclude : excludes) {
@@ -143,17 +144,26 @@ struct Interactive : public AbstractParser {
             cout << "." << flush;
             return;
         }
-        cout << endl;
 
         RemotePage remotePage = api.getRemotePage(page.title);
         if (remotePage.protect) {
-            cout << format("Пропускается '{}', так как она защищена", page.title) << endl;
+//            cout << format("Пропускается '{}', так как она защищена", page.title) << endl;
+            cout << "." << flush;
             return;
         }
         if (page.revision != remotePage.revision) {
-            cout << format("Пропускается {}, потому что появилась новая версия (локальная ревизия {}, последняя {})", page.title, page.revision, remotePage.revision) << endl;
-            return;
+            size_t oldRevision = page.revision;
+            page.revision = remotePage.revision;
+            page.text = remotePage.text;
+            infos = parser.getReplaces(page);
+            if (infos.empty()) {
+                cout << "." << flush;
+                return;
+            }
+//            cout << format("Предупреждение: появилась новая версия '{}' (локальная ревизия {}, последняя {})", page.title, oldRevision, remotePage.revision) << endl;
         }
+        cout << endl;
+
         if (remotePage.text != page.text) {
             cerr << page.title << endl;
             cerr << stringDiff(remotePage.text, page.text) << endl;

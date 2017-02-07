@@ -10,7 +10,7 @@ struct FrequenciesParser : public AbstractParser {
     map<u32string, DwordInfo> infos;
 
     void parse(Page page) {
-        u32string text = to32(page.getText());
+        u32string text = to32(page.text);
         for (size_t i = 0; i < text.length(); ++i) {
             if (isRussian(text[i])) {
                 bool containsE = false;

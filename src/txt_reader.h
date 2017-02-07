@@ -11,13 +11,6 @@ struct AbstractParser {
     virtual ~AbstractParser() {}
 };
 
-void normalize(string &text) {
-    replaceAll(text, "&lt;", "<");
-    replaceAll(text, "&gt;", ">");
-    replaceAll(text, "&quot;", "\"");
-    replaceAll(text, "&amp;", "&");
-}
-
 struct TxtReader {
     ifstream in = ifstream("results/ruwiki-my.txt");
 
