@@ -101,13 +101,20 @@ struct SentencesParser : public AbstractParser {
             }
 
             if (isRussian(text[i])) {
-                bool containsE = false;
                 for (size_t j = i; j <= text.length(); ++j) {
-                    containsE |= isE(text[j]);
                     if (j == text.length() || !isRussian(text[j])) {
                         u32string word = text.substr(i, j - i);
                         auto it = right.find(word);
                         if (it != right.end()) {
+
+                            if (j < text.length() && text[j] == U'.' && text.length() <= 5) {
+                                // возможно это сокращение
+                                if (!(j + 2 < text.length() && text[j + 1] == ' ' && isRussianUpper(text[j + 2]))) {
+                                    i = j - 1;
+                                    break;
+                                }
+                            }
+
                             u32string eword = it->second;
                             assert(eword.length() < MAX_WIDTH);
                             size_t length = eword.length();
