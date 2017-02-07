@@ -25,6 +25,14 @@ struct ReplaceInfo {
     }
 };
 
+size_t findFirst(u32string source, vector<u32string> whats, size_t startPosition) {
+    size_t position = string::npos;
+    for (u32string what : whats) {
+        position = min(position, source.find(what, startPosition));
+    }
+    return position;
+}
+
 struct SentencesParser : public AbstractParser {
 //    dword -> eword
     map<u32string, u32string> right;
@@ -33,13 +41,10 @@ struct SentencesParser : public AbstractParser {
         ifstream in("results/frequencies.txt");
         assert(in);
 
-        int number_words = 1000;
-        int iword = 0;
         EwordInfo info;
-        while (in >> info && iword < number_words) {
+        while (in >> info && info.getFrequency() > .9) {
             if (isRussianLower(info.eword[0])) {
                 right[deefication(info.eword)] = info.eword;
-                ++iword;
             }
         }
     }
@@ -70,15 +75,17 @@ struct SentencesParser : public AbstractParser {
         textEnd = min(textEnd, text.find(U"== Ссылки =="));
         textEnd = min(textEnd, text.find(U"== Примечания =="));
 
-        vector<pair<u32string, u32string>> excludes = {
-                {U"<nowiki>", U"</nowiki>"},
-                {U"<ref>",    U"</ref>"}
+        vector<pair<vector<u32string>, vector<u32string>>> excludes = {
+                {{U"<nowiki>"},        {U"</nowiki>"}},
+                {{U"<ref>"},           {U"</ref>"}},
+                {{U"{{начало цитаты"}, {U"{{конец цитаты", U"{{Конец цитаты"}},
+                {{U"{{<!--"},          {U"-->"}}
         };
         map<size_t, size_t> mapExcludes;
-        for (pair<u32string, u32string> exclude : excludes) {
+        for (auto exclude : excludes) {
             size_t start_position = 0;
-            while ((start_position = text.find(exclude.first, start_position)) != string::npos) {
-                size_t end_position = text.find(exclude.second, start_position);
+            while ((start_position = findFirst(text, exclude.first, start_position)) != string::npos) {
+                size_t end_position = findFirst(text, exclude.second, start_position);
                 mapExcludes[start_position] = end_position;
                 assert(end_position != string::npos);
                 start_position = end_position;
@@ -148,6 +155,7 @@ struct Interactive : public AbstractParser {
             return;
         }
         if (remotePage.text != page.text) {
+            cerr << page.title << endl;
             cerr << stringDiff(remotePage.text, page.text) << endl;
         }
         assert(remotePage.text == page.text);

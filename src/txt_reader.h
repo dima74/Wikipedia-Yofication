@@ -29,7 +29,6 @@ struct TxtReader {
         Page page;
         int ipage = 0;
         while ((in >> page) && (number_pages == -1 || ipage++ < number_pages)) {
-            normalize(page.text);
             parser.parse(page);
         }
     }
