@@ -19,10 +19,15 @@ struct TxtReader {
     }
 
     void readTo(AbstractParser &parser, int number_pages = -1) {
+        readToLambda([&parser](Page page) { parser.parse(page); }, number_pages);
+    }
+
+    template<typename Lambda>
+    void readToLambda(Lambda lambda, int number_pages = -1) {
         Page page;
         int ipage = 0;
         while ((in >> page) && (number_pages == -1 || ipage++ < number_pages)) {
-            parser.parse(page);
+            lambda(page);
         }
     }
 };

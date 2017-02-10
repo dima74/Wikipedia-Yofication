@@ -6,11 +6,12 @@
 #include "txt_reader.h"
 #include "word_info.h"
 #include "wikipedia_api.h"
+#include "clipboard.h"
 using namespace std;
 
 void nop() {}
 
-const size_t MAX_WIDTH = 120;
+const size_t MAX_WIDTH = 180;
 
 struct ReplaceInfo {
     size_t start_word;
@@ -32,6 +33,21 @@ size_t findFirst(u32string source, vector<u32string> whats, size_t startPosition
     }
     return position;
 }
+
+pair<u32string, u32string> getWordContext(u32string text, u32string word, size_t i) {
+    size_t length = word.length();
+    size_t length0 = (MAX_WIDTH - length) / 2;
+    size_t length1 = MAX_WIDTH - length0 - length;
+    u32string sentence0 = text.substr(i > length0 ? i - length0 : 0, length0);
+    u32string sentence1 = text.substr(i + length, length1);
+
+    sentence0 = sentence0.substr(sentence0.rfind(U'\n') + 1);
+    sentence1 = sentence1.substr(0, sentence1.find(U'\n'));
+
+    sentence0 = u32string(length0 - sentence0.length(), U' ') + sentence0;
+    sentence1 += u32string(length1 - sentence1.length(), U' ');
+    return {sentence0, sentence1};
+};
 
 struct SentencesParser : public AbstractParser {
 //    dword -> eword
@@ -76,11 +92,13 @@ struct SentencesParser : public AbstractParser {
         textEnd = min(textEnd, text.find(U"== Примечания =="));
 
         vector<pair<vector<u32string>, vector<u32string>>> excludes = {
-                {{U"<nowiki"},         {U"/nowiki>"}},
-                {{U"<ref"},            {U"/ref>",          U"/>"}},
-                {{U"{{начало цитаты"}, {U"{{конец цитаты", U"{{Конец цитаты"}},
-                {{U"<!--"},            {U"-->"}},
-                {{U"«"},               {U"»"}}
+                {{U"<nowiki",         U"<Nowiki", U"<NOWIKI"}, {U"/nowiki>",       U"/Nowiki>", U"/NOWIKI>"}},
+                {{U"<ref",            U"<Ref",    U"<REF"},    {U"/ref>",          U"/Ref>",    U"/REF>", U"/>"}},
+                {{U"{{начало цитаты", U"{{Начало цитаты"},     {U"{{конец цитаты", U"{{Конец цитаты"}},
+                {{U"<!--"},                                    {U"-->"}},
+                {{U"{{цитата",        U"{{Цитата"},            {U"}}"}},
+                {{U"<blockquote>"},                            {U"</blockquote>"}},
+                {{U"«"},                                       {U"»"}}
         };
         map<size_t, size_t> mapExcludes;
         for (auto exclude : excludes) {
@@ -107,7 +125,7 @@ struct SentencesParser : public AbstractParser {
                         auto it = right.find(word);
                         if (it != right.end()) {
 
-                            if (j < text.length() && text[j] == U'.' && text.length() <= 5) {
+                            if (j < text.length() && text[j] == U'.' && word.length() <= 5) {
                                 // возможно это сокращение
                                 if (!(j + 2 < text.length() && text[j + 1] == ' ' && isRussianUpper(text[j + 2]))) {
                                     i = j - 1;
@@ -117,19 +135,8 @@ struct SentencesParser : public AbstractParser {
 
                             u32string eword = it->second;
                             assert(eword.length() < MAX_WIDTH);
-                            size_t length = eword.length();
-                            size_t length0 = (MAX_WIDTH - length) / 2;
-                            size_t length1 = MAX_WIDTH - length0 - length;
-                            u32string sentence0 = text.substr(max((size_t) 0, i - length0), length0);
-                            u32string sentence1 = text.substr(i + length, length1);
-
-                            sentence0 = sentence0.substr(sentence0.rfind(U'\n') + 1);
-                            sentence1 = sentence1.substr(0, sentence1.find(U'\n'));
-
-                            sentence0 = u32string(length0 - sentence0.length(), U' ') + sentence0;
-                            sentence1 += u32string(length1 - sentence1.length(), U' ');
-
-                            infos.emplace_back(i, eword, sentence0, sentence1);
+                            auto context = getWordContext(text, eword, i);
+                            infos.emplace_back(i, eword, context.first, context.second);
                         }
                         i = j - 1;
                         break;
@@ -180,6 +187,10 @@ struct Interactive : public AbstractParser {
         string titleToPrint = "==  " + page.title + "  ==";
         cout << u32string((MAX_WIDTH - to32(titleToPrint).length()) / 2, U' ') << titleToPrint << endl;
 
+        string url = "https://ru.wikipedia.org/wiki/" + page.title;
+        replaceAll(url, " ", "_");
+        cout << url << endl;
+
         string u8text = page.text;
         u32string text = to32(u8text);
         u32string textReplaced = text;
@@ -187,6 +198,8 @@ struct Interactive : public AbstractParser {
         for (ReplaceInfo info : infos) {
             cout << info.sentence0 << cyan << info.getWord(text) << def << info.sentence1 << endl;
             cout << info.sentence0 << cyan << info.eword << def << info.sentence1 << endl;
+            size_t copyLength = 10;
+            copy(to8(info.sentence0.substr(info.sentence0.length() - copyLength) + info.eword + info.sentence1.substr(0, copyLength)));
 
             string confirm;
             getline(cin, confirm);
@@ -243,6 +256,20 @@ void showFrequenciesInfo() {
             cout << "\t" << s << endl;
         }
     }
+}
+
+void printPagesThatContains(string word8) {
+    u32string word = to32(word8);
+    TxtReader().readToLambda([&word](Page page) {
+        u32string text = to32(page.text);
+        size_t i = text.find(word);
+        if (i != string::npos) {
+            auto context = getWordContext(text, word, i);
+            cout << page.title << endl;
+            cout << context.first << cyan << word << def << context.second << endl;
+            return;
+        }
+    });
 }
 
 int main() {
