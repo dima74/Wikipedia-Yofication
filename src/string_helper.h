@@ -29,10 +29,18 @@ bool isRussianUpper(char32_t c) {
 }
 
 bool isRussian(char32_t c) {
-    return isRussianLower(c) || isRussianUpper(c)
-           || c == U'́'         // ударение
+    return isRussianLower(c) || isRussianUpper(c);
+}
+
+bool isRussianDelimiter(char32_t c) {
+    return c == U'́'         // ударение
            || c == U'-'         // обычный дефис
            || c == U'\u00AD';   // мягкий перенос
+}
+
+bool isRussianInText(const u32string &text, size_t i) {
+    return isRussian(text[i])
+           || isRussianDelimiter(text[i]) && 0 < i && i + 1 < text.length() && isRussian(text[i - 1]) && isRussian(text[i + 1]);
 }
 
 bool isEnglishLower(char32_t c) {

@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.6)
 project(parse)
 
 set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_FLAGS "-DLOCAL -g -lX11")
-#set(CMAKE_CXX_FLAGS "-DLOCAL -O3 -lX11")
+#set(CMAKE_CXX_FLAGS "-DLOCAL -g -lX11")
+set(CMAKE_CXX_FLAGS "-DLOCAL -O3 -lX11")
 
 set(USE_SYSTEM_CURL ON)
 set(BUILD_CPR_TESTS OFF)

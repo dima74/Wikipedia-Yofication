@@ -19,7 +19,7 @@ struct EwordsParser : public AbstractParser {
                 bool containsE = false;
                 for (size_t j = i; j <= text.length(); ++j) {
                     containsE |= isE(text[j]);
-                    if (j == text.length() || !isRussian(text[j])) {
+                    if (j == text.length() || !isRussianInText(text, j)) {
                         u32string word = text.substr(i, j - i);
                         if (containsE) {
                             u32string dword = deefication(word);

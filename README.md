@@ -2,5 +2,7 @@
 
 # TODO
 * getWordContext --- многострочный контекст
+
+# Сделано
 * printPagesThatContains --- ignore case
-* Просмотреть {{nobots}}
+* Просмотреть страницы, содержащие {{nobots}}

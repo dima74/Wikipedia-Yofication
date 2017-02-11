@@ -38,7 +38,7 @@ pair<u32string, u32string> getWordContext(u32string text, u32string word, size_t
     size_t length = word.length();
     size_t length0 = (MAX_WIDTH - length) / 2;
     size_t length1 = MAX_WIDTH - length0 - length;
-    u32string sentence0 = text.substr(i > length0 ? i - length0 : 0, length0);
+    u32string sentence0 = text.substr(i > length0 ? i - length0 : 0, min(length0, i));
     u32string sentence1 = text.substr(i + length, length1);
 
     sentence0 = sentence0.substr(sentence0.rfind(U'\n') + 1);
@@ -260,9 +260,11 @@ void showFrequenciesInfo() {
 
 void printPagesThatContains(string word8) {
     u32string word = to32(word8);
-    TxtReader().readToLambda([&word](Page page) {
+    u32string word_lower = tolower(word);
+    TxtReader().readToLambda([&](Page page) {
         u32string text = to32(page.text);
-        size_t i = text.find(word);
+        u32string text_lower = tolower(text);
+        size_t i = text_lower.find(word_lower);
         if (i != string::npos) {
             auto context = getWordContext(text, word, i);
             cout << page.title << endl;
@@ -275,6 +277,6 @@ void printPagesThatContains(string word8) {
 int main() {
     setlocale(LC_ALL, "ru_RU.UTF-8");
 //    interactive();
-//    printPagesThatContains("{{nobots}}");
+    printPagesThatContains("{{nobots}}");
     return 0;
 }
