@@ -2,6 +2,7 @@
 #define PARSE_WIKIPEDIA_API_H
 
 #include <bits/stdc++.h>
+#include "string_helper.h"
 using namespace std;
 
 #include <cpr/cpr.h>

@@ -20,6 +20,14 @@ void replaceAll(string &source, string search, string replace) {
     }
 }
 
+size_t findFirst(u32string source, vector<u32string> whats, size_t startPosition) {
+    size_t position = string::npos;
+    for (u32string what : whats) {
+        position = min(position, source.find(what, startPosition));
+    }
+    return position;
+}
+
 bool isRussianLower(char32_t c) {
     return (U'а' <= c && c <= U'я') || c == U'ё';
 }
