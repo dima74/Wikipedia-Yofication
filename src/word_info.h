@@ -18,7 +18,9 @@ struct EwordInfo {
     }
 
     bool operator<(EwordInfo info) {
-        return getFrequency() > info.getFrequency();
+//        return number / numberAll > info.number / info.numberAll;
+//        return number * info.numberAll > info.number * numberAll;
+        return make_pair(number * info.numberAll, number) > make_pair(info.number * numberAll, info.number);
     }
 };
 

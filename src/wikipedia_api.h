@@ -12,7 +12,7 @@ using json = nlohmann::json;
 #include <fmt/format.cc>
 using namespace fmt;
 
-const string BOT_NAME = "Дима74 (Бот)";
+const string BOT_NAME = "Дима74";
 const string BOT_PAGE = "Участник:Дима74 (Бот)";
 const string BOT_PASSWORD = "zkexibq";
 

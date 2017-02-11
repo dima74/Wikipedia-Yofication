@@ -92,13 +92,13 @@ struct SentencesParser : public AbstractParser {
         textEnd = min(textEnd, text.find(U"== Примечания =="));
 
         vector<pair<vector<u32string>, vector<u32string>>> excludes = {
-                {{U"<nowiki",         U"<Nowiki", U"<NOWIKI"}, {U"/nowiki>",       U"/Nowiki>", U"/NOWIKI>"}},
-                {{U"<ref",            U"<Ref",    U"<REF"},    {U"/ref>",          U"/Ref>",    U"/REF>", U"/>"}},
-                {{U"{{начало цитаты", U"{{Начало цитаты"},     {U"{{конец цитаты", U"{{Конец цитаты"}},
-                {{U"<!--"},                                    {U"-->"}},
-                {{U"{{цитата",        U"{{Цитата"},            {U"}}"}},
-                {{U"<blockquote>"},                            {U"</blockquote>"}},
-                {{U"«"},                                       {U"»"}}
+                {{U"<nowiki",         U"<Nowiki",      U"<NOWIKI"},             {U"/nowiki>",       U"/Nowiki>",      U"/NOWIKI>"}},
+                {{U"<ref",            U"<Ref",         U"<REF"},                {U"/ref>",          U"/Ref>",         U"/REF>", U"/>"}},
+                {{U"{{начало цитаты", U"{{Начало цитаты"},                      {U"{{конец цитаты", U"{{Конец цитаты"}},
+                {{U"<!--"},                                                     {U"-->"}},
+                {{U"{{цитата",        U"{{Цитата",     U"{{quote", U"{{Quote"}, {U"}}"}},
+                {{U"<blockquote>",    U"<Blockquote>", U"<BLOCKQUOTE>"},        {U"</blockquote>",  U"</Blockquote>", U"</BLOCKQUOTE>"}},
+                {{U"«"},                                                        {U"»"}}
         };
         map<size_t, size_t> mapExcludes;
         for (auto exclude : excludes) {
@@ -273,6 +273,8 @@ void printPagesThatContains(string word8) {
 }
 
 int main() {
-    interactive();
+    setlocale(LC_ALL, "ru_RU.UTF-8");
+//    interactive();
+//    printPagesThatContains("{{nobots}}");
     return 0;
 }

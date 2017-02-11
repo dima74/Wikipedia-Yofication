@@ -18,6 +18,24 @@ string to8(char32_t c) {
     return to8(u32string(1, c));
 }
 
+char32_t toupper_char(char32_t c) {
+    return (char32_t) towupper(c);
+}
+
+char32_t tolower_char(char32_t c) {
+    return (char32_t) towlower(c);
+}
+
+u32string toupper(u32string s) {
+    transform(s.begin(), s.end(), s.begin(), toupper_char);
+    return s;
+}
+
+u32string tolower(u32string s) {
+    transform(s.begin(), s.end(), s.begin(), tolower_char);
+    return s;
+}
+
 ostream &operator<<(ostream &out, u32string s) {
     return out << to8(s);
 }
