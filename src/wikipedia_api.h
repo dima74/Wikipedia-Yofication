@@ -165,4 +165,10 @@ struct WikipediaApi {
     }
 };
 
+string getPageUrl(string title) {
+    string url = "https://ru.wikipedia.org/wiki/" + title;
+    replaceAll(url, " ", "_");
+    return url;
+}
+
 #endif //PARSE_WIKIPEDIA_API_H
