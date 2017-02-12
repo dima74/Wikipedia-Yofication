@@ -59,6 +59,7 @@ struct SentencesParser : public AbstractParser {
         vector<ReplaceInfo> infos;
         u32string text = to32(page.text);
 
+//        "\t*==\t*Литература\t*==\t*"
         size_t textEnd = text.length();
         textEnd = min(textEnd, text.find(U"== Литература =="));
         textEnd = min(textEnd, text.find(U"== Ссылки =="));

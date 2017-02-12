@@ -14,8 +14,8 @@ using json = nlohmann::json;
 using namespace fmt;
 
 const string BOT_NAME = "Дима74";
+const string BOT_PASSWORD = "eficator@c90qfhhvvv4mctnl63fe9u2s7sbja9cb";
 const string BOT_PAGE = "Участник:Дима74 (Бот)";
-const string BOT_PASSWORD = "zkexibq";
 
 string stringDiff(string a, string b) {
     if (a == b) {
@@ -44,7 +44,7 @@ struct RemotePage {
 };
 
 struct WikipediaApi {
-    Session session;
+    Cookies cookies;
     string token;
     string editToken;
 
@@ -57,71 +57,60 @@ struct WikipediaApi {
         assert(!editToken.empty());
     }
 
-    void clearSession() {
-        session.SetOption(Parameters{});
-        session.SetOption(Payload{});
-        session.SetOption(Url{"https://ru.wikipedia.org/w/api.php"});
+    void updateCookies(Cookies &cookies, Cookies additionalCookies) {
+        for (auto cookie : additionalCookies.map_) {
+            cookies.map_[cookie.first] = cookie.second;
+        }
     }
 
-    json get() {
-        Response response = session.Get();
+    template<typename... Ts>
+    json get(Ts &&... ts) {
+        Response response = Get(Url{"https://ru.wikipedia.org/w/api.php"}, cookies, CPR_FWD(ts)...);
         assert(response.status_code == 200);
+        updateCookies(cookies, response.cookies);
         return json::parse(response.text);
     }
 
-    json post() {
-        Response response = session.Post();
+    template<typename... Ts>
+    json post(Ts &&... ts) {
+        Response response = Post(Url{"https://ru.wikipedia.org/w/api.php"}, cookies, CPR_FWD(ts)...);
         assert(response.status_code == 200);
+        updateCookies(cookies, response.cookies);
         return json::parse(response.text);
-    }
-
-    json get(string url) {
-        clearSession();
-        session.SetOption(Url{url});
-        return get();
-    }
-
-    json post(string url) {
-        clearSession();
-        session.SetOption(Url{url});
-        return post();
     }
 
     void getLoginToken() {
-        json response = get("https://ru.wikipedia.org/w/api.php?format=json&action=query&meta=tokens&type=login");
+        json response = get(Url{"https://ru.wikipedia.org/w/api.php?format=json&action=query&meta=tokens&type=login"});
         token = response["query"]["tokens"]["logintoken"];
     }
 
     void login() {
-        clearSession();
-        session.SetOption(Url{"https://ru.wikipedia.org/w/api.php?format=json&action=login"});
-        session.SetOption(Payload{{"lgname",     BOT_NAME},
-                                  {"lgpassword", BOT_PASSWORD},
-                                  {"lgtoken",    token}});
-        post();
+        json response = post(Payload{{"format",     "json"},
+                                     {"action",     "login"},
+                                     {"lgname",     BOT_NAME},
+                                     {"lgpassword", BOT_PASSWORD},
+                                     {"lgtoken",    token}});
+        assert(response["login"]["result"] == "Success");
     }
 
     void checkForLogin() {
-        json response = get("https://ru.wikipedia.org/w/api.php?format=json&action=query&meta=userinfo&uiprop=rights%7Chasmsg");
+        json response = get(Url{"https://ru.wikipedia.org/w/api.php?format=json&action=query&meta=userinfo"});
         string currentUserName = response["query"]["userinfo"]["name"];
         assert(currentUserName == BOT_NAME);
     }
 
     void getEditToken() {
-        clearSession();
-        session.SetOption(Url{"https://ru.wikipedia.org/w/api.php?format=json&action=query&meta=tokens"});
-        editToken = get()["query"]["tokens"]["csrftoken"];
+        json response = get(Url{"https://ru.wikipedia.org/w/api.php?format=json&action=query&meta=tokens"});
+        editToken = response["query"]["tokens"]["csrftoken"];
     }
 
     size_t createPage(string title, string text) {
-        clearSession();
-        session.SetOption(Payload{{"format",     "json"},
-                                  {"action",     "edit"},
-                                  {"title",      title},
-                                  {"text",       text},
-                                  {"createonly", "true"},
-                                  {"token",      editToken}});
-        json response = post();
+        json response = post(Payload{{"format",     "json"},
+                                     {"action",     "edit"},
+                                     {"title",      title},
+                                     {"text",       text},
+                                     {"createonly", "true"},
+                                     {"token",      editToken}});
         if (response["edit"]["result"] != "Success") {
             cout << response << endl;
         }
@@ -130,15 +119,13 @@ struct WikipediaApi {
     }
 
     void changePage(Page page, RemotePage remotePage, string newText) {
-        clearSession();
-        session.SetOption(Payload{{"format",        "json"},
-                                  {"action",        "edit"},
-                                  {"title",         page.title},
-                                  {"text",          newText},
-                                  {"token",         editToken},
-                                  {"summary",       "ёфикация"},
-                                  {"basetimestamp", remotePage.timestamp}});
-        json response = post();
+        json response = post(Payload{{"format",        "json"},
+                                     {"action",        "edit"},
+                                     {"title",         page.title},
+                                     {"text",          newText},
+                                     {"token",         editToken},
+                                     {"summary",       "ёфикация"},
+                                     {"basetimestamp", remotePage.timestamp}});
         if (response["edit"]["result"] != "Success") {
             cout << response << endl;
         }
@@ -146,15 +133,12 @@ struct WikipediaApi {
     }
 
     RemotePage getRemotePage(string title) {
-        clearSession();
-        session.SetOption(Payload{{"format", "json"},
-                                  {"action", "query"},
-                                  {"prop",   "info|revisions"},
-                                  {"inprop", "protection"},
-                                  {"rvprop", "timestamp|content"},
-                                  {"titles", title}});
-
-        json response = post();
+        json response = post(Payload{{"format", "json"},
+                                     {"action", "query"},
+                                     {"prop",   "info|revisions"},
+                                     {"inprop", "protection"},
+                                     {"rvprop", "timestamp|content"},
+                                     {"titles", title}});
         RemotePage page;
         json pageJson = response["query"]["pages"].front();
         page.revision = pageJson["lastrevid"];
