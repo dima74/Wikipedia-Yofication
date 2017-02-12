@@ -5,8 +5,12 @@
 #include "txt_reader.h"
 #include "wikipedia_api.h"
 #include "replaces_creator.h"
-#include "clipboard.h"
 using namespace std;
+
+void copyToClipboard(string text) {
+    int rc = system(("echo -n '" + text + "' | xclip -selection clipboard").c_str());
+    assert(rc == 0);
+}
 
 struct InteractiveEficator : public AbstractParser {
     ReplacesCreator parser;
@@ -45,7 +49,12 @@ struct InteractiveEficator : public AbstractParser {
         assert(remotePage.text == page.text);
 
         cout << getTitleAligned(page.title) << endl;
-        cout << getPageUrl(page.title) << endl;
+
+        string url = getPageUrl(page.title);
+        cout << url << endl;
+        copyToClipboard(url);
+        string confirmUrl;
+        getline(cin, confirmUrl);
 
         string u8text = page.text;
         u32string text = to32(u8text);
@@ -54,7 +63,7 @@ struct InteractiveEficator : public AbstractParser {
         for (Replace replace : replaces) {
             cout << replace << endl;
             size_t copyLength = 10;
-            copy(to8(replace.sentence0.substr(replace.sentence0.length() - copyLength) + replace.eword + replace.sentence1.substr(0, copyLength)));
+            copyToClipboard(to8(replace.sentence0.substr(replace.sentence0.length() - copyLength) + replace.eword + replace.sentence1.substr(0, copyLength)));
 
             string confirm;
             getline(cin, confirm);
