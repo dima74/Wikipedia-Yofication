@@ -1,5 +1,5 @@
 #include <bits/stdc++.h>
-#include "interactive_efication.h"
+#include "interactive_eficator.h"
 using namespace std;
 
 int main() {

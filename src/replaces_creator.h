@@ -11,28 +11,28 @@
 #include "replace_checker.h"
 using namespace std;
 
-struct ReplaceInfo {
+struct Replace {
     size_t indexWordStart;
     u32string eword;
     u32string sentence0;
     u32string sentence1;
 
-    ReplaceInfo(size_t indexWordStart, const u32string &eword, const u32string &sentence0, const u32string &sentence1) : indexWordStart(indexWordStart), eword(eword), sentence0(sentence0), sentence1(sentence1) {}
+    Replace(size_t indexWordStart, const u32string &eword, const u32string &sentence0, const u32string &sentence1) : indexWordStart(indexWordStart), eword(eword), sentence0(sentence0), sentence1(sentence1) {}
 
     u32string getWord(u32string text) {
         return text.substr(indexWordStart, eword.length());
     }
 
-    friend ostream &operator<<(ostream &out, ReplaceInfo replace) {
+    friend ostream &operator<<(ostream &out, Replace replace) {
         return cout << replace.sentence0 << cyan << replace.eword << def << replace.sentence1 << endl;
     }
 };
 
-struct SentencesParser : public AbstractParser {
+struct ReplacesCreator : public AbstractParser {
 //    dword -> eword
     map<u32string, u32string> right;
 
-    SentencesParser() {
+    ReplacesCreator() {
         ifstream in("results/frequencies.txt");
         assert(in);
 
@@ -45,20 +45,20 @@ struct SentencesParser : public AbstractParser {
     }
 
     void parse(Page page) {
-        vector<ReplaceInfo> replaces = getReplaces(page);
+        vector<Replace> replaces = getReplaces(page);
         if (replaces.empty()) {
             return;
         }
 
         cout << getTitleAligned(page.title) << endl;
-        for (ReplaceInfo replace : replaces) {
+        for (Replace replace : replaces) {
             cout << replace << endl;
             cout << endl;
         }
     }
 
-    vector<ReplaceInfo> getReplaces(Page page) {
-        vector<ReplaceInfo> infos;
+    vector<Replace> getReplaces(Page page) {
+        vector<Replace> infos;
         u32string text = to32(page.text);
         u32string textLower = tolower(text);
         size_t textEnd = getSectionsStart(text, textLower);
@@ -83,7 +83,7 @@ struct SentencesParser : public AbstractParser {
                             u32string eword = it->second;
                             assert(eword.length() < MAX_LENGTH);
                             auto context = getWordContext(text, eword, i);
-                            ReplaceInfo replace(i, eword, context.first, context.second);
+                            Replace replace(i, eword, context.first, context.second);
                             if (checker.check(replace.indexWordStart)) {
                                 infos.push_back(replace);
                             }

@@ -1,5 +1,5 @@
-#ifndef PARSE_INTERACTIVE_EFICATION_H
-#define PARSE_INTERACTIVE_EFICATION_H
+#ifndef PARSE_INTERACTIVE_EFICATOR_H
+#define PARSE_INTERACTIVE_EFICATOR_H
 
 #include <bits/stdc++.h>
 #include "txt_reader.h"
@@ -8,12 +8,12 @@
 #include "clipboard.h"
 using namespace std;
 
-struct InteractiveEfication : public AbstractParser {
-    SentencesParser parser;
+struct InteractiveEficator : public AbstractParser {
+    ReplacesCreator parser;
     WikipediaApi api;
 
     void parse(Page page) {
-        vector<ReplaceInfo> replaces = parser.getReplaces(page);
+        vector<Replace> replaces = parser.getReplaces(page);
         if (replaces.empty()) {
             cout << "." << flush;
             return;
@@ -51,7 +51,7 @@ struct InteractiveEfication : public AbstractParser {
         u32string text = to32(u8text);
         u32string textReplaced = text;
         bool replaceSomething = false;
-        for (ReplaceInfo replace : replaces) {
+        for (Replace replace : replaces) {
             cout << replace << endl;
             size_t copyLength = 10;
             copy(to8(replace.sentence0.substr(replace.sentence0.length() - copyLength) + replace.eword + replace.sentence1.substr(0, copyLength)));
@@ -73,8 +73,8 @@ struct InteractiveEfication : public AbstractParser {
 };
 
 void interactive() {
-    InteractiveEfication interactive;
+    InteractiveEficator interactive;
     TxtReader().readTo(interactive, 1000);
 }
 
-#endif //PARSE_INTERACTIVE_EFICATION_H
+#endif //PARSE_INTERACTIVE_EFICATOR_H
