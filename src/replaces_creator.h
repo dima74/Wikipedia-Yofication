@@ -8,18 +8,23 @@
 #include "string_helper.h"
 #include "alignment.h"
 #include "colors.h"
+#include "replace_checker.h"
 using namespace std;
 
 struct ReplaceInfo {
-    size_t start_word;
+    size_t indexWordStart;
     u32string eword;
     u32string sentence0;
     u32string sentence1;
 
-    ReplaceInfo(size_t start_word, const u32string &eword, const u32string &sentence0, const u32string &sentence1) : start_word(start_word), eword(eword), sentence0(sentence0), sentence1(sentence1) {}
+    ReplaceInfo(size_t indexWordStart, const u32string &eword, const u32string &sentence0, const u32string &sentence1) : indexWordStart(indexWordStart), eword(eword), sentence0(sentence0), sentence1(sentence1) {}
 
     u32string getWord(u32string text) {
-        return text.substr(start_word, eword.length());
+        return text.substr(indexWordStart, eword.length());
+    }
+
+    friend ostream &operator<<(ostream &out, ReplaceInfo replace) {
+        return cout << replace.sentence0 << cyan << replace.eword << def << replace.sentence1 << endl;
     }
 };
 
@@ -40,17 +45,14 @@ struct SentencesParser : public AbstractParser {
     }
 
     void parse(Page page) {
-        vector<ReplaceInfo> infos = getReplaces(page);
-        if (infos.empty()) {
+        vector<ReplaceInfo> replaces = getReplaces(page);
+        if (replaces.empty()) {
             return;
         }
 
         cout << getTitleAligned(page.title) << endl;
-
-        u32string text = to32(page.text);
-        for (ReplaceInfo info : infos) {
-            cout << info.sentence0 << cyan << info.getWord(text) << def << info.sentence1 << endl;
-            cout << info.sentence0 << cyan << info.eword << def << info.sentence1 << endl;
+        for (ReplaceInfo replace : replaces) {
+            cout << replace << endl;
             cout << endl;
         }
     }
@@ -59,40 +61,10 @@ struct SentencesParser : public AbstractParser {
         vector<ReplaceInfo> infos;
         u32string text = to32(page.text);
         u32string textLower = tolower(text);
-
-        size_t textEnd = text.length();
-        const vector<u32string> excludeSections = {U"литература", U"ссылки", U"примечания"};
-        for (u32string excludeSection : excludeSections) {
-            textEnd = min(textEnd, findSection(textLower, excludeSection));
-        }
-
-        vector<pair<vector<u32string>, vector<u32string>>> excludes = {
-                {{U"<nowiki",         U"<Nowiki",      U"<NOWIKI"},             {U"/nowiki>",       U"/Nowiki>",      U"/NOWIKI>"}},
-                {{U"<ref",            U"<Ref",         U"<REF"},                {U"/ref>",          U"/Ref>",         U"/REF>", U"/>"}},
-                {{U"{{начало цитаты", U"{{Начало цитаты"},                      {U"{{конец цитаты", U"{{Конец цитаты"}},
-                {{U"<!--"},                                                     {U"-->"}},
-                {{U"{{цитата",        U"{{Цитата",     U"{{quote", U"{{Quote"}, {U"}}"}},
-                {{U"<blockquote>",    U"<Blockquote>", U"<BLOCKQUOTE>"},        {U"</blockquote>",  U"</Blockquote>", U"</BLOCKQUOTE>"}},
-                {{U"«"},                                                        {U"»"}}
-        };
-        map<size_t, size_t> mapExcludes;
-        for (auto exclude : excludes) {
-            size_t start_position = 0;
-            while ((start_position = findFirst(text, exclude.first, start_position)) != string::npos) {
-                size_t end_position = findFirst(text, exclude.second, start_position);
-                mapExcludes[start_position] = end_position;
-                assert(end_position != string::npos);
-                start_position = end_position;
-            }
-        }
+        size_t textEnd = getSectionsStart(text, textLower);
+        ReplaceChecker checker(text, textLower);
 
         for (size_t i = 0; i < textEnd; ++i) {
-            auto itExclude = mapExcludes.find(i);
-            if (itExclude != mapExcludes.end()) {
-                i = itExclude->second;
-                continue;
-            }
-
             if (isRussian(text[i])) {
                 for (size_t j = i; j <= text.length(); ++j) {
                     if (j == text.length() || !isRussian(text[j])) {
@@ -111,7 +83,10 @@ struct SentencesParser : public AbstractParser {
                             u32string eword = it->second;
                             assert(eword.length() < MAX_LENGTH);
                             auto context = getWordContext(text, eword, i);
-                            infos.emplace_back(i, eword, context.first, context.second);
+                            ReplaceInfo replace(i, eword, context.first, context.second);
+                            if (checker.check(replace.indexWordStart)) {
+                                infos.push_back(replace);
+                            }
                         }
                         i = j - 1;
                         break;

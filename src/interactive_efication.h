@@ -13,8 +13,8 @@ struct InteractiveEfication : public AbstractParser {
     WikipediaApi api;
 
     void parse(Page page) {
-        vector<ReplaceInfo> infos = parser.getReplaces(page);
-        if (infos.empty()) {
+        vector<ReplaceInfo> replaces = parser.getReplaces(page);
+        if (replaces.empty()) {
             cout << "." << flush;
             return;
         }
@@ -29,8 +29,8 @@ struct InteractiveEfication : public AbstractParser {
             size_t oldRevision = page.revision;
             page.revision = remotePage.revision;
             page.text = remotePage.text;
-            infos = parser.getReplaces(page);
-            if (infos.empty()) {
+            replaces = parser.getReplaces(page);
+            if (replaces.empty()) {
                 cout << "." << flush;
                 return;
             }
@@ -51,17 +51,17 @@ struct InteractiveEfication : public AbstractParser {
         u32string text = to32(u8text);
         u32string textReplaced = text;
         bool replaceSomething = false;
-        for (ReplaceInfo info : infos) {
-            cout << info.sentence0 << cyan << info.eword << def << info.sentence1 << endl;
+        for (ReplaceInfo replace : replaces) {
+            cout << replace << endl;
             size_t copyLength = 10;
-            copy(to8(info.sentence0.substr(info.sentence0.length() - copyLength) + info.eword + info.sentence1.substr(0, copyLength)));
+            copy(to8(replace.sentence0.substr(replace.sentence0.length() - copyLength) + replace.eword + replace.sentence1.substr(0, copyLength)));
 
             string confirm;
             getline(cin, confirm);
             if (confirm.empty()) {
                 // согласие
                 replaceSomething = true;
-                textReplaced.replace(info.start_word, info.eword.length(), info.eword);
+                textReplaced.replace(replace.indexWordStart, replace.eword.length(), replace.eword);
             }
         }
 
