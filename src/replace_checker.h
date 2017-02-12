@@ -43,7 +43,11 @@ struct ReplaceChecker {
     ReplaceChecker(const u32string &text, const u32string &textLower) : text(text), textLower(textLower) {}
 
     bool check(size_t indexWordStart) {
-        return checkInsideTags(indexWordStart) && checkBetweenTags(indexWordStart);
+        try {
+            return checkInsideTags(indexWordStart) && checkBetweenTags(indexWordStart);
+        } catch (...) {
+            return false;
+        }
     }
 
     bool checkInsideTags(size_t indexWordStart) {
@@ -76,16 +80,16 @@ struct ReplaceChecker {
         return true;
     }
 
-    bool checkBetweenTags(size_t indexWordStart) {
-        // находим ближайший тег слева
+    pair<size_t, size_t> findLeftTag(size_t indexWordStart) {
+        static const pair<size_t, size_t> NO_TAG = {string::npos, string::npos};
         size_t start0 = textLower.rfind(U'<', indexWordStart);
         if (start0 == string::npos) {
             // слева вообще нет тегов
-            return true;
+            return NO_TAG;
         }
         if (start0 + 1 < textLower.length() && textLower[start0 + 1] == U'/') {
             // ближайший слева тег --- закрывающийся
-            return true;
+            return NO_TAG;
         }
 
         // Несколько исключений
@@ -96,18 +100,36 @@ struct ReplaceChecker {
                                      U"< "}; // знак "меньше" в обычном тексте (должно быть, конечно, "&lt;")
         for (u32string notTag : notTags) {
             if (textLower.compare(start0, notTag.length(), notTag) == 0) {
-                return true;
+                return start0 == 0 ? NO_TAG : findLeftTag(start0 - 1);
             }
         }
 
         // находим закрывающую скобку левого тега
         size_t end0 = textLower.find(U'>', start0);
 //        assert(end0 != string::npos);
-        if (end0 == string::npos) { return false; }
+        if (end0 == string::npos) { throw 1; }
         if (end0 == textLower.find(U"/>", start0) + 1) {
             // ближайший слева тег --- самозакрывающийся
+            return start0 == 0 ? NO_TAG : findLeftTag(start0 - 1);
+        }
+        assert(start0 < end0);
+        assert(start0 < text.length());
+        assert(end0 < text.length());
+        return {start0, end0};
+    };
+
+    bool checkBetweenTags(size_t indexWordStart) {
+        // находим ближайший тег слева
+        auto leftTag = findLeftTag(indexWordStart);
+        size_t start0 = leftTag.first;
+        size_t end0 = leftTag.second;
+        if (start0 == string::npos) {
             return true;
         }
+
+        assert(start0 < end0);
+        assert(start0 < text.length());
+        assert(end0 < text.length());
 
         // находим имя левого тега
         size_t nameStart0 = start0 + 1;
@@ -117,13 +139,13 @@ struct ReplaceChecker {
         }
         u32string openName = textLower.substr(nameStart0, nameEnd0 - nameStart0);
 //        assert(!openName.empty());
-        if (openName.empty()) { return false; }
+        if (openName.empty()) { throw 1; }
 
         // ищем закрывающий тег после открывающего
         u32string closeName = U"</" + openName;
         size_t start1 = textLower.find(closeName, end0);
 //        assert(start1 != string::npos);
-        if (start1 == string::npos) { return false; }
+        if (start1 == string::npos) { throw 1; }
         return start1 < indexWordStart;
     }
 };
