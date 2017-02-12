@@ -13,11 +13,11 @@ void copyToClipboard(string text) {
 }
 
 struct InteractiveEficator : public AbstractParser {
-    ReplacesCreator parser;
+    ReplacesCreator replacesCreator;
     WikipediaApi api;
 
     void parse(Page page) {
-        vector<Replace> replaces = parser.getReplaces(page);
+        vector<Replace> replaces = replacesCreator.getReplaces(page);
         if (replaces.empty()) {
             cout << "." << flush;
             return;
@@ -33,7 +33,7 @@ struct InteractiveEficator : public AbstractParser {
             size_t oldRevision = page.revision;
             page.revision = remotePage.revision;
             page.text = remotePage.text;
-            replaces = parser.getReplaces(page);
+            replaces = replacesCreator.getReplaces(page);
             if (replaces.empty()) {
                 cout << "." << flush;
                 return;
@@ -62,6 +62,8 @@ struct InteractiveEficator : public AbstractParser {
         bool replaceSomething = false;
         for (Replace replace : replaces) {
             cout << replace << endl;
+            cout << green << replacesCreator.ewords[replace.eword].getFrequency() << def << endl;
+
             size_t copyLength = 10;
             copyToClipboard(to8(replace.sentence0.substr(replace.sentence0.length() - copyLength) + replace.eword + replace.sentence1.substr(0, copyLength)));
 

@@ -30,7 +30,9 @@ struct Replace {
 
 struct ReplacesCreator : public AbstractParser {
 //    dword -> eword
-    map<u32string, u32string> right;
+    map<u32string, u32string> dwords;
+//    eword -> EwordInfo
+    map<u32string, EwordInfo> ewords;
 
     ReplacesCreator() {
         ifstream in("results/frequencies.txt");
@@ -39,7 +41,8 @@ struct ReplacesCreator : public AbstractParser {
         EwordInfo info;
         while (in >> info && info.getFrequency() > .5) {
             if (isRussianLower(info.eword[0])) {
-                right[deefication(info.eword)] = info.eword;
+                dwords[deefication(info.eword)] = info.eword;
+                ewords[info.eword] = info;
             }
         }
     }
@@ -69,8 +72,8 @@ struct ReplacesCreator : public AbstractParser {
                 for (size_t j = i; j <= text.length(); ++j) {
                     if (j == text.length() || !isRussian(text[j])) {
                         u32string word = text.substr(i, j - i);
-                        auto it = right.find(word);
-                        if (it != right.end()) {
+                        auto it = dwords.find(word);
+                        if (it != dwords.end()) {
 
                             if (j < text.length() && text[j] == U'.' && word.length() <= 5) {
                                 // возможно это сокращение
