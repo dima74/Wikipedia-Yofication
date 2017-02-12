@@ -28,6 +28,29 @@ size_t findFirst(u32string source, vector<u32string> whats, size_t startPosition
     return position;
 }
 
+//== Section ==
+size_t findSection(const u32string &text, u32string section) {
+    vector<u32string> tokens = {U"==", section, U"=="};
+    for (size_t lineStart = 0, lineEnd = text.find(U'\n'); lineStart != string::npos; lineStart = lineEnd == string::npos ? string::npos : lineEnd + 1, lineEnd = text.find(U'\n', lineEnd + 1)) {
+        bool find = true;
+        size_t i = lineStart;
+        for (const u32string &token : tokens) {
+            i = text.find_first_not_of(U" \t", i);
+            if (text.substr(i, token.length()) != token) {
+                find = false;
+                break;
+            }
+            i += token.length();
+        }
+        if (find) {
+            u32string expected = U"== " + section + U" ==";
+            assert(text.substr(lineStart, expected.length()) == expected);
+            return lineStart;
+        }
+    }
+    return text.length();
+}
+
 bool isRussianLower(char32_t c) {
     return (U'а' <= c && c <= U'я') || c == U'ё';
 }

@@ -59,11 +59,11 @@ struct SentencesParser : public AbstractParser {
         vector<ReplaceInfo> infos;
         u32string text = to32(page.text);
 
-//        "\t*==\t*Литература\t*==\t*"
         size_t textEnd = text.length();
-        textEnd = min(textEnd, text.find(U"== Литература =="));
-        textEnd = min(textEnd, text.find(U"== Ссылки =="));
-        textEnd = min(textEnd, text.find(U"== Примечания =="));
+        vector<u32string> excludeSections = {U"Литература", U"Ссылки", U"Примечания"};
+        for (u32string excludeSection : excludeSections) {
+            textEnd = min(textEnd, findSection(text, excludeSection));
+        }
 
         vector<pair<vector<u32string>, vector<u32string>>> excludes = {
                 {{U"<nowiki",         U"<Nowiki",      U"<NOWIKI"},             {U"/nowiki>",       U"/Nowiki>",      U"/NOWIKI>"}},
