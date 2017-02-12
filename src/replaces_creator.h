@@ -58,11 +58,12 @@ struct SentencesParser : public AbstractParser {
     vector<ReplaceInfo> getReplaces(Page page) {
         vector<ReplaceInfo> infos;
         u32string text = to32(page.text);
+        u32string textLower = tolower(text);
 
         size_t textEnd = text.length();
-        vector<u32string> excludeSections = {U"Литература", U"Ссылки", U"Примечания"};
+        const vector<u32string> excludeSections = {U"литература", U"ссылки", U"примечания"};
         for (u32string excludeSection : excludeSections) {
-            textEnd = min(textEnd, findSection(text, excludeSection));
+            textEnd = min(textEnd, findSection(textLower, excludeSection));
         }
 
         vector<pair<vector<u32string>, vector<u32string>>> excludes = {

@@ -42,13 +42,12 @@ void showFrequenciesInfo() {
     }
 }
 
-void printPagesThatContains(string word8) {
+void printPagesThatContains(string word8, bool ignoreCase = true) {
     u32string word = to32(word8);
-    u32string word_lower = tolower(word);
+    u32string wordLower = tolower(word);
     TxtReader().readToLambda([&](Page page) {
         u32string text = to32(page.text);
-        u32string text_lower = tolower(text);
-        size_t i = text_lower.find(word_lower);
+        size_t i = ignoreCase ? tolower(text).find(wordLower) : text.find(word);
         if (i != string::npos) {
             auto context = getWordContext(text, word, i);
             cout << getTitleAligned(page.title) << endl;
