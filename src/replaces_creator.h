@@ -39,7 +39,7 @@ struct ReplacesCreator : public AbstractParser {
         assert(in);
 
         EwordInfo info;
-        while (in >> info && info.getFrequency() > .5) {
+        while (in >> info && info.getFrequency() > .6) {
             if (isRussianLower(info.eword[0])) {
                 dwords[deefication(info.eword)] = info.eword;
                 ewords[info.eword] = info;

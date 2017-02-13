@@ -14,10 +14,11 @@ void copyToClipboard(string text) {
 
 u32string getSmallWordContext(const u32string &text, Replace replace) {
     const size_t copyLength = 10;
+    const u32string forbidden = U"[]*{}<>'\"";
     u32string context0 = replace.sentence0.substr(replace.sentence0.length() - copyLength);
     u32string context1 = replace.sentence1.substr(0, copyLength);
-    context0 = context0.substr(context0.find_last_of(U']') + 1);
-    context1 = context1.substr(0, context1.find_first_of(U'['));
+    context0 = context0.substr(context0.find_last_of(forbidden) + 1);
+    context1 = context1.substr(0, context1.find_first_of(forbidden));
 
     u32string context = context0 + replace.eword + context1;
     return context;
@@ -88,6 +89,7 @@ struct InteractiveEficator : public AbstractParser {
 
         if (replaceSomething) {
             assert(text != textReplaced);
+            copyToClipboard("Отправляем изменения...");
             api.changePage(page, remotePage, to8(textReplaced));
         }
     }
