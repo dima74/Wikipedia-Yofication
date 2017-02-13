@@ -5,6 +5,7 @@
 #include "txt_reader.h"
 #include "wikipedia_api.h"
 #include "replaces_creator.h"
+#include "replaces_exclusion.h"
 using namespace std;
 
 void copyToClipboard(string text) {
@@ -14,7 +15,7 @@ void copyToClipboard(string text) {
 
 u32string getSmallWordContext(const u32string &text, Replace replace) {
     const size_t copyLength = 10;
-    const u32string forbidden = U"[]*{}<>'\"";
+    const u32string forbidden = U"[]*{}<>#'\"";
     u32string context0 = replace.sentence0.substr(replace.sentence0.length() - copyLength);
     u32string context1 = replace.sentence1.substr(0, copyLength);
     context0 = context0.substr(context0.find_last_of(forbidden) + 1);
@@ -26,10 +27,11 @@ u32string getSmallWordContext(const u32string &text, Replace replace) {
 
 struct InteractiveEficator : public AbstractParser {
     ReplacesCreator replacesCreator;
+    ReplacesExclusion replacesExclusion;
     WikipediaApi api;
 
     void parse(Page page) {
-        vector<Replace> replaces = replacesCreator.getReplaces(page);
+        vector<Replace> replaces = replacesCreator.getReplaces(page, replacesExclusion.exclusions);
         if (replaces.empty()) {
             cout << "." << flush;
             return;
@@ -45,7 +47,7 @@ struct InteractiveEficator : public AbstractParser {
             size_t oldRevision = page.revision;
             page.revision = remotePage.revision;
             page.text = remotePage.text;
-            replaces = replacesCreator.getReplaces(page);
+            replaces = replacesCreator.getReplaces(page, replacesExclusion.exclusions);
             if (replaces.empty()) {
                 cout << "." << flush;
                 return;
@@ -84,6 +86,8 @@ struct InteractiveEficator : public AbstractParser {
                 // согласие
                 replaceSomething = true;
                 textReplaced.replace(replace.indexWordStart, replace.eword.length(), replace.eword);
+            } else {
+                replacesExclusion.exclude(replace.eword);
             }
         }
 

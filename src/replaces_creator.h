@@ -45,7 +45,6 @@ struct ReplacesCreator : public AbstractParser {
                 ewords[info.eword] = info;
             }
         }
-        dwords.erase(U"свекла");
     }
 
     void parse(Page page) {
@@ -61,7 +60,7 @@ struct ReplacesCreator : public AbstractParser {
         }
     }
 
-    vector<Replace> getReplaces(Page page) {
+    vector<Replace> getReplaces(Page page, const set<u32string> &exclusions = {}) {
         vector<Replace> infos;
         u32string text = to32(page.text);
         u32string textLower = tolower(text);
@@ -74,7 +73,7 @@ struct ReplacesCreator : public AbstractParser {
                     if (j == text.length() || !isRussian(text[j])) {
                         u32string word = text.substr(i, j - i);
                         auto it = dwords.find(word);
-                        if (it != dwords.end()) {
+                        if (it != dwords.end() && exclusions.find(word) == exclusions.end()) {
 
                             if (j < text.length() && text[j] == U'.' && word.length() <= 5) {
                                 // возможно это сокращение
