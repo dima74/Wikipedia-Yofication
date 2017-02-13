@@ -12,6 +12,17 @@ void copyToClipboard(string text) {
     assert(rc == 0);
 }
 
+u32string getSmallWordContext(const u32string &text, Replace replace) {
+    const size_t copyLength = 10;
+    u32string context0 = replace.sentence0.substr(replace.sentence0.length() - copyLength);
+    u32string context1 = replace.sentence1.substr(0, copyLength);
+    context0 = context0.substr(context0.find_last_of(U']') + 1);
+    context1 = context1.substr(0, context1.find_first_of(U'['));
+
+    u32string context = context0 + replace.eword + context1;
+    return context;
+}
+
 struct InteractiveEficator : public AbstractParser {
     ReplacesCreator replacesCreator;
     WikipediaApi api;
@@ -62,10 +73,9 @@ struct InteractiveEficator : public AbstractParser {
         bool replaceSomething = false;
         for (Replace replace : replaces) {
             cout << replace << endl;
-            cout << green << replacesCreator.ewords[replace.eword].getFrequency() << def << endl;
-
-            size_t copyLength = 10;
-            copyToClipboard(to8(replace.sentence0.substr(replace.sentence0.length() - copyLength) + replace.eword + replace.sentence1.substr(0, copyLength)));
+            float frequency = replacesCreator.ewords[replace.eword].getFrequency();
+            cout << green << lround(frequency * 100) << def << endl;
+            copyToClipboard(to8(getSmallWordContext(text, replace)));
 
             string confirm;
             getline(cin, confirm);

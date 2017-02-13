@@ -45,6 +45,7 @@ struct ReplacesCreator : public AbstractParser {
                 ewords[info.eword] = info;
             }
         }
+        dwords.erase(U"свекла");
     }
 
     void parse(Page page) {
