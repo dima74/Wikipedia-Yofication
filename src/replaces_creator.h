@@ -28,7 +28,7 @@ struct Replace {
     }
 };
 
-struct ReplacesCreator : public AbstractParser {
+struct ReplacesCreator {
 //    dword -> eword
     map<u32string, u32string> dwords;
 //    eword -> EwordInfo
@@ -44,19 +44,6 @@ struct ReplacesCreator : public AbstractParser {
                 dwords[deefication(info.eword)] = info.eword;
                 ewords[info.eword] = info;
             }
-        }
-    }
-
-    void parse(Page page) {
-        vector<Replace> replaces = getReplaces(page);
-        if (replaces.empty()) {
-            return;
-        }
-
-        cout << getTitleAligned(page.title) << endl;
-        for (Replace replace : replaces) {
-            cout << replace << endl;
-            cout << endl;
         }
     }
 
