@@ -14,7 +14,7 @@ struct EwordsParser : public AbstractParser {
 
     void parse(Page page) {
         u32string text = to32(page.text);
-        readWords(text, [](const u32string &word, size_t i, size_t j, bool containsE) {
+        readWords(text, text.length(), [](const u32string &word, size_t i, size_t j, bool containsE) {
             if (containsE) {
                 u32string dword = deefication(word);
                 ++infos[dword].numbers[word];

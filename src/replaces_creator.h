@@ -14,18 +14,8 @@ using namespace std;
 struct Replace {
     size_t indexWordStart;
     u32string eword;
-    u32string sentence0;
-    u32string sentence1;
 
-    Replace(size_t indexWordStart, const u32string &eword, const u32string &sentence0, const u32string &sentence1) : indexWordStart(indexWordStart), eword(eword), sentence0(sentence0), sentence1(sentence1) {}
-
-    u32string getWord(u32string text) {
-        return text.substr(indexWordStart, eword.length());
-    }
-
-    friend ostream &operator<<(ostream &out, Replace replace) {
-        return cout << replace.sentence0 << cyan << replace.eword << def << replace.sentence1 << endl;
-    }
+    Replace(size_t indexWordStart, const u32string &eword) : indexWordStart(indexWordStart), eword(eword) {}
 };
 
 struct ReplacesCreator {
@@ -54,36 +44,24 @@ struct ReplacesCreator {
         size_t textEnd = getSectionsStart(text, textLower);
         ReplaceChecker checker(text, textLower);
 
-        for (size_t i = 0; i < textEnd; ++i) {
-            if (isRussian(text[i])) {
-                for (size_t j = i; j <= text.length(); ++j) {
-                    if (j == text.length() || !isRussian(text[j])) {
-                        u32string word = text.substr(i, j - i);
-                        auto it = dwords.find(word);
-                        if (it != dwords.end() && exclusions.find(word) == exclusions.end()) {
+        TxtReader::readWords(text, textEnd, [&](u32string word, size_t i, size_t j, bool containsE) {
+            auto it = dwords.find(word);
+            if (it != dwords.end() && exclusions.find(word) == exclusions.end()) {
 
-                            if (j < text.length() && text[j] == U'.' && word.length() <= 5) {
-                                // возможно это сокращение
-                                if (!(j + 2 < text.length() && text[j + 1] == ' ' && isRussianUpper(text[j + 2]))) {
-                                    i = j - 1;
-                                    break;
-                                }
-                            }
-
-                            u32string eword = it->second;
-                            assert(eword.length() < MAX_LENGTH);
-                            auto context = getWordContext(text, eword, i);
-                            Replace replace(i, eword, context.first, context.second);
-                            if (checker.check(replace.indexWordStart)) {
-                                infos.push_back(replace);
-                            }
-                        }
-                        i = j - 1;
-                        break;
+                if (j < text.length() && text[j] == U'.' && word.length() <= 5) {
+                    // возможно это сокращение
+                    if (!(j + 2 < text.length() && text[j + 1] == ' ' && isRussianUpper(text[j + 2]))) {
+                        return;
                     }
                 }
+
+                u32string eword = it->second;
+                assert(eword.length() < MAX_LENGTH);
+                if (checker.check(i)) {
+                    infos.emplace_back(i, eword);
+                }
             }
-        }
+        });
         return infos;
     }
 };

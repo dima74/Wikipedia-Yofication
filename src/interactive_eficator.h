@@ -77,7 +77,8 @@ struct InteractiveEficator : public AbstractParser {
         u32string textReplaced = text;
         bool replaceSomething = false;
         for (Replace replace : replaces) {
-            cout << replace << endl;
+            auto context = getWordContext(text, replace.eword, replace.indexWordStart);
+            cout << context.first << cyan << replace.eword << def << context.second << endl;
             float frequency = replacesCreator.ewords[replace.eword].getFrequency();
             cout << green << lround(frequency * 100) << def << endl;
             copyToClipboard(to8(getSmallWordContext(text, replace)));
