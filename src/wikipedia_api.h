@@ -66,6 +66,9 @@ struct WikipediaApi {
     template<typename... Ts>
     json get(Ts &&... ts) {
         Response response = Get(Url{"https://ru.wikipedia.org/w/api.php"}, cookies, CPR_FWD(ts)...);
+        if (response.status_code != 200) {
+            cout << response.text << endl;
+        }
         assert(response.status_code == 200);
         updateCookies(cookies, response.cookies);
         return json::parse(response.text);
@@ -75,6 +78,9 @@ struct WikipediaApi {
     json post(Ts &&... ts) {
         Response response = Post(Url{"https://ru.wikipedia.org/w/api.php"}, cookies, CPR_FWD(ts)...);
         assert(response.status_code == 200);
+        if (response.status_code != 200) {
+            cout << response.text << endl;
+        }
         updateCookies(cookies, response.cookies);
         return json::parse(response.text);
     }
@@ -90,12 +96,18 @@ struct WikipediaApi {
                                      {"lgname",     BOT_NAME},
                                      {"lgpassword", BOT_PASSWORD},
                                      {"lgtoken",    token}});
+        if (response["login"]["result"] != "Success") {
+            cout << response << endl;
+        }
         assert(response["login"]["result"] == "Success");
     }
 
     void checkForLogin() {
         json response = get(Url{"https://ru.wikipedia.org/w/api.php?format=json&action=query&meta=userinfo"});
         string currentUserName = response["query"]["userinfo"]["name"];
+        if (currentUserName != BOT_NAME) {
+            cout << currentUserName << endl;
+        }
         assert(currentUserName == BOT_NAME);
     }
 
