@@ -14,25 +14,14 @@ struct EwordsParser : public AbstractParser {
 
     void parse(Page page) {
         u32string text = to32(page.text);
-        for (size_t i = 0; i < text.length(); ++i) {
-            if (isRussian(text[i])) {
-                bool containsE = false;
-                for (size_t j = i; j <= text.length(); ++j) {
-                    containsE |= isE(text[j]);
-                    if (j == text.length() || !isRussianInText(text, j)) {
-                        u32string word = text.substr(i, j - i);
-                        if (containsE) {
-                            u32string dword = deefication(word);
-                            ++infos[dword].numbers[word];
-                        } else if (infos.find(word) != infos.end()) {
-                            ++infos[word].number;
-                        }
-                        i = j - 1;
-                        break;
-                    }
-                }
+        readWords(text, [](const u32string &word, size_t i, size_t j, bool containsE) {
+            if (containsE) {
+                u32string dword = deefication(word);
+                ++infos[dword].numbers[word];
+            } else if (infos.find(word) != infos.end()) {
+                ++infos[word].number;
             }
-        }
+        });
     }
 
     virtual ~EwordsParser() {}

@@ -15,7 +15,7 @@ void copyToClipboard(string text) {
 
 u32string getSmallWordContext(const u32string &text, Replace replace) {
     const size_t copyLength = 10;
-    const u32string forbidden = U"[]*{}<>#'\"\n";
+    const u32string forbidden = U"[]*{}<>#'|\"\n";
 
     size_t length0 = min(copyLength, replace.indexWordStart);
     u32string context0 = text.substr(replace.indexWordStart - length0, length0);
