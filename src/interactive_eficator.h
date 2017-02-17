@@ -32,18 +32,18 @@ struct InteractiveEficator : public AbstractParser {
     ReplacesExclusion replacesExclusion;
     WikipediaApi api;
 
-    void parse(Page page) {
+    bool parse(Page page) {
         vector<Replace> replaces = replacesCreator.getReplaces(page, replacesExclusion.exclusions);
         if (replaces.empty()) {
             cout << "." << flush;
-            return;
+            return false;
         }
 
         RemotePage remotePage = api.getRemotePage(page.title);
         if (remotePage.protect) {
 //            cout << format("Пропускается '{}', так как она защищена", page.title) << endl;
             cout << "." << flush;
-            return;
+            return false;
         }
         if (page.revision != remotePage.revision) {
             size_t oldRevision = page.revision;
@@ -52,7 +52,7 @@ struct InteractiveEficator : public AbstractParser {
             replaces = replacesCreator.getReplaces(page, replacesExclusion.exclusions);
             if (replaces.empty()) {
                 cout << "." << flush;
-                return;
+                return false;
             }
 //            cout << format("Предупреждение: появилась новая версия '{}' (локальная ревизия {}, последняя {})", page.title, oldRevision, remotePage.revision) << endl;
         }
@@ -98,13 +98,15 @@ struct InteractiveEficator : public AbstractParser {
             assert(text != textReplaced);
             copyToClipboard("Отправляем изменения...");
             api.changePage(page, remotePage, to8(textReplaced));
+            return true;
         }
+        return false;
     }
 };
 
 void interactive() {
     InteractiveEficator interactive;
-    TxtReader().readTo(interactive, 1000);
+    TxtReader().readTo(interactive, 10);
 }
 
 #endif //PARSE_INTERACTIVE_EFICATOR_H

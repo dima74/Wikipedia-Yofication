@@ -12,9 +12,9 @@ struct EwordsParser : public AbstractParser {
     // ключи --- dword
     map<u32string, DwordInfo> infos;
 
-    void parse(Page page) {
+    bool parse(Page page) {
         u32string text = to32(page.text);
-        readWords(text, text.length(), [](const u32string &word, size_t i, size_t j, bool containsE) {
+        TxtReader::readWords(text, text.length(), [&](const u32string &word, size_t i, size_t j, bool containsE) {
             if (containsE) {
                 u32string dword = deefication(word);
                 ++infos[dword].numbers[word];
@@ -22,6 +22,7 @@ struct EwordsParser : public AbstractParser {
                 ++infos[word].number;
             }
         });
+        return true;
     }
 
     virtual ~EwordsParser() {}
