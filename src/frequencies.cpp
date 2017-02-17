@@ -5,7 +5,7 @@ using namespace std;
 struct FrequenciesParser : public EwordsParser {
     void summary() {
         vector<EwordInfo> bests;
-        for (pair<u32string, DwordInfo> p : infos) {
+        for (pair<u16string, DwordInfo> p : infos) {
             EwordInfo best = p.second.getBest();
             if (best.number != best.numberAll) {
                 bests.push_back(best);

@@ -21,7 +21,7 @@ struct MyColor {
 MyColor def("0");
 MyColor black("30;1");
 MyColor red("31;1");
-MyColor green("32;1");
+MyColor green("16;1");
 MyColor yellow("33;1");
 MyColor blue("34;1");
 MyColor magenta("35;1");

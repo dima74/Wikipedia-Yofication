@@ -33,17 +33,17 @@ struct TxtReader {
     }
 
     template<typename Lambda>
-    static void readWords(const u32string &text, size_t textEnd, Lambda lambda) {
+    static void readWords(const u16string &text, size_t textEnd, Lambda lambda) {
         for (size_t i = 0; i < textEnd; ++i) {
             if (isRussian(text[i])) {
                 bool containsE = false;
                 for (size_t j = i; j <= textEnd; ++j) {
                     containsE |= isE(text[j]);
                     if (j == textEnd || !isRussianInText(text, j)) {
-                        char32_t prevChar = i == 0 ? 0 : text[i - 1];
-                        char32_t nextChar = j == textEnd ? 0 : text[j];
-                        if (!isRussianDelimiter(prevChar) && !isRussianDelimiter(nextChar) && prevChar != U']' /* исключение слов вида "[[год]]у" */) {
-                            u32string word = text.substr(i, j - i);
+                        char16_t prevChar = i == 0 ? 0 : text[i - 1];
+                        char16_t nextChar = j == textEnd ? 0 : text[j];
+                        if (!isRussianDelimiter(prevChar) && !isRussianDelimiter(nextChar) && prevChar != u']' /* исключение слов вида "[[год]]у" */) {
+                            u16string word = text.substr(i, j - i);
                             lambda(word, i, j, containsE);
                         }
                         i = j - 1;

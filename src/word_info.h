@@ -2,14 +2,14 @@
 #define PARSE_WORD_INDO_H
 
 #include <bits/stdc++.h>
-#include "u32string.h"
+#include "u16string.h"
 using namespace std;
 
 // dword --- деёфицированное слово
 // eword --- слово с ё
 
 struct EwordInfo {
-    u32string eword;
+    u16string eword;
     size_t number;
     size_t numberAll;
 
@@ -35,7 +35,7 @@ istream &operator>>(istream &in, EwordInfo &info) {
 struct DwordInfo {
     size_t number = 0;
     // ключи --- eword
-    map<u32string, size_t> numbers;
+    map<u16string, size_t> numbers;
 
     size_t getNumberAll() {
         size_t numberAll = number;
@@ -46,7 +46,7 @@ struct DwordInfo {
     }
 
     EwordInfo getBest() {
-        vector<pair<size_t, u32string>> numbers_v;
+        vector<pair<size_t, u16string>> numbers_v;
         for (auto p : numbers) {
             numbers_v.emplace_back(p.second, p.first);
         }

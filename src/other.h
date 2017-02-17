@@ -18,7 +18,7 @@ void showFrequenciesInfo() {
     EwordInfo info;
     int n = 10;
     size_t numbers[n] = {0};
-    vector<u32string> words[n];
+    vector<u16string> words[n];
     while (in >> info) {
         if (isRussianLower(info.eword[0])) {
             size_t frequency = info.number * n / info.numberAll;
@@ -36,17 +36,17 @@ void showFrequenciesInfo() {
     cout << endl;
     for (int i = 0; i < n; ++i) {
         cout << i << endl;
-        for (u32string s : words[i]) {
+        for (u16string s : words[i]) {
             cout << "\t" << s << endl;
         }
     }
 }
 
 void printPagesThatContains(string word8, bool ignoreCase = true) {
-    u32string word = to32(word8);
-    u32string wordLower = tolower(word);
+    u16string word = to16(word8);
+    u16string wordLower = tolower(word);
     TxtReader().readToLambda([&](Page page) {
-        u32string text = to32(page.text);
+        u16string text = to16(page.text);
         size_t i = ignoreCase ? tolower(text).find(wordLower) : text.find(word);
         if (i != string::npos) {
             auto context = getWordContext(text, word, i);

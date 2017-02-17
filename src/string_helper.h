@@ -30,69 +30,69 @@ size_t getNumberMatches(const string &source, string search, size_t start = 0, s
     return numberMatches;
 }
 
-size_t findFirst(u32string source, vector<u32string> whats, size_t startPosition) {
+size_t findFirst(u16string source, vector<u16string> whats, size_t startPosition) {
     size_t position = string::npos;
-    for (u32string what : whats) {
+    for (u16string what : whats) {
         position = min(position, source.find(what, startPosition));
     }
     return position;
 }
 
-bool isRussianLower(char32_t c) {
-    return (U'а' <= c && c <= U'я') || c == U'ё';
+bool isRussianLower(char16_t c) {
+    return (u'а' <= c && c <= u'я') || c == u'ё';
 }
 
-bool isRussianUpper(char32_t c) {
-    return (U'А' <= c && c <= U'Я') || c == U'Ё';
+bool isRussianUpper(char16_t c) {
+    return (u'А' <= c && c <= u'Я') || c == u'Ё';
 }
 
-bool isRussian(char32_t c) {
+bool isRussian(char16_t c) {
     return isRussianLower(c) || isRussianUpper(c);
 }
 
-bool isRussianDelimiter(char32_t c) {
-    return c == U'́'         // ударение
-           || c == U'-'         // обычный дефис
-           || c == U'\u00AD';   // мягкий перенос
+bool isRussianDelimiter(char16_t c) {
+    return c == u'́'         // ударение
+           || c == u'-'         // обычный дефис
+           || c == u'\u00AD';   // мягкий перенос
 }
 
-bool isRussianInText(const u32string &text, size_t i) {
+bool isRussianInText(const u16string &text, size_t i) {
     return isRussian(text[i])
            || isRussianDelimiter(text[i]) && 0 < i && i + 1 < text.length() && isRussian(text[i - 1]) && isRussian(text[i + 1]);
 }
 
-bool isEnglishLower(char32_t c) {
-    return U'a' <= c && c <= U'z';
+bool isEnglishLower(char16_t c) {
+    return u'a' <= c && c <= u'z';
 }
 
-bool isEnglishUpper(char32_t c) {
-    return U'A' <= c && c <= U'Z';
+bool isEnglishUpper(char16_t c) {
+    return u'A' <= c && c <= u'Z';
 }
 
-bool isEnglish(char32_t c) {
+bool isEnglish(char16_t c) {
     return isEnglishLower(c) || isEnglishUpper(c);
 }
 
-bool isDigit(char32_t c) {
-    return U'0' <= c && c <= U'9';
+bool isDigit(char16_t c) {
+    return u'0' <= c && c <= u'9';
 }
 
-bool isSentence(char32_t c) {
-    const u32string allowedChars = U"  ,()[]{}<>«»:-—|&;'\"/";
+bool isSentence(char16_t c) {
+    const u16string allowedChars = u"  ,()[]{}<>«»:-—|&;'\"/";
     return isRussian(c) || isEnglish(c) || isDigit(c) || allowedChars.find(c) != string::npos;
 }
 
-bool isE(char32_t c) {
-    return c == U'ё' || c == U'Ё';
+bool isE(char16_t c) {
+    return c == u'ё' || c == u'Ё';
 }
 
-u32string deefication(u32string s) {
-    for (char32_t &c : s) {
-        if (c == U'ё') {
-            c = U'е';
+u16string deefication(u16string s) {
+    for (char16_t &c : s) {
+        if (c == u'ё') {
+            c = u'е';
         }
-        if (c == U'Ё') {
-            c = U'Е';
+        if (c == u'Ё') {
+            c = u'Е';
         }
     }
     return s;

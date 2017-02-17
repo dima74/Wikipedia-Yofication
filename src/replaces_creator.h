@@ -13,16 +13,16 @@ using namespace std;
 
 struct Replace {
     size_t indexWordStart;
-    u32string eword;
+    u16string eword;
 
-    Replace(size_t indexWordStart, const u32string &eword) : indexWordStart(indexWordStart), eword(eword) {}
+    Replace(size_t indexWordStart, const u16string &eword) : indexWordStart(indexWordStart), eword(eword) {}
 };
 
 struct ReplacesCreator {
 //    dword -> eword
-    map<u32string, u32string> dwords;
+    map<u16string, u16string> dwords;
 //    eword -> EwordInfo
-    map<u32string, EwordInfo> ewords;
+    map<u16string, EwordInfo> ewords;
 
     ReplacesCreator() {
         ifstream in("results/frequencies.txt");
@@ -37,25 +37,25 @@ struct ReplacesCreator {
         }
     }
 
-    vector<Replace> getReplaces(Page page, const set<u32string> &exclusions = {}) {
+    vector<Replace> getReplaces(Page page, const set<u16string> &exclusions = {}) {
         vector<Replace> infos;
-        u32string text = to32(page.text);
-        u32string textLower = tolower(text);
+        u16string text = to16(page.text);
+        u16string textLower = tolower(text);
         size_t textEnd = getSectionsStart(text, textLower);
         ReplaceChecker checker(text, textLower);
 
-        TxtReader::readWords(text, textEnd, [&](u32string word, size_t i, size_t j, bool containsE) {
+        TxtReader::readWords(text, textEnd, [&](u16string word, size_t i, size_t j, bool containsE) {
             auto it = dwords.find(word);
             if (it != dwords.end() && exclusions.find(word) == exclusions.end()) {
 
-                if (j < text.length() && text[j] == U'.' && word.length() <= 5) {
+                if (j < text.length() && text[j] == u'.' && word.length() <= 5) {
                     // возможно это сокращение
                     if (!(j + 2 < text.length() && text[j + 1] == ' ' && isRussianUpper(text[j + 2]))) {
                         return;
                     }
                 }
 
-                u32string eword = it->second;
+                u16string eword = it->second;
                 assert(eword.length() < MAX_LENGTH);
                 if (checker.check(i)) {
                     infos.emplace_back(i, eword);

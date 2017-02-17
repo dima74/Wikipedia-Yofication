@@ -13,17 +13,17 @@ void copyToClipboard(string text) {
     assert(rc == 0);
 }
 
-u32string getSmallWordContext(const u32string &text, Replace replace) {
+u16string getSmallWordContext(const u16string &text, Replace replace) {
     const size_t copyLength = 10;
-    const u32string forbidden = U"[]*{}<>#'|=\"\n";
+    const u16string forbidden = u"[]*{}<>#'|=\"\n";
 
     size_t length0 = min(copyLength, replace.indexWordStart);
-    u32string context0 = text.substr(replace.indexWordStart - length0, length0);
-    u32string context1 = text.substr(replace.indexWordStart + replace.eword.length(), copyLength);
+    u16string context0 = text.substr(replace.indexWordStart - length0, length0);
+    u16string context1 = text.substr(replace.indexWordStart + replace.eword.length(), copyLength);
     context0 = context0.substr(context0.find_last_of(forbidden) + 1);
     context1 = context1.substr(0, context1.find_first_of(forbidden));
 
-    u32string context = context0 + replace.eword + context1;
+    u16string context = context0 + replace.eword + context1;
     return context;
 }
 
@@ -73,8 +73,8 @@ struct InteractiveEficator : public AbstractParser {
         getline(cin, confirmUrl);
 
         string u8text = page.text;
-        u32string text = to32(u8text);
-        u32string textReplaced = text;
+        u16string text = to16(u8text);
+        u16string textReplaced = text;
         bool replaceSomething = false;
         for (Replace replace : replaces) {
             auto context = getWordContext(text, replace.eword, replace.indexWordStart);

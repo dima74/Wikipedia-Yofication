@@ -2,6 +2,8 @@
 #include "txt_reader.h"
 #include "replaces_creator.h"
 using namespace std;
+#include "../lib/json.hpp"
+using json = nlohmann::json;
 
 struct ReplacesPrinter : public AbstractParser {
     ReplacesCreator replacesCreator;
@@ -14,13 +16,25 @@ struct ReplacesPrinter : public AbstractParser {
         }
 
         freopen(("replaces/" + to_string(numberPages++)).c_str(), "w", stdout);
-        cout << page.title << endl;
-        cout << page.revision << endl;
-        cout << replaces.size() << endl;
+        assert(cout);
+        json info;
+        info["title"] = page.title;
+        info["revision"] = page.revision;
+
+        json replacesJson = json::array();
         for (Replace replace : replaces) {
-            size_t numberSameEwordsBefore = getNumberMatches(page.text, to8(replace.eword), 0, replace.indexWordStart);
-            cout << replace.eword << " " << replace.indexWordStart << " " << numberSameEwordsBefore << endl;
+            string eword = to8(replace.eword);
+            string dword = page.text.substr(replace.indexWordStart, eword.length());
+            size_t numberSameEwordsBefore = getNumberMatches(page.text, dword, 0, replace.indexWordStart);
+            json replaceJson;
+            replaceJson["indexWordStart"] = replace.indexWordStart;
+            replaceJson["eword"] = eword;
+            replaceJson["numberSameEwordsBefore"] = numberSameEwordsBefore;
+            replacesJson.push_back(replaceJson);
         }
+        info["replaces"] = replacesJson;
+
+        cout << info << endl;
         return true;
     }
 };
