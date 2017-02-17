@@ -8,7 +8,7 @@
 #include "string_helper.h"
 #include "alignment.h"
 #include "colors.h"
-#include "replace_checker.h"
+#include "replaces_checker.h"
 using namespace std;
 
 struct Replace {
