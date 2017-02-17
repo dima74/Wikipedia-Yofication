@@ -15,8 +15,8 @@ struct ReplacesPrinter : public AbstractParser {
             return false;
         }
 
-        freopen(("replaces/" + to_string(numberPages++)).c_str(), "w", stdout);
-        assert(cout);
+        ofstream out("replaces/" + to_string(numberPages++));
+        assert(out);
         json info;
         info["title"] = page.title;
         info["revision"] = page.revision;
@@ -34,14 +34,22 @@ struct ReplacesPrinter : public AbstractParser {
         }
         info["replaces"] = replacesJson;
 
-        cout << info << endl;
+        out << info << endl;
         return true;
     }
 };
 
-int main() {
+void printReplaces(int numberPages) {
     freopen("results/ruwiki-my.txt", "r", stdin);
+
+    ofstream out("replaces/numberPages");
+    out << numberPages << endl;
+
     ReplacesPrinter printer;
-    TxtReader().readTo(printer, 10);
+    TxtReader().readTo(printer, numberPages);
+}
+
+int main() {
+    printReplaces(10);
     return 0;
 }
