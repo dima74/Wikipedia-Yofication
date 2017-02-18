@@ -9,13 +9,14 @@ struct ReplacesPrinter : public AbstractParser {
     ReplacesCreator replacesCreator;
     size_t numberPages = 0;
 
-    bool parse(Page page) {
-        vector<Replace> replaces = replacesCreator.getReplaces(page);
-        if (replaces.empty()) {
-            return false;
-        }
+    void createPagesToEfication(const Page &page) {
+        ofstream out("replaces/pagesToEfication/" + to_string(numberPages));
+        assert(out);
+        out << page.title;
+    }
 
-        ofstream out("replaces/" + to_string(numberPages++));
+    void createReplacesByTitles(const Page &page, const vector<Replace> &replaces) {
+        ofstream out("replaces/replacesByTitles/" + page.title);
         assert(out);
         json info;
         info["title"] = page.title;
@@ -35,6 +36,16 @@ struct ReplacesPrinter : public AbstractParser {
         info["replaces"] = replacesJson;
 
         out << info << endl;
+    }
+
+    bool parse(Page page) {
+        vector<Replace> replaces = replacesCreator.getReplaces(page);
+        if (replaces.empty()) {
+            return false;
+        }
+        createPagesToEfication(page);
+        createReplacesByTitles(page, replaces);
+        ++numberPages;
         return true;
     }
 };
