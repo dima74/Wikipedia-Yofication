@@ -15,7 +15,7 @@ struct ReplacesPrinter : public AbstractParser {
         out << page.title;
     }
 
-    void createReplacesByTitles(const Page &page, const vector<Replace> &replaces) {
+    void createReplacesByTitles(const Page &page, const vector <Replace> &replaces) {
         ofstream out("replaces/replacesByTitles/" + page.title);
         assert(out);
         json info;
@@ -41,7 +41,7 @@ struct ReplacesPrinter : public AbstractParser {
     }
 
     bool parse(Page page) {
-        vector<Replace> replaces = replacesCreator.getReplaces(page);
+        vector <Replace> replaces = replacesCreator.getReplaces(page);
         if (replaces.empty()) {
             return false;
         }
@@ -52,17 +52,17 @@ struct ReplacesPrinter : public AbstractParser {
     }
 };
 
-void printReplaces(int numberPages) {
+void printReplaces(int numberPages, size_t numberPagesToSkip = 0) {
     freopen("results/ruwiki-my.txt", "r", stdin);
 
     ofstream out("replaces/numberPages");
     out << numberPages << endl;
 
     ReplacesPrinter printer;
-    TxtReader().readTo(printer, numberPages);
+    TxtReader().readTo(printer, numberPages, numberPagesToSkip);
 }
 
 int main() {
-    printReplaces(10);
+    printReplaces(10, 100);
     return 0;
 }
