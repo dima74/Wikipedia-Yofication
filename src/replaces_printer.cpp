@@ -26,11 +26,11 @@ struct ReplacesPrinter : public AbstractParser {
         for (Replace replace : replaces) {
             string eword = to8(replace.eword);
             string dword = page.text.substr(replace.indexWordStart, eword.length());
-            size_t numberSameEwordsBefore = getNumberMatches(page.text, dword, 0, replace.indexWordStart);
+            size_t numberSameDwordsBefore = getNumberMatches(page.text, dword, 0, replace.indexWordStart);
             json replaceJson;
             replaceJson["indexWordStart"] = replace.indexWordStart;
             replaceJson["eword"] = eword;
-            replaceJson["numberSameEwordsBefore"] = numberSameEwordsBefore;
+            replaceJson["numberSameDwordsBefore"] = numberSameDwordsBefore;
             replacesJson.push_back(replaceJson);
         }
         info["replaces"] = replacesJson;
