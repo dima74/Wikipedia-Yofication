@@ -64,6 +64,6 @@ void printReplaces(int numberPages, size_t numberPagesToSkip = 0) {
 }
 
 int main() {
-    printReplaces(10, 1000);
+    printReplaces(100, 1000);
     return 0;
 }
