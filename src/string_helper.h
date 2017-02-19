@@ -2,6 +2,7 @@
 #define PARSE_STRING_HELPER_H
 
 #include <bits/stdc++.h>
+#include "u16string.h"
 using namespace std;
 
 bool startsWith(string s, const string with) {
