@@ -72,7 +72,16 @@ struct ReplaceChecker {
                 continue;
             }
             size_t end = textLower.find(tag.close, start);
-            assert(end != string::npos);
+            if (end == string::npos && tag.open == u"<") {
+                continue;
+            }
+
+//            assert(end != string::npos);
+            if (end != string::npos) {
+//                throw runtime_error(format("Непарный тег '{}' в позиции {}", tag.open, start));
+                return false;
+            }
+
             if (indexWordStart <= end) {
                 return false;
             }

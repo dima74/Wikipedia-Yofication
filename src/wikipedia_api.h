@@ -9,9 +9,6 @@ using namespace std;
 using namespace cpr;
 #include "../lib/json.hpp"
 using json = nlohmann::json;
-#include <fmt/format.h>
-#include <fmt/format.cc>
-using namespace fmt;
 
 const string BOT_NAME = "Дима74";
 const string BOT_PASSWORD = "eficator@c90qfhhvvv4mctnl63fe9u2s7sbja9cb";

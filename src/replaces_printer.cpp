@@ -43,7 +43,7 @@ struct ReplacesPrinter : public AbstractParser {
 
     bool parse(Page page) {
         vector<Replace> replaces = replacesCreator.getReplaces(page);
-        if (replaces.empty()) {
+        if (replaces.empty() || page.title.find(u'/') != string::npos) {
             return false;
         }
         createPagesToEfication(page);
@@ -53,7 +53,7 @@ struct ReplacesPrinter : public AbstractParser {
     }
 };
 
-void printReplaces(int numberPages, size_t numberPagesToSkip = 0) {
+void printReplaces(int numberPages = -1, size_t numberPagesToSkip = 0) {
     freopen("results/ruwiki-my.txt", "r", stdin);
 
     ofstream out("replaces/numberPages");
@@ -65,6 +65,6 @@ void printReplaces(int numberPages, size_t numberPagesToSkip = 0) {
 
 int main() {
     setlocale(LC_ALL, "ru_RU.UTF-8");
-    printReplaces(100, 1000);
+    printReplaces();
     return 0;
 }

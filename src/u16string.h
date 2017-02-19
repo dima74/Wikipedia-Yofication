@@ -4,6 +4,10 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+#include <fmt/format.h>
+#include <fmt/format.cc>
+using namespace fmt;
+
 string to8(u16string s) {
     wstring_convert<codecvt_utf8<char16_t>, char16_t> converter;
     return converter.to_bytes(s);
