@@ -33,6 +33,7 @@ struct ReplacesPrinter : public AbstractParser {
             replaceJson["eword"] = to8(replace.eword);
             replaceJson["numberSameDwordsBefore"] = numberSameDwordsBefore;
             replaceJson["numberSameDwords"] = numberSameDwords;
+            replaceJson["frequency"] = lround(replacesCreator.ewords[replace.eword].getFrequency() * 100);
             replacesJson.push_back(replaceJson);
         }
         info["replaces"] = replacesJson;
