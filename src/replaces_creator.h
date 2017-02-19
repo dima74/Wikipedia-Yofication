@@ -47,7 +47,6 @@ struct ReplacesCreator {
         TxtReader::readWords(text, textEnd, [&](u16string word, size_t i, size_t j, bool containsE) {
             auto it = dwords.find(word);
             if (it != dwords.end() && exclusions.find(word) == exclusions.end()) {
-
                 if (j < text.length() && text[j] == u'.' && word.length() <= 5) {
                     // возможно это сокращение
                     if (!(j + 2 < text.length() && text[j + 1] == ' ' && isRussianUpper(text[j + 2]))) {

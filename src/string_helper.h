@@ -20,7 +20,7 @@ void replaceAll(string &source, string search, string replace) {
     }
 }
 
-size_t getNumberMatches(const string &source, string search, size_t start = 0, size_t end = string::npos) {
+size_t getNumberMatches(const u16string &source, u16string search, size_t start = 0, size_t end = string::npos) {
     size_t position = start;
     size_t numberMatches = 0;
     while ((position = source.find(search, position)) < end) {

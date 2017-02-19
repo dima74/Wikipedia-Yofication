@@ -15,7 +15,7 @@ struct ReplacesPrinter : public AbstractParser {
         out << page.title;
     }
 
-    void createReplacesByTitles(const Page &page, const vector <Replace> &replaces) {
+    void createReplacesByTitles(const Page &page, const vector<Replace> &replaces) {
         ofstream out("replaces/replacesByTitles/" + page.title);
         assert(out);
         json info;
@@ -23,14 +23,14 @@ struct ReplacesPrinter : public AbstractParser {
         info["revision"] = page.revision;
 
         json replacesJson = json::array();
+        u16string text16 = to16(page.text);
         for (Replace replace : replaces) {
-            string eword = to8(replace.eword);
-            string dword = page.text.substr(replace.indexWordStart, eword.length());
-            size_t numberSameDwordsBefore = getNumberMatches(page.text, dword, 0, replace.indexWordStart);
-            size_t numberSameDwords = getNumberMatches(page.text, dword);
+            u16string dword = text16.substr(replace.indexWordStart, replace.eword.length());
+            size_t numberSameDwordsBefore = getNumberMatches(text16, dword, 0, replace.indexWordStart);
+            size_t numberSameDwords = getNumberMatches(text16, dword);
             json replaceJson;
             replaceJson["indexWordStart"] = replace.indexWordStart;
-            replaceJson["eword"] = eword;
+            replaceJson["eword"] = to8(replace.eword);
             replaceJson["numberSameDwordsBefore"] = numberSameDwordsBefore;
             replaceJson["numberSameDwords"] = numberSameDwords;
             replacesJson.push_back(replaceJson);
@@ -41,7 +41,7 @@ struct ReplacesPrinter : public AbstractParser {
     }
 
     bool parse(Page page) {
-        vector <Replace> replaces = replacesCreator.getReplaces(page);
+        vector<Replace> replaces = replacesCreator.getReplaces(page);
         if (replaces.empty()) {
             return false;
         }
@@ -63,6 +63,6 @@ void printReplaces(int numberPages, size_t numberPagesToSkip = 0) {
 }
 
 int main() {
-    printReplaces(10, 100);
+    printReplaces(10, 1000);
     return 0;
 }

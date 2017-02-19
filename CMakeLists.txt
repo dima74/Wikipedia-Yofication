@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.6)
-project(parse)
+project(wikipedia-efication)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_FLAGS "-DLOCAL -g")
