@@ -25,15 +25,24 @@ struct ReplacesPrinter : public AbstractParser {
         json replacesJson = json::array();
         u16string text16 = to16(page.text);
         for (Replace replace : replaces) {
-            u16string dword = text16.substr(replace.indexWordStart, replace.eword.length());
-            size_t numberSameDwordsBefore = getNumberMatches(text16, dword, 0, replace.indexWordStart);
-            size_t numberSameDwords = getNumberMatches(text16, dword);
+            size_t length = replace.eword.length();
+            if (replace.indexWordStart == 0 || replace.indexWordStart + length == text16.length()) {
+                continue;
+            }
+
+            u16string eword = replace.eword;
+            u16string dword = text16.substr(replace.indexWordStart, length);
+            u16string ewordContext = text16[replace.indexWordStart - 1] + eword + text16[replace.indexWordStart + length];
+            u16string dwordContext = text16[replace.indexWordStart - 1] + dword + text16[replace.indexWordStart + length];
+
+            size_t numberSameDwordsBefore = getNumberMatches(text16, dwordContext, 0, replace.indexWordStart - 1);
+            size_t numberSameDwords = getNumberMatches(text16, dwordContext);
             json replaceJson;
             replaceJson["indexWordStart"] = replace.indexWordStart;
-            replaceJson["eword"] = to8(replace.eword);
+            replaceJson["eword"] = to8(ewordContext);
             replaceJson["numberSameDwordsBefore"] = numberSameDwordsBefore;
             replaceJson["numberSameDwords"] = numberSameDwords;
-            replaceJson["frequency"] = lround(replacesCreator.ewords[replace.eword].getFrequency() * 100);
+            replaceJson["frequency"] = lround(replacesCreator.ewords[eword].getFrequency() * 100);
             replacesJson.push_back(replaceJson);
         }
         info["replaces"] = replacesJson;
@@ -56,11 +65,11 @@ struct ReplacesPrinter : public AbstractParser {
 void printReplaces(int numberPages = -1, size_t numberPagesToSkip = 0) {
     freopen("results/ruwiki-my.txt", "r", stdin);
 
-    ofstream out("replaces/numberPages");
-    out << numberPages << endl;
-
     ReplacesPrinter printer;
     TxtReader().readTo(printer, numberPages, numberPagesToSkip);
+
+    ofstream out("replaces/numberPages");
+    out << printer.numberPages << endl;
 }
 
 int main() {
