@@ -77,7 +77,7 @@ struct ReplaceChecker {
             }
 
 //            assert(end != string::npos);
-            if (end != string::npos) {
+            if (end == string::npos) {
 //                throw runtime_error(format("Непарный тег '{}' в позиции {}", tag.open, start));
                 return false;
             }
