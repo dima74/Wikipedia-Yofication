@@ -4,3 +4,6 @@
 [submodule "fmt"]
 	path = fmt
 	url = https://github.com/fmtlib/fmt
+[submodule "Wikipedia-Efication-Replaces"]
+	path = replaces
+	url = git@github.com:dima74/Wikipedia-Efication-Replaces.git
