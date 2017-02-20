@@ -41,11 +41,12 @@ int main() {
                 getline(cin, line);
                 text += line + "\n";
             }
-            text = text.substr(0, text.length() - textEnd.length());
-            normalize(text);
-            page.text = text;
 
             if (namespace_ == "0") {
+                text = text.substr(0, text.length() - textEnd.length());
+                normalize(text);
+                normalize(page.title);
+                page.text = text;
                 cout << page;
             }
             page = {};

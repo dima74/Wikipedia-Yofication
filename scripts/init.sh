@@ -3,3 +3,4 @@ cd `dirname $0`
 ./cmake-init.sh
 ./create-ruwiki-my.sh
 ./create-frequencies.sh
+./create-replaces.sh
