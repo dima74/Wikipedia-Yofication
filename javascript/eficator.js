@@ -5,7 +5,6 @@ $(function () {
         return;
     }
 
-    $(document).ajaxError(exit);
     var currentPageTitle = mw.config.get('wgTitle');
     if (mw.config.get('wgPageName') == 'Служебная:Ёфикация') {
         goToNextPage();
@@ -35,14 +34,20 @@ $(function () {
     }
 
     function goToNextPage() {
+        function errorGoToNextPage() {
+            alert('Не удалось получить следующую страницу');
+        }
+
         console.log('Переходим к следующей странице...');
         $.ajax({
             url: "https://raw.githubusercontent.com/dima74/Wikipedia-Efication-Replaces/master/numberPages",
+            error: errorGoToNextPage,
             success: function (data) {
                 console.log('\tЗагрузили число страниц для ёфикации');
                 var i = getRandomInt(0, Number(data));
                 $.ajax({
                     url: "https://raw.githubusercontent.com/dima74/Wikipedia-Efication-Replaces/master/pagesToEfication/" + i,
+                    error: errorGoToNextPage,
                     success: function (pageTitle) {
                         console.log('\tЗагрузили название статьи для ёфикации');
                         window.location.href = 'https://ru.wikipedia.org/wiki/' + pageTitle + '?efication=true';
@@ -76,6 +81,9 @@ $(function () {
         $.ajax({
             url: 'https://raw.githubusercontent.com/dima74/Wikipedia-Efication-Replaces/master/replacesByTitles/' + currentPageTitle,
             dataType: 'json',
+            error: function () {
+                alert('Не найдено замен для этой страницы');
+            },
             success: function (object) {
                 var currentRevision = mw.config.get('wgCurRevisionId');
                 if (currentRevision != object.revision) {
@@ -108,7 +116,7 @@ $(function () {
                             var ewordContext = replace.eword;
                             var eword = ewordContext.substr(1, ewordContext.length - 1);
                             if (wikitext.substr(replace.indexWordStart, eword.length) != eword.deefication()) {
-                                exit('Ошибка: wikitext "' + currentPageTitle + '" не совпадает в индексе ' + replace.indexWordStart);
+                                console.log('Ошибка: wikitext "' + currentPageTitle + '" не совпадает в индексе ' + replace.indexWordStart);
                                 continue;
                             }
                             wikitext = wikitext.insert(replace.indexWordStart, eword, eword.length);
@@ -140,7 +148,7 @@ $(function () {
                     console.log(replace.frequency + ' ' + eword);
                     var indexes = text.getIndexesOf(ewordContext.deefication());
                     if (indexes.length != replace.numberSameDwords) {
-                        exit('Ошибка: не совпадает numberSameDwords, найдено ' + indexes.length + ', должно быть ' + replace.numberSameDwords + ' (индексы найденных: ' + indexes + ')');
+                        console.log('Ошибка: не совпадает numberSameDwords, найдено ' + indexes.length + ', должно быть ' + replace.numberSameDwords + ' (индексы найденных: ' + indexes + ')');
                         return false;
                     }
                     var indexWordStart = indexes[replace.numberSameDwordsBefore] + 1;
@@ -149,7 +157,7 @@ $(function () {
 
                     // проверяем на видимость
                     if (!$('#efication-replace').is(':visible')) {
-                        exit('Предупреждение: замена не видна');
+                        console.log('Предупреждение: замена не видна');
                         return false;
                     }
 
@@ -196,7 +204,9 @@ $(function () {
         }).done(function (data) {
             var query = data.query;
             callback(query.pages[query.pageids[0]].revisions[0]['*']);
-        }).fail(exit);
+        }).fail(function () {
+            alert('Не получилось получить wikitext страницы');
+        });
     }
 
     function editPage(info, callback) {
@@ -213,9 +223,13 @@ $(function () {
                 summary: info.summary,
                 token: mw.user.tokens.get('editToken')
             },
+            error: function () {
+                alert('Не удалось произвести правку');
+            },
             success: function (data) {
                 if (data.edit.result != 'Success') {
-                    exit('Не удалось произвести правку: ' + data.edit.result);
+                    alert('Не удалось произвести правку: ' + data.edit.result);
+                    return;
                 }
                 console.log('\tПравка выполена');
                 callback();
