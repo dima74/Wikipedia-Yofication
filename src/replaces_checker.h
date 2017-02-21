@@ -29,7 +29,7 @@ size_t findSection(const u16string &text, u16string section) {
 
 size_t getSectionsStart(const u16string &text, const u16string &textLower) {
     size_t sectionsStart = text.length();
-    const vector<u16string> excludeSections = {u"литература", u"ссылки", u"примечания"};
+    const vector<u16string> excludeSections = {u"литература", u"ссылки", u"примечания", u"сочинения", u"источники"};
     for (u16string excludeSection : excludeSections) {
         sectionsStart = min(sectionsStart, findSection(textLower, excludeSection));
     }
