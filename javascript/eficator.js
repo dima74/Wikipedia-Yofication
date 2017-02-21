@@ -133,8 +133,7 @@ $(function () {
                 function goToReplace(iReplace) {
                     if (iReplace == replaces.length) {
                         console.log('Все замены произведены');
-                        // makeChange(goToNextPage);
-                        // makeChange(function () {});
+                        makeChange(goToNextPage);
                         return true;
                     }
                     if (iReplace > replaces.length) {
@@ -180,8 +179,7 @@ $(function () {
                     'f': rejectReplace,
                     'q': goToNextPage,
                     // ещё раз показать последнюю замену
-                    ';': function () { goToReplace(iReplace); },
-                    'n': function () { makeChange(goToNextPage); }
+                    ';': function () { goToReplace(iReplace); }
                 };
 
                 $(document).keypress(function (event) {
