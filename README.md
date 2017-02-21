@@ -8,7 +8,7 @@
 3. Нажмите "Создать как викитекст".
 4. Появится редактор, добавьте следующие строчки, затем нажмите "записать страницу".
 
-        mw.loader.load('https://cdnjs.cloudflare.com/ajax/libs/jquery-scrollTo/2.1.2/jquery.scrollTo.js');
+        mw.loader.load('https://cdnjs.cloudflare.com/ajax/libs/jquery-scrollTo/2.1.2/jquery.scrollTo.min.js');
         importScript('Участник:Дима74/eficator.js'); //linkback [[Участник:Дима74/eficator.js]]
 
 5. Перейдите на страницу [Служебная:Ёфикация](https://ru.wikipedia.org/wiki/Служебная:Ёфикация).
