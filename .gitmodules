@@ -1,9 +1,9 @@
 [submodule "cpr"]
 	path = cpr
-	url = git@github.com:whoshuu/cpr.git
+	url = https://github.com/whoshuu/cpr
 [submodule "fmt"]
 	path = fmt
 	url = https://github.com/fmtlib/fmt
 [submodule "Wikipedia-Efication-Replaces"]
 	path = replaces
-	url = git@github.com:dima74/Wikipedia-Efication-Replaces.git
+	url = https://github.com/dima74/Wikipedia-Efication-Replaces
