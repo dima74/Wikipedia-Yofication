@@ -33,6 +33,12 @@
 * Во всех статьях Википедии были найдены вхождения версий таких слов без ё и для каждой статьи был создан список замен (находятся по адресу [Wikipedia-Efication-Replaces](https://github.com/dima74/Wikipedia-Efication-Replaces)).
 * На javascript был написан скрипт, который при заходе на страницу `Служебная:Ёфикация` выбирает случайную статью для ёфикации, переходит на неё, показывает замены пользователю и на основе решения пользователя производит правку этой статьи.
 
+# Как собрать проект
+    git clone https://github.com/dima74/Wikipedia-Efication
+    cd Wikipedia-Efication
+    git submodule update --init --recursive
+    ./scripts/all.sh
+
 # Задачи
 - [x] printPagesThatContains --- ignore case
 - [x] Просмотреть страницы, содержащие {{nobots}}
