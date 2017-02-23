@@ -194,7 +194,7 @@ $(function () {
                     // ещё раз показать последнюю замену
                     ';': function () { goToReplace(iReplace); },
                     // вернуться к предыдущей замене
-                    'y': goToPreviousReplace()
+                    'y': goToPreviousReplace
                 };
 
                 $(document).keypress(function (event) {
