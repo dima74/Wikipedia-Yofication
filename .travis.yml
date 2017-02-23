@@ -7,10 +7,16 @@ arch:
     - cmake
   script:
     - pwd
+    - ls
+    - tree
+
     - mkdir build
     - cd build
-    - ls ..
+
     - pwd
+    - ls
+    - tree
+
     - cmake ..
 
 script:
