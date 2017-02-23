@@ -26,7 +26,10 @@ $(function () {
             console.log(message);
             alert(message);
         }
-        throw '';
+        else {
+            message = '';
+        }
+        throw message;
     }
 
     function getRandomInt(min, max) {
@@ -124,22 +127,28 @@ $(function () {
                     }
                     console.log('Делаем правку...');
                     getWikiText(function (wikitext) {
+                        var replaceSomething = false;
                         for (var i = 0; i < replacesRight.length; ++i) {
                             var replace = replacesRight[i];
                             var ewordContext = replace.eword;
-                            var eword = ewordContext.substr(1, ewordContext.length - 1);
+                            var eword = ewordContext.substr(1, ewordContext.length - 2);
                             if (wikitext.substr(replace.indexWordStart, eword.length) != eword.deefication()) {
-                                console.log('Ошибка: wikitext "' + currentPageTitle + '" не совпадает в индексе ' + replace.indexWordStart);
-                                continue;
+                                exit('Ошибка: викитекст страницы "' + currentPageTitle + '" не совпадает в индексе ' + replace.indexWordStart
+                                    + '\nожидается: "' + eword.deefication() + '"'
+                                    + '\nполучено: "' + wikitext.substr(replace.indexWordStart, eword.length) + '"');
+                                return;
                             }
                             wikitext = wikitext.insert(replace.indexWordStart, eword, eword.length);
+                            replaceSomething = true;
                         }
 
-                        editPage({
-                            title: currentPageTitle,
-                            text: wikitext,
-                            summary: 'Ёфикация с помощью [[Участник:Дима74/Скрипт-Ёфикатор|скрипта-ёфикатора]]'
-                        }, callback);
+                        if (replaceSomething) {
+                            editPage({
+                                title: currentPageTitle,
+                                text: wikitext,
+                                summary: 'Ёфикация с помощью [[Участник:Дима74/Скрипт-Ёфикатор|скрипта-ёфикатора]]'
+                            }, callback);
+                        }
                     });
                 }
 
@@ -240,8 +249,9 @@ $(function () {
                 alert('Не удалось произвести правку');
             },
             success: function (data) {
-                if (data.edit.result != 'Success') {
-                    alert('Не удалось произвести правку: ' + data.edit.result);
+                if (!data.edit || data.edit.result != 'Success') {
+                    console.log(data);
+                    alert('Не удалось произвести правку: ' + data.error.info);
                     return;
                 }
                 console.log('\tПравка выполена');
