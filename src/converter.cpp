@@ -10,7 +10,7 @@ const string revisionIdEnd = "</id>";
 const string namespaceStart = "    <ns>";
 const string namespaceEnd = "</ns>";
 const string textStart = "      <text xml:space=\"preserve\">";
-const string textEnd = "</text>\n";
+const string textEnd = "</text>";
 
 void normalize(string &text) {
     replaceAll(text, "&lt;", "<");
@@ -39,7 +39,7 @@ int main() {
             string text = line.substr(textStart.length());
             while (!endsWith(text, textEnd)) {
                 getline(cin, line);
-                text += line + "\n";
+                text += "\n" + line;
             }
 
             if (namespace_ == "0") {
