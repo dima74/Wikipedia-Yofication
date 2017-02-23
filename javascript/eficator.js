@@ -95,8 +95,8 @@ $(function () {
                 var textDiv = $('#mw-content-text');
                 var text = textDiv.html();
                 var replaces = object.replaces;
+                replaces.forEach(function (replace) { replace.isAccept = false; });
                 var iReplace = -1;
-                var replacesRight = [];
                 console.log('Всего замен: ' + replaces.length);
                 goToNextReplace();
 
@@ -104,7 +104,20 @@ $(function () {
                     while (!goToReplace(++iReplace)) {}
                 }
 
+                function goToPreviousReplace() {
+                    --iReplace;
+                    while (iReplace >= 0 && !goToReplace(iReplace)) {
+                        --iReplace;
+                    }
+                    if (iReplace < 0) {
+                        iReplace = 0;
+                        throw 'goToPreviousReplace: iReplace < 0';
+                    }
+                    replaces[iReplace].isAccept = false;
+                }
+
                 function makeChange(callback) {
+                    var replacesRight = replaces.filter(function (replace) { return replace.isAccept; });
                     if (replacesRight.length === 0) {
                         callback();
                         return;
@@ -137,7 +150,7 @@ $(function () {
                         return true;
                     }
                     if (iReplace > replaces.length) {
-                        throw '';
+                        throw 'goToReplace: iReplace > replaces.length';
                     }
 
                     // выделяем цветом
@@ -166,7 +179,7 @@ $(function () {
                 }
 
                 function acceptReplace() {
-                    replacesRight.push(replaces[iReplace]);
+                    replaces[iReplace].isAccept = true;
                     goToNextReplace();
                 }
 
@@ -179,7 +192,9 @@ $(function () {
                     'f': rejectReplace,
                     'q': goToNextPage,
                     // ещё раз показать последнюю замену
-                    ';': function () { goToReplace(iReplace); }
+                    ';': function () { goToReplace(iReplace); },
+                    // вернуться к предыдущей замене
+                    'y': goToPreviousReplace()
                 };
 
                 $(document).keypress(function (event) {
