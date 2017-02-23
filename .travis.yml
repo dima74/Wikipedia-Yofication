@@ -3,6 +3,7 @@ sudo: required
 
 arch:
   packages:
+    - tree
     - cmake
   script:
     - tree
