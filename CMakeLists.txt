@@ -10,7 +10,6 @@ add_subdirectory(fmt)
 add_executable(converter src/converter.cpp)
 add_executable(frequencies src/frequencies.cpp)
 add_executable(all_ewords src/all_ewords.cpp)
-add_executable(efication src/efication.cpp)
 add_executable(replaces_printer src/replaces_printer.cpp)
 
 include_directories(fmt)

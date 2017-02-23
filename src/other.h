@@ -7,7 +7,6 @@
 #include "page.h"
 #include "txt_reader.h"
 #include "alignment.h"
-#include "wikipedia_api.h"
 #include "colors.h"
 using namespace std;
 
