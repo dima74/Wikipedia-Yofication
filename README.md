@@ -1,5 +1,7 @@
 # Ёфикатор
 
+[![Build Status](https://travis-ci.org/dima74/Wikipedia-Efication.svg?branch=master)](https://travis-ci.org/dima74/Wikipedia-Efication)
+
 В этом репозитории находятся наработки, позволяющие [ёфицировать](https://ru.wikipedia.org/wiki/Ёфикатор) Википедию в полуавтоматическом режиме. Если вы нашли ошибку в работе ёфикатора, [создайте](https://github.com/dima74/Wikipedia-Efication/issues/new) issue. 
 
 # Как начать ёфицировать
