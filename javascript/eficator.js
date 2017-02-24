@@ -10,7 +10,7 @@ $(function () {
         goToNextPage();
     }
     else if (window.location.search.indexOf('efication=true') != -1) {
-        performEfication(window.location.search.indexOf('continuousEfication=true') != -1);
+        performEfication(window.location.search.indexOf('continuous_efication=true') != -1);
     }
     $(window).on('resize', scrollToReplace);
 
@@ -53,7 +53,7 @@ $(function () {
                     error: errorGoToNextPage,
                     success: function (pageTitle) {
                         console.log('\tЗагрузили название статьи для ёфикации');
-                        window.location.href = 'https://ru.wikipedia.org/wiki/' + pageTitle + '?efication=true&continuousEfication=true';
+                        window.location.href = 'https://ru.wikipedia.org/wiki/' + pageTitle + '?continuous_efication=true';
                     }
                 });
             }
