@@ -1,7 +1,7 @@
 $(function () {
     mw.loader.load('https://cdnjs.cloudflare.com/ajax/libs/jquery-scrollTo/2.1.2/jquery.scrollTo.js');
     if (typeof($.scrollTo) === 'undefined') {
-        exit('Ошибка: $.scrollTo не определено');
+        exit('Пожалуйста, прочитайте инструкцию по установке по адресу [[Участник:Дима74/Скрипт-Ёфикатор]]\nОшибка: $.scrollTo не определено.');
         return;
     }
 
