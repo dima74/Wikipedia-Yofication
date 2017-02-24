@@ -10,7 +10,7 @@ $(function () {
         goToNextPage();
     }
     else if (window.location.search.indexOf('efication=true') != -1) {
-        performEfication();
+        performEfication(window.location.search.indexOf('continuousEfication=true') != -1);
     }
     $(window).on('resize', scrollToReplace);
 
@@ -38,7 +38,7 @@ $(function () {
 
     function goToNextPage() {
         function errorGoToNextPage() {
-            alert('Не удалось получить следующую страницу');
+            alert('Ошибка: Не удалось получить следующую страницу для ёфикации');
         }
 
         console.log('Переходим к следующей странице...');
@@ -53,7 +53,7 @@ $(function () {
                     error: errorGoToNextPage,
                     success: function (pageTitle) {
                         console.log('\tЗагрузили название статьи для ёфикации');
-                        window.location.href = 'https://ru.wikipedia.org/wiki/' + pageTitle + '?efication=true';
+                        window.location.href = 'https://ru.wikipedia.org/wiki/' + pageTitle + '?efication=true&continuousEfication=true';
                     }
                 });
             }
@@ -79,7 +79,7 @@ $(function () {
         return this.replace('ё', 'е');
     };
 
-    function performEfication() {
+    function performEfication(continuousEfication) {
         console.log('Загружаем список замен...');
         $.ajax({
             url: 'https://raw.githubusercontent.com/dima74/Wikipedia-Efication-Replaces/master/replacesByTitles/' + currentPageTitle,
@@ -90,8 +90,10 @@ $(function () {
             success: function (object) {
                 var currentRevision = mw.config.get('wgCurRevisionId');
                 if (currentRevision != object.revision) {
-                    console.log('Пропускается "' + currentPageTitle + '", так как появилась новая версия');
-                    goToNextPage();
+                    (continuousEfication ? console.log : alert)('Не удалось выполнить ёфикацию "' + currentPageTitle + '", так как появилась новая версия страницы');
+                    if (continuousEfication) {
+                        goToNextPage();
+                    }
                     return;
                 }
 
@@ -155,7 +157,7 @@ $(function () {
                 function goToReplace(iReplace) {
                     if (iReplace == replaces.length) {
                         console.log('Все замены произведены');
-                        makeChange(goToNextPage);
+                        makeChange(continuousEfication ? goToNextPage : function () {});
                         return true;
                     }
                     if (iReplace > replaces.length) {
@@ -169,7 +171,7 @@ $(function () {
                     console.log(replace.frequency + ' ' + eword);
                     var indexes = text.getIndexesOf(ewordContext.deefication());
                     if (indexes.length != replace.numberSameDwords) {
-                        console.log('Ошибка: не совпадает numberSameDwords, найдено ' + indexes.length + ', должно быть ' + replace.numberSameDwords + ' (индексы найденных: ' + indexes + ')');
+                        console.log('Предупреждение: не совпадает numberSameDwords, найдено ' + indexes.length + ', должно быть ' + replace.numberSameDwords + ' (индексы найденных: ' + indexes + ')');
                         return false;
                     }
                     var indexWordStart = indexes[replace.numberSameDwordsBefore] + 1;
