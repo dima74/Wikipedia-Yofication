@@ -8,11 +8,9 @@ $(function () {
     var currentPageTitle = mw.config.get('wgTitle');
     if (mw.config.get('wgPageName') == 'Служебная:Ёфикация') {
         goToNextPage();
-    }
-    else if (window.location.search.indexOf('efication=true') != -1) {
+    } else if (window.location.search.indexOf('efication=true') != -1) {
         performEfication(window.location.search.indexOf('continuous_efication=true') != -1);
     }
-    $(window).on('resize', scrollToReplace);
 
     function scrollToReplace() {
         var replace = $('#efication-replace');
@@ -25,8 +23,7 @@ $(function () {
         if (typeof(message) === 'string') {
             console.log(message);
             alert(message);
-        }
-        else {
+        } else {
             message = '';
         }
         throw message;
@@ -104,6 +101,7 @@ $(function () {
                 var iReplace = -1;
                 console.log('Всего замен: ' + replaces.length);
                 goToNextReplace();
+                $(window).on('resize', scrollToReplace);
 
                 function goToNextReplace() {
                     while (!goToReplace(++iReplace)) {}
