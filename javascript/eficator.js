@@ -103,6 +103,7 @@ $(function () {
                 var replaces = object.replaces;
                 replaces.forEach(function (replace) { replace.isAccept = false; });
                 var iReplace = -1;
+                var done = false;
                 console.log('Всего замен: ' + replaces.length);
                 goToNextReplace();
                 $(window).on('resize', scrollToReplace);
@@ -124,6 +125,7 @@ $(function () {
                 }
 
                 function makeChange(callback) {
+                    done = true;
                     var replacesRight = replaces.filter(function (replace) { return replace.isAccept; });
                     if (replacesRight.length === 0) {
                         callback();
@@ -200,18 +202,21 @@ $(function () {
                     goToNextReplace();
                 }
 
+                function showCurrentReplaceAgain() {
+                    goToReplace(iReplace);
+                }
+
                 var actions = {
                     'j': acceptReplace,
                     'f': rejectReplace,
-                    'q': goToNextPage,
                     // ещё раз показать последнюю замену
-                    ';': function () { goToReplace(iReplace); },
+                    ';': showCurrentReplaceAgain,
                     // вернуться к предыдущей замене
-                    'y': goToPreviousReplace
+                    'a': goToPreviousReplace
                 };
 
                 $(document).keypress(function (event) {
-                    if (event.key in actions) {
+                    if (!done && event.key in actions) {
                         actions[event.key]();
                     }
                 });
