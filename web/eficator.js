@@ -199,11 +199,12 @@ $(function () {
                     var replace = replaces[iReplace];
                     var ewordContext = replace.eword;
                     var eword = ewordContext.substr(1, ewordContext.length - 2);
-                    showStatus('Замена ' + (iReplace + 1) + ' из ' + replaces.length + '\n' + eword + '\nЧастота: ' + replace.frequency + '%');
+                    var status = 'Замена ' + (iReplace + 1) + ' из ' + replaces.length + '\n' + eword + '\nЧастота: ' + replace.frequency + '%';
+                    showStatus(status);
                     var indexes = text.getIndexesOf(ewordContext.deefication());
                     if (indexes.length != replace.numberSameDwords) {
-                        showStatus('Предупреждение: не совпадает numberSameDwords, найдено ' + indexes.length + ', должно быть ' + replace.numberSameDwords + ' (индексы найденных: ' + indexes + ')');
-                        return true;
+                        showStatus(status + '\nПредупреждение: не совпадает numberSameDwords\nНайдено: ' + indexes.length + '\nДолжно быть: ' + replace.numberSameDwords + ' \n(индексы найденных: ' + indexes + ')');
+                        return false;
                     }
                     var indexWordStart = indexes[replace.numberSameDwordsBefore] + 1;
                     var textNew = text.insert(indexWordStart, '<span style="background: cyan;" id="efication-replace">' + eword + '</span>', eword.length);
