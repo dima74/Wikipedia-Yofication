@@ -172,11 +172,15 @@ $(function () {
                     });
                 }
 
+                function removeArgumentsFromUrl() {
+                    window.history.pushState('', '', window.location.href.replace('?efication=true', ''));
+                }
+
                 function goToReplace(iReplace) {
                     if (iReplace == replaces.length) {
                         textDiv.html(text);
                         showStatus('Все замены произведены');
-                        makeChange(continuousEfication ? goToNextPage : function () {});
+                        makeChange(continuousEfication ? goToNextPage : removeArgumentsFromUrl);
                         return true;
                     }
                     if (iReplace > replaces.length) {
