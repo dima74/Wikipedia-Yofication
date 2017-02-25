@@ -1,9 +1,9 @@
 var addPortletLinkAction = typeof Eficator_AddPortletLinkAction === 'undefined' ? true : Eficator_AddPortletLinkAction;
 
+mw.loader.load('https://cdnjs.cloudflare.com/ajax/libs/jquery-scrollTo/2.1.2/jquery.scrollTo.min.js', 'text/javascript');
 $(function () {
-    mw.loader.load('https://cdnjs.cloudflare.com/ajax/libs/jquery-scrollTo/2.1.2/jquery.scrollTo.js');
     if (typeof($.scrollTo) === 'undefined') {
-        exit('Пожалуйста, прочитайте инструкцию по установке по адресу [[Участник:Дима74/Скрипт-Ёфикатор]]\nОшибка: $.scrollTo не определено.');
+        showStatus('Пожалуйста, прочитайте [[Участник:Дима74/Скрипт-Ёфикатор|инструкцию по установке]]. \nОшибка: $.scrollTo не определено.');
         return;
     }
 
@@ -16,6 +16,19 @@ $(function () {
         mw.util.addPortletLink('p-cactions', mw.config.get('wgPageName') + '?efication=true', 'Ёфицировать', 'ca-eficator', ' Ёфицировать страницу');
     }
 
+    function showStatus(status) {
+        console.log(status);
+        var snackbar = $('#eficator-snackbar');
+        if (snackbar.length == 0) {
+            $('body').append('<div id="eficator-snackbar" style="min-width: 250px; transform: translateX(-50%); background-color: #333; color: #fff; text-align: center; border-radius: 2px; padding: 16px; position: fixed; z-index: 1; left: 50%; bottom: 30px;">Спасибо, что воспользовались ёфикатором!</div>');
+            snackbar = $('#eficator-snackbar');
+        }
+        snackbar.addClass('show');
+        status = status.replace(/\n/g, '<br />');
+        status = status.replace(/\[\[([^|]*)\|([^\]]*)]]/g, '<a href="/wiki/$1" style="color: #0ff;">$2</a>');
+        snackbar.html(status);
+    }
+
     function scrollToReplace() {
         var replace = $('#efication-replace');
         if (replace.length) {
@@ -25,8 +38,7 @@ $(function () {
 
     function exit(message) {
         if (typeof(message) === 'string') {
-            console.log(message);
-            alert(message);
+            showStatus(message);
         } else {
             message = '';
         }
@@ -39,21 +51,21 @@ $(function () {
 
     function goToNextPage() {
         function errorGoToNextPage() {
-            alert('Ошибка: Не удалось получить следующую страницу для ёфикации');
+            showStatus('Ошибка: Не удалось получить следующую страницу для ёфикации');
         }
 
-        console.log('Переходим к следующей странице...');
+        showStatus('Переходим к следующей странице: \nЗагружаем число страниц для ёфикации...');
         $.ajax({
             url: "https://raw.githubusercontent.com/dima74/Wikipedia-Efication-Replaces/master/numberPages",
             error: errorGoToNextPage,
             success: function (data) {
-                console.log('\tЗагрузили число страниц для ёфикации');
+                showStatus('Переходим к следующей странице: \nЗагружаем название статьи для ёфикации...');
                 var i = getRandomInt(0, Number(data));
                 $.ajax({
                     url: "https://raw.githubusercontent.com/dima74/Wikipedia-Efication-Replaces/master/pagesToEfication/" + i,
                     error: errorGoToNextPage,
                     success: function (pageTitle) {
-                        console.log('\tЗагрузили название статьи для ёфикации');
+                        showStatus('Переходим к следующей странице: \nПеренаправляем на страницу "' + pageTitle + '"');
                         window.location.href = 'https://ru.wikipedia.org/wiki/' + pageTitle + '?continuous_efication=true';
                     }
                 });
@@ -81,17 +93,17 @@ $(function () {
     };
 
     function performEfication(continuousEfication) {
-        console.log('Загружаем список замен...');
+        showStatus('Загружаем список замен...');
         $.ajax({
             url: 'https://raw.githubusercontent.com/dima74/Wikipedia-Efication-Replaces/master/replacesByTitles/' + currentPageTitle,
             dataType: 'json',
             error: function () {
-                alert('Не найдено замен для этой страницы');
+                showStatus('Не найдено замен для этой страницы');
             },
             success: function (object) {
                 var currentRevision = mw.config.get('wgCurRevisionId');
                 if (currentRevision != object.revision) {
-                    (continuousEfication ? console.log : alert)('Не удалось выполнить ёфикацию "' + currentPageTitle + '", так как появилась новая версия страницы');
+                    showStatus('Не удалось выполнить ёфикацию "' + currentPageTitle + '", так как появилась новая версия страницы');
                     if (continuousEfication) {
                         goToNextPage();
                     }
@@ -104,7 +116,6 @@ $(function () {
                 replaces.forEach(function (replace) { replace.isAccept = false; });
                 var iReplace = -1;
                 var done = false;
-                console.log('Всего замен: ' + replaces.length);
                 goToNextReplace();
                 $(window).on('resize', scrollToReplace);
 
@@ -131,8 +142,9 @@ $(function () {
                         callback();
                         return;
                     }
-                    console.log('Делаем правку...');
+                    showStatus('Делаем правку: \nЗагружаем викитекст страницы...');
                     getWikiText(function (wikitext) {
+                        showStatus('Делаем правку: \nПрименяем замены...');
                         var replaceSomething = false;
                         for (var i = 0; i < replacesRight.length; ++i) {
                             var replace = replacesRight[i];
@@ -140,6 +152,7 @@ $(function () {
                             var eword = ewordContext.substr(1, ewordContext.length - 2);
                             if (wikitext.substr(replace.indexWordStart, eword.length) != eword.deefication()) {
                                 exit('Ошибка: викитекст страницы "' + currentPageTitle + '" не совпадает в индексе ' + replace.indexWordStart
+                                    + '\nПожалуйста, сообщите название этой страницы [[Участник:Дима74|автору скрипта]].'
                                     + '\nожидается: "' + eword.deefication() + '"'
                                     + '\nполучено: "' + wikitext.substr(replace.indexWordStart, eword.length) + '"');
                                 return;
@@ -149,6 +162,7 @@ $(function () {
                         }
 
                         if (replaceSomething) {
+                            showStatus('Делаем правку: \nОтправляем изменения...');
                             editPage({
                                 title: currentPageTitle,
                                 text: wikitext,
@@ -160,7 +174,7 @@ $(function () {
 
                 function goToReplace(iReplace) {
                     if (iReplace == replaces.length) {
-                        console.log('Все замены произведены');
+                        showStatus('Все замены произведены');
                         makeChange(continuousEfication ? goToNextPage : function () {});
                         return true;
                     }
@@ -172,11 +186,11 @@ $(function () {
                     var replace = replaces[iReplace];
                     var ewordContext = replace.eword;
                     var eword = ewordContext.substr(1, ewordContext.length - 2);
-                    console.log(replace.frequency + ' ' + eword);
+                    showStatus('Замена ' + (iReplace + 1) + ' из ' + replaces.length + '\n' + eword + '\nЧастота: ' + replace.frequency + '%');
                     var indexes = text.getIndexesOf(ewordContext.deefication());
                     if (indexes.length != replace.numberSameDwords) {
-                        console.log('Предупреждение: не совпадает numberSameDwords, найдено ' + indexes.length + ', должно быть ' + replace.numberSameDwords + ' (индексы найденных: ' + indexes + ')');
-                        return false;
+                        showStatus('Предупреждение: не совпадает numberSameDwords, найдено ' + indexes.length + ', должно быть ' + replace.numberSameDwords + ' (индексы найденных: ' + indexes + ')');
+                        return true;
                     }
                     var indexWordStart = indexes[replace.numberSameDwordsBefore] + 1;
                     var textNew = text.insert(indexWordStart, '<span style="background: cyan;" id="efication-replace">' + eword + '</span>', eword.length);
@@ -225,7 +239,6 @@ $(function () {
     }
 
     function getWikiText(callback) {
-        console.log('\tЗагружаем викитекст страницы');
         (new mw.Api()).get({
             prop: 'revisions',
             rvprop: 'content',
@@ -236,12 +249,11 @@ $(function () {
             var query = data.query;
             callback(query.pages[query.pageids[0]].revisions[0]['*']);
         }).fail(function () {
-            alert('Не получилось получить wikitext страницы');
+            showStatus('Не получилось получить викитекст страницы');
         });
     }
 
     function editPage(info, callback) {
-        console.log('\tОтправляем изменения');
         $.ajax({
             url: mw.util.wikiScript('api'),
             type: 'POST',
@@ -255,15 +267,15 @@ $(function () {
                 token: mw.user.tokens.get('editToken')
             },
             error: function () {
-                alert('Не удалось произвести правку');
+                showStatus('Не удалось произвести правку');
             },
             success: function (data) {
                 if (!data.edit || data.edit.result != 'Success') {
                     console.log(data);
-                    alert('Не удалось произвести правку: ' + data.error.info);
+                    showStatus('Не удалось произвести правку: ' + data.error.info);
                     return;
                 }
-                console.log('\tПравка выполена');
+                showStatus('Правка выполена');
                 callback();
             }
         });
