@@ -98,12 +98,12 @@ $(function () {
             url: 'https://raw.githubusercontent.com/dima74/Wikipedia-Efication-Replaces/master/replacesByTitles/' + currentPageTitle,
             dataType: 'json',
             error: function () {
-                showStatus('Не найдено замен для этой страницы');
+                showStatus('Эта страница и так уже ёфицирована. \n(Не найдено замен для этой страницы)');
             },
             success: function (object) {
                 var currentRevision = mw.config.get('wgCurRevisionId');
                 if (currentRevision != object.revision) {
-                    showStatus('Не удалось выполнить ёфикацию, так как появилась новая версия страницы');
+                    showStatus('Не удалось выполнить ёфикацию: \nстраница изменилась с момента последнего сканирования');
                     if (continuousEfication) {
                         goToNextPage();
                     }
