@@ -1,19 +1,21 @@
 var addPortletLinkAction = typeof Eficator_AddPortletLinkAction === 'undefined' ? true : Eficator_AddPortletLinkAction;
-
 mw.loader.load('https://cdnjs.cloudflare.com/ajax/libs/jquery-scrollTo/2.1.2/jquery.scrollTo.min.js', 'text/javascript');
-$(function () {
-    if (typeof($.scrollTo) === 'undefined') {
-        showStatus('Пожалуйста, прочитайте [[Участник:Дима74/Скрипт-Ёфикатор|инструкцию по установке]]. \nОшибка: $.scrollTo не определено.');
-        return;
-    }
 
+$(function () {
     var currentPageTitle = mw.config.get('wgTitle');
     if (mw.config.get('wgPageName') == 'Служебная:Ёфикация') {
         goToNextPage();
     } else if (window.location.search.indexOf('efication=true') != -1) {
+        checkForScrollTo();
         performEfication(window.location.search.indexOf('continuous_efication=true') != -1);
     } else if (addPortletLinkAction && mw.config.get('wgNamespaceNumber') === 0) {
         mw.util.addPortletLink('p-cactions', mw.config.get('wgPageName') + '?efication=true', 'Ёфицировать', 'ca-eficator', ' Ёфицировать страницу');
+    }
+
+    function checkForScrollTo() {
+        if (typeof($.scrollTo) === 'undefined') {
+            exit('Ошибка: $.scrollTo не определено. \nПожалуйста, попробуйте обновить страницу. \nЕсли это не поможет, свяжитесь с [[Участник:Дима74|автором скрипта]].');
+        }
     }
 
     function showStatus(status) {
