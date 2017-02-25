@@ -19,7 +19,7 @@ $(function () {
     function showStatus(status) {
         console.log(status);
         var snackbar = $('#eficator-snackbar');
-        if (snackbar.length == 0) {
+        if (snackbar.length === 0) {
             $('body').append('<div id="eficator-snackbar" style="min-width: 250px; transform: translateX(-50%); background-color: #333; color: #fff; text-align: center; border-radius: 2px; padding: 16px; position: fixed; z-index: 1; left: 50%; bottom: 30px;">Спасибо, что воспользовались ёфикатором!</div>');
             snackbar = $('#eficator-snackbar');
         }
@@ -103,7 +103,7 @@ $(function () {
             success: function (object) {
                 var currentRevision = mw.config.get('wgCurRevisionId');
                 if (currentRevision != object.revision) {
-                    showStatus('Не удалось выполнить ёфикацию "' + currentPageTitle + '", так как появилась новая версия страницы');
+                    showStatus('Не удалось выполнить ёфикацию, так как появилась новая версия страницы');
                     if (continuousEfication) {
                         goToNextPage();
                     }
@@ -174,6 +174,7 @@ $(function () {
 
                 function goToReplace(iReplace) {
                     if (iReplace == replaces.length) {
+                        textDiv.html(text);
                         showStatus('Все замены произведены');
                         makeChange(continuousEfication ? goToNextPage : function () {});
                         return true;
@@ -261,7 +262,7 @@ $(function () {
             data: {
                 format: 'json',
                 action: 'edit',
-                title: info.title,
+                title: currentPageTitle,
                 text: info.text,
                 summary: info.summary,
                 token: mw.user.tokens.get('editToken')
