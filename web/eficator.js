@@ -1,3 +1,9 @@
+/*
+ * Скрипт-Ёфикатор для Википедии
+ * Инструкция по использованию находится по адресу https://ru.wikipedia.org/wiki/Участник:Дима74/Скрипт-Ёфикатор
+ * Историю изменений можно найти на гитхабе: https://github.com/dima74/Wikipedia-Efication/commits/master
+ */
+
 var addPortletLinkAction = typeof Eficator_AddPortletLinkAction === 'undefined' ? true : Eficator_AddPortletLinkAction;
 mw.loader.load('https://cdnjs.cloudflare.com/ajax/libs/jquery-scrollTo/2.1.2/jquery.scrollTo.min.js', 'text/javascript');
 
