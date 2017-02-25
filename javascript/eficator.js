@@ -1,3 +1,5 @@
+var addPortletLinkAction = typeof Eficator_AddPortletLinkAction === 'undefined' ? true : Eficator_AddPortletLinkAction;
+
 $(function () {
     mw.loader.load('https://cdnjs.cloudflare.com/ajax/libs/jquery-scrollTo/2.1.2/jquery.scrollTo.js');
     if (typeof($.scrollTo) === 'undefined') {
@@ -10,6 +12,8 @@ $(function () {
         goToNextPage();
     } else if (window.location.search.indexOf('efication=true') != -1) {
         performEfication(window.location.search.indexOf('continuous_efication=true') != -1);
+    } else if (addPortletLinkAction && mw.config.get('wgNamespaceNumber') === 0) {
+        mw.util.addPortletLink('p-cactions', mw.config.get('wgPageName') + '?efication=true', 'Ёфицировать', 'ca-eficator', ' Ёфицировать страницу');
     }
 
     function scrollToReplace() {
