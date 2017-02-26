@@ -20,18 +20,20 @@ $(function () {
 
     function checkForScrollTo() {
         if (typeof($.scrollTo) === 'undefined') {
-            exit('Ошибка: $.scrollTo не определено. \nПожалуйста, попробуйте обновить страницу. \nЕсли это не поможет, свяжитесь с [[Участник:Дима74|автором скрипта]].');
+            exit('Ошибка: $.scrollTo не определено.');
         }
     }
 
-    function showStatus(status) {
+    function showStatus(status, error) {
         console.log(status);
         var snackbar = $('#eficator-snackbar');
         if (snackbar.length === 0) {
             $('body').append('<div id="eficator-snackbar" style="min-width: 250px; transform: translateX(-50%); background-color: #333; color: #fff; text-align: center; border-radius: 2px; padding: 16px; position: fixed; z-index: 1; left: 50%; bottom: 30px;">Спасибо, что воспользовались ёфикатором!</div>');
             snackbar = $('#eficator-snackbar');
         }
-        snackbar.addClass('show');
+        if (typeof error !== 'undefined' && error) {
+            status += '\nПожалуйста, попробуйте обновить страницу. \nЕсли это не поможет, свяжитесь с [[Участник:Дима74|автором скрипта]].';
+        }
         status = status.replace(/\n/g, '<br />');
         status = status.replace(/\[\[([^|]*)\|([^\]]*)]]/g, '<a href="/wiki/$1" style="color: #0ff;">$2</a>');
         snackbar.html(status);
@@ -46,7 +48,7 @@ $(function () {
 
     function exit(message) {
         if (typeof(message) === 'string') {
-            showStatus(message);
+            showStatus(message, true);
         } else {
             message = '';
         }
@@ -59,7 +61,7 @@ $(function () {
 
     function goToNextPage() {
         function errorGoToNextPage() {
-            showStatus('Ошибка: Не удалось получить следующую страницу для ёфикации');
+            showStatus('Ошибка: Не удалось получить следующую страницу для ёфикации', true);
         }
 
         showStatus('Переходим к следующей странице: \nЗагружаем число страниц для ёфикации...');
@@ -263,7 +265,7 @@ $(function () {
             var query = data.query;
             callback(query.pages[query.pageids[0]].revisions[0]['*']);
         }).fail(function () {
-            showStatus('Не получилось получить викитекст страницы');
+            showStatus('Не получилось получить викитекст страницы', true);
         });
     }
 
@@ -281,12 +283,12 @@ $(function () {
                 token: mw.user.tokens.get('editToken')
             },
             error: function () {
-                showStatus('Не удалось произвести правку');
+                showStatus('Не удалось произвести правку', true);
             },
             success: function (data) {
                 if (!data.edit || data.edit.result != 'Success') {
                     console.log(data);
-                    showStatus('Не удалось произвести правку: ' + data.error.info);
+                    showStatus('Не удалось произвести правку: ' + data.error.info, true);
                     return;
                 }
                 showStatus('Правка выполена');
