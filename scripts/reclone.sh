@@ -12,6 +12,6 @@ git branch -f master b6dd96664e
 git checkout master
 mv ~/replaces .
 mv replaces/* .
-rm replaces
+rm -r replaces
 git add .
 git commit -m "Замены для всех страниц Википедии"
