@@ -66,13 +66,13 @@ $(function () {
 
         showStatus('Переходим к следующей странице: \nЗагружаем число страниц для ёфикации...');
         $.ajax({
-            url: "https://raw.githubusercontent.com/dima74/Wikipedia-Efication-Replaces/master/numberPages",
+            url: 'https://raw.githubusercontent.com/dima74/Wikipedia-Efication-Replaces/master/numberPages',
             error: errorGoToNextPage,
             success: function (data) {
                 showStatus('Переходим к следующей странице: \nЗагружаем название статьи для ёфикации...');
                 var i = getRandomInt(0, Number(data));
                 $.ajax({
-                    url: "https://raw.githubusercontent.com/dima74/Wikipedia-Efication-Replaces/master/pagesToEfication/" + i,
+                    url: 'https://raw.githubusercontent.com/dima74/Wikipedia-Efication-Replaces/master/pagesToEfication/' + i,
                     error: errorGoToNextPage,
                     success: function (pageTitle) {
                         showStatus('Переходим к следующей странице: \nПеренаправляем на страницу "' + pageTitle + '"');
