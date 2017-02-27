@@ -6,6 +6,7 @@
 
 var addPortletLinkAction = typeof Eficator_AddPortletLinkAction === 'undefined' ? true : Eficator_AddPortletLinkAction;
 mw.loader.load('https://cdnjs.cloudflare.com/ajax/libs/jquery-scrollTo/2.1.2/jquery.scrollTo.min.js', 'text/javascript');
+var replacesURL = 'https://raw.githubusercontent.com/dima74/Wikipedia-Efication-Replaces/master';
 
 $(function () {
     var currentPageTitle = mw.config.get('wgTitle');
@@ -46,9 +47,9 @@ $(function () {
         }
     }
 
-    function exit(message) {
+    function exit(message, error) {
         if (typeof(message) === 'string') {
-            showStatus(message, true);
+            showStatus(message, typeof error === 'undefined' ? true : error);
         } else {
             message = '';
         }
@@ -66,13 +67,13 @@ $(function () {
 
         showStatus('Переходим к следующей странице: \nЗагружаем число страниц для ёфикации...');
         $.ajax({
-            url: 'https://raw.githubusercontent.com/dima74/Wikipedia-Efication-Replaces/master/numberPages',
+            url: replacesURL + '/numberPages',
             error: errorGoToNextPage,
             success: function (data) {
                 showStatus('Переходим к следующей странице: \nЗагружаем название статьи для ёфикации...');
                 var i = getRandomInt(0, Number(data));
                 $.ajax({
-                    url: 'https://raw.githubusercontent.com/dima74/Wikipedia-Efication-Replaces/master/pagesToEfication/' + i,
+                    url: replacesURL + '/pagesToEfication/' + i,
                     error: errorGoToNextPage,
                     success: function (pageTitle) {
                         showStatus('Переходим к следующей странице: \nПеренаправляем на страницу "' + pageTitle + '"');
@@ -102,10 +103,14 @@ $(function () {
         return this.replace('ё', 'е');
     };
 
+    String.prototype.isRussianLetterInWord = function () {
+        return this.length === 1 && this.match(/[а-яА-ЯёЁ\-\u00AD\u0301]/);
+    };
+
     function performEfication(continuousEfication) {
         showStatus('Загружаем список замен...');
         $.ajax({
-            url: 'https://raw.githubusercontent.com/dima74/Wikipedia-Efication-Replaces/master/replacesByTitles/' + currentPageTitle,
+            url: replacesURL + '/replacesByTitles/' + currentPageTitle,
             dataType: 'json',
             error: function () {
                 showStatus('Эта страница и так уже ёфицирована. \n(Не найдено замен для этой страницы)');
@@ -158,13 +163,12 @@ $(function () {
                         var replaceSomething = false;
                         for (var i = 0; i < replacesRight.length; ++i) {
                             var replace = replacesRight[i];
-                            var ewordContext = replace.eword;
-                            var eword = ewordContext.substr(1, ewordContext.length - 2);
+                            var eword = replace.eword;
                             if (wikitext.substr(replace.indexWordStart, eword.length) != eword.deefication()) {
                                 exit('Ошибка: викитекст страницы "' + currentPageTitle + '" не совпадает в индексе ' + replace.indexWordStart
                                     + '\nПожалуйста, сообщите название этой страницы [[Участник:Дима74|автору скрипта]].'
                                     + '\nожидается: "' + eword.deefication() + '"'
-                                    + '\nполучено: "' + wikitext.substr(replace.indexWordStart, eword.length) + '"');
+                                    + '\nполучено: "' + wikitext.substr(replace.indexWordStart, eword.length) + '"', false);
                                 return;
                             }
                             wikitext = wikitext.insert(replace.indexWordStart, eword, eword.length);
@@ -189,7 +193,6 @@ $(function () {
                 function goToReplace(iReplace) {
                     if (iReplace == replaces.length) {
                         textDiv.html(text);
-                        showStatus('Все замены произведены');
                         makeChange(continuousEfication ? goToNextPage : removeArgumentsFromUrl);
                         return true;
                     }
@@ -197,18 +200,24 @@ $(function () {
                         throw 'goToReplace: iReplace > replaces.length';
                     }
 
-                    // выделяем цветом
                     var replace = replaces[iReplace];
-                    var ewordContext = replace.eword;
-                    var eword = ewordContext.substr(1, ewordContext.length - 2);
+                    var eword = replace.eword;
                     var status = 'Замена ' + (iReplace + 1) + ' из ' + replaces.length + '\n' + eword + '\nЧастота: ' + replace.frequency + '%';
                     showStatus(status);
-                    var indexes = text.getIndexesOf(ewordContext.deefication());
+                    var indexes = text.getIndexesOf(eword.deefication());
+
+                    // игнорируем вхождения dword внутри слов
+                    indexes = indexes.filter(function (i) {
+                        var j = i + eword.length;
+                        return (i == 0 || !text[i - 1].isRussianLetterInWord()) && (j == text.length || !text[j].isRussianLetterInWord());
+                    });
+
+                    // выделяем цветом
                     if (indexes.length != replace.numberSameDwords) {
-                        showStatus(status + '\nПредупреждение: не совпадает numberSameDwords\nНайдено: ' + indexes.length + '\nДолжно быть: ' + replace.numberSameDwords + ' \n(индексы найденных: ' + indexes + ')');
+                        exit(status + '\nПредупреждение: не совпадает numberSameDwords\nНайдено: ' + indexes.length + '\nДолжно быть: ' + replace.numberSameDwords + ' \n(индексы найденных: ' + indexes + ')');
                         return false;
                     }
-                    var indexWordStart = indexes[replace.numberSameDwordsBefore] + 1;
+                    var indexWordStart = indexes[replace.numberSameDwordsBefore];
                     var textNew = text.insert(indexWordStart, '<span style="background: cyan;" id="efication-replace">' + eword + '</span>', eword.length);
                     textDiv.html(textNew);
 
@@ -233,7 +242,7 @@ $(function () {
                 }
 
                 function showCurrentReplaceAgain() {
-                    goToReplace(iReplace);
+                    scrollToReplace();
                 }
 
                 var actions = {
