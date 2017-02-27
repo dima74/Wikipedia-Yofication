@@ -1,22 +1,35 @@
 #include <bits/stdc++.h>
 #include "txt_reader.h"
 #include "replaces_creator.h"
+#include "counter_number_russian_words.h"
 using namespace std;
 #include "../lib/json.hpp"
 using json = nlohmann::json;
+
+const string replacesFolder = "replaces/";
+const string pagesToEficationFolder = replacesFolder + "pagesToEfication/";
+const string replacesByTitlesFolder = replacesFolder + "replacesByTitles/";
+
+int system(string command) {
+    return system(command.c_str());
+}
+
+void mkdirs(string path) {
+    system("mkdir -p " + path);
+}
 
 struct ReplacesPrinter : public AbstractParser {
     ReplacesCreator replacesCreator;
     size_t numberPages = 0;
 
     void createPagesToEfication(const Page &page) {
-        ofstream out("replaces/pagesToEfication/" + to_string(numberPages));
+        ofstream out(pagesToEficationFolder + to_string(numberPages));
         assert(out);
         out << page.title;
     }
 
     void createReplacesByTitles(const Page &page, const vector<Replace> &replaces) {
-        ofstream out("replaces/replacesByTitles/" + page.title);
+        ofstream out(replacesByTitlesFolder + page.title);
         assert(out);
         json info;
         info["title"] = page.title;
@@ -32,14 +45,13 @@ struct ReplacesPrinter : public AbstractParser {
 
             u16string eword = replace.eword;
             u16string dword = text16.substr(replace.indexWordStart, length);
-            u16string ewordContext = text16[replace.indexWordStart - 1] + eword + text16[replace.indexWordStart + length];
-            u16string dwordContext = text16[replace.indexWordStart - 1] + dword + text16[replace.indexWordStart + length];
 
-            size_t numberSameDwordsBefore = getNumberMatches(text16, dwordContext, 0, replace.indexWordStart - 1);
-            size_t numberSameDwords = getNumberMatches(text16, dwordContext);
+            size_t numberSameDwordsBefore = CounterNumberRussianWords::getNumberRussianWords(text16, dword, 0, replace.indexWordStart);
+            size_t numberSameDwords = CounterNumberRussianWords::getNumberRussianWords(text16, dword);
+            assert(numberSameDwords > 0);
             json replaceJson;
             replaceJson["indexWordStart"] = replace.indexWordStart;
-            replaceJson["eword"] = to8(ewordContext);
+            replaceJson["eword"] = to8(eword);
             replaceJson["numberSameDwordsBefore"] = numberSameDwordsBefore;
             replaceJson["numberSameDwords"] = numberSameDwords;
             replaceJson["frequency"] = lround(replacesCreator.ewords[eword].getFrequency() * 100);
@@ -63,12 +75,15 @@ struct ReplacesPrinter : public AbstractParser {
 };
 
 void printReplaces(int numberPages = -1, size_t numberPagesToSkip = 0) {
-    freopen("results/ruwiki-my.txt", "r", stdin);
+    mkdirs(replacesFolder);
+    mkdirs(pagesToEficationFolder);
+    mkdirs(replacesByTitlesFolder);
 
+    freopen("results/ruwiki-my.txt", "r", stdin);
     ReplacesPrinter printer;
     TxtReader().readTo(printer, numberPages, numberPagesToSkip);
 
-    ofstream out("replaces/numberPages");
+    ofstream out(replacesFolder + "numberPages");
     out << printer.numberPages << endl;
 }
 

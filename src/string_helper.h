@@ -21,16 +21,6 @@ void replaceAll(string &source, string search, string replace) {
     }
 }
 
-size_t getNumberMatches(const u16string &source, u16string search, size_t start = 0, size_t end = string::npos) {
-    size_t position = start;
-    size_t numberMatches = 0;
-    while ((position = source.find(search, position)) < end) {
-        position += search.length();
-        ++numberMatches;
-    }
-    return numberMatches;
-}
-
 size_t findFirst(u16string source, vector<u16string> whats, size_t startPosition) {
     size_t position = string::npos;
     for (u16string what : whats) {
@@ -52,7 +42,7 @@ bool isRussian(char16_t c) {
 }
 
 bool isRussianDelimiter(char16_t c) {
-    return c == u'́'         // ударение
+    return c == u'\u0301'       // ударение
            || c == u'-'         // обычный дефис
            || c == u'\u00AD';   // мягкий перенос
 }
