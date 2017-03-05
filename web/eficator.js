@@ -259,11 +259,15 @@ $(function () {
 
                 var actions = {
                     'j': acceptReplace,
+                    'о': acceptReplace,
                     'f': rejectReplace,
+                    'а': rejectReplace,
                     // ещё раз показать последнюю замену
                     ';': showCurrentReplaceAgain,
+                    'ж': showCurrentReplaceAgain,
                     // вернуться к предыдущей замене
-                    'a': goToPreviousReplace
+                    'a': goToPreviousReplace,
+                    'ф': goToPreviousReplace
                 };
 
                 $(document).keypress(function (event) {
