@@ -6,6 +6,7 @@
 
 $(function () {
     var addPortletLinkAction = typeof Eficator_AddPortletLinkAction === 'undefined' ? true : Eficator_AddPortletLinkAction;
+    var editSummary = typeof Eficator_EditSummary === 'undefined' ? 'Ёфикация с помощью [[Участник:Дима74/Скрипт-Ёфикатор|скрипта-ёфикатора]]' : Eficator_EditSummary;
     var replacesURL = 'https://raw.githubusercontent.com/dima74/Wikipedia-Efication-Replaces/master';
 
     // импорт через
@@ -192,7 +193,7 @@ $(function () {
                             editPage({
                                 title: currentPageTitle,
                                 text: wikitext,
-                                summary: 'Ёфикация с помощью [[Участник:Дима74/Скрипт-Ёфикатор|скрипта-ёфикатора]]'
+                                summary: editSummary
                             }, callback);
                         }
                     });
@@ -226,7 +227,7 @@ $(function () {
 
                     // выделяем цветом
                     if (indexes.length != replace.numberSameDwords) {
-                        exit(status + '\nПредупреждение: не совпадает numberSameDwords\nНайдено: ' + indexes.length + '\nДолжно быть: ' + replace.numberSameDwords + ' \n(индексы найденных: ' + indexes + ')');
+                        showStatus(status + '\nПредупреждение: не совпадает numberSameDwords\nНайдено: ' + indexes.length + '\nДолжно быть: ' + replace.numberSameDwords + ' \n(индексы найденных: ' + indexes + ')');
                         return false;
                     }
                     var indexWordStart = indexes[replace.numberSameDwordsBefore];
@@ -313,7 +314,7 @@ $(function () {
             success: function (data) {
                 if (!data.edit || data.edit.result != 'Success') {
                     console.log(data);
-                    showStatus('Не удалось произвести правку: ' + data.error.info, true);
+                    showStatus('Не удалось произвести правку: ' + data.edit.info, true);
                     return;
                 }
                 showStatus('Правка выполена');
