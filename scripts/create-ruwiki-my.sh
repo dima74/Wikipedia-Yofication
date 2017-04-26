@@ -1,8 +1,7 @@
 #!/bin/sh -e
-cd `dirname $0`
-cd ..
+cd `dirname $0`/..
 # https://dumps.wikimedia.org/backup-index.html
 # ruwiki -> ruwiki-*-pages-articles.xml.bz2
 mkdir results
 cmake --build cmake-build-debug --target converter
-curl https://dumps.wikimedia.org/ruwiki/20170220/ruwiki-20170220-pages-articles.xml.bz2 | bunzip2 | cmake-build-debug/converter >results/ruwiki-my.txt
+curl https://dumps.wikimedia.org/ruwiki/20170420/ruwiki-20170420-pages-articles.xml.bz2 | bunzip2 | cmake-build-debug/converter >results/ruwiki-my.txt
