@@ -2,7 +2,7 @@
 set -x
 
 cd
-rm -rf wikipedia-efication
+rm -rf Wikipedia-Efication
 sudo trash-empty
 git clone git@github.com:dima74/Wikipedia-Efication.git
 cd Wikipedia-Efication

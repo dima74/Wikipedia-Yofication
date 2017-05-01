@@ -7,7 +7,8 @@
 $(function () {
     var addPortletLinkAction = typeof Eficator_AddPortletLinkAction === 'undefined' ? true : Eficator_AddPortletLinkAction;
     var editSummary = typeof Eficator_EditSummary === 'undefined' ? 'Ёфикация с помощью [[Участник:Дима74/Скрипт-Ёфикатор|скрипта-ёфикатора]]' : Eficator_EditSummary;
-    var replacesURL = 'https://raw.githubusercontent.com/dima74/Wikipedia-Efication-Replaces/master';
+    // var replacesURL = 'https://raw.githubusercontent.com/dima74/Wikipedia-Efication-Replaces/master';
+    var replacesURL = 'https://efication.diraria.ru';
 
     // импорт через
     // mw.loader.load('https://cdnjs.cloudflare.com/ajax/libs/jquery-scrollTo/2.1.2/jquery.scrollTo.min.js', 'text/javascript');
