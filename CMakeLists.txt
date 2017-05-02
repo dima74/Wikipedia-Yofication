@@ -11,5 +11,6 @@ add_executable(converter src/converter.cpp)
 add_executable(frequencies src/frequencies.cpp)
 add_executable(all_ewords src/all_ewords.cpp)
 add_executable(replaces_printer src/replaces_printer.cpp)
+add_executable(create_replaces_for_page src/create_replaces_for_page.cpp)
 
 include_directories(fmt)

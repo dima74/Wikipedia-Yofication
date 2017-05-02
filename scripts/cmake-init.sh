@@ -4,3 +4,4 @@ mkdir cmake-build-debug
 cd cmake-build-debug
 cmake ..
 cd ..
+cmake --build cmake-build-debug --target all

@@ -13,7 +13,8 @@ struct AbstractParser {
 };
 
 struct TxtReader {
-    ifstream in = ifstream("results/ruwiki-my.txt");
+//    ifstream in = ifstream("results/ruwiki-my.txt");
+    istream &in = cin;
 
     TxtReader() {
         assert(in);
