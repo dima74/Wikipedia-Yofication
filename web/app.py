@@ -1,5 +1,6 @@
+import json
 import requests
-from flask import Flask, jsonify
+from flask import Flask, jsonify, abort
 from subprocess import Popen, PIPE, STDOUT
 
 app = Flask(__name__)
@@ -35,6 +36,8 @@ def main(title):
     r = get('/w/api.php', params={'action': 'query', 'prop': 'revisions', 'titles': title, 'rvprop': 'ids|content'}).json()
     info = list(r['query']['pages'].values())[0]['revisions'][0]
     replaces = getReplaces(info, title)
+    if len(json.loads(replaces)['replaces']) == 0:
+        abort(404)
     return replaces
 
 

@@ -123,165 +123,165 @@ $(function () {
     };
 
     function performEfication(continuousEfication) {
-        var replacesGenerated = false;
-
-        function getReplacesCallback(object) {
-            var currentRevision = mw.config.get('wgCurRevisionId');
-            if (currentRevision != object.revision) {
-                if (replacesGenerated) {
-                    exit('Непредвиденная ошибка', 'Пожалуйста, сообщите название этой страницы [[Участник:Дима74|автору скрипта]].');
-                }
-                replacesGenerated = true;
-                showStatus('Генерируем замены...');
-                $.ajax({
-                    url: generateURL + '/' + currentPageTitle,
-                    dataType: 'json',
-                    error: function () {
-                        showStatus('Произошла ошибка при генерации замен');
-                    },
-                    success: getReplacesCallback
-                });
-                return;
-            }
-
-            var textDiv = $('#mw-content-text');
-            var text = textDiv.html();
-            var replaces = object.replaces;
-            replaces.forEach(function (replace) { replace.isAccept = false; });
-            var iReplace = -1;
-            var done = false;
-            goToNextReplace();
-            $(window).on('resize', scrollToReplace);
-
-            function goToNextReplace() {
-                while (!goToReplace(++iReplace)) {}
-            }
-
-            function goToPreviousReplace() {
-                --iReplace;
-                while (iReplace >= 0 && !goToReplace(iReplace)) {
-                    --iReplace;
-                }
-                if (iReplace < 0) {
-                    iReplace = 0;
-                    throw 'goToPreviousReplace: iReplace < 0';
-                }
-                replaces[iReplace].isAccept = false;
-            }
-
-            function makeChange(callback) {
-                done = true;
-                var replacesRight = replaces.filter(function (replace) { return replace.isAccept; });
-                if (replacesRight.length === 0) {
-                    callback();
+        function getReplacesCallbackCreator(allowGenerate) {
+            return function ReplacesCallback(object) {
+                var currentRevision = mw.config.get('wgCurRevisionId');
+                if (currentRevision != object.revision) {
+                    if (!allowGenerate) {
+                        exit('Непредвиденная ошибка', 'Пожалуйста, сообщите название этой страницы [[Участник:Дима74|автору скрипта]].');
+                    }
+                    replacesGenerated = true;
+                    showStatus('Генерируем замены...');
+                    $.ajax({
+                        url: generateURL + '/' + currentPageTitle,
+                        dataType: 'json',
+                        error: function () {
+                            showStatus('Произошла ошибка при генерации замен');
+                        },
+                        success: getReplacesCallbackCreator(false)
+                    });
                     return;
                 }
-                showStatus('Делаем правку: \nЗагружаем викитекст страницы...');
-                getWikiText(function (wikitext) {
-                    showStatus('Делаем правку: \nПрименяем замены...');
-                    var replaceSomething = false;
-                    for (var i = 0; i < replacesRight.length; ++i) {
-                        var replace = replacesRight[i];
-                        var eword = replace.eword;
-                        if (wikitext.substr(replace.indexWordStart, eword.length) != eword.deefication()) {
-                            exit('Ошибка: викитекст страницы "' + currentPageTitle + '" не совпадает в индексе ' + replace.indexWordStart
-                                + '\nПожалуйста, сообщите название этой страницы [[Участник:Дима74|автору скрипта]].'
-                                + '\nожидается: "' + eword.deefication() + '"'
-                                + '\nполучено: "' + wikitext.substr(replace.indexWordStart, eword.length) + '"', false);
-                            return;
+
+                var textDiv = $('#mw-content-text');
+                var text = textDiv.html();
+                var replaces = object.replaces;
+                replaces.forEach(function (replace) { replace.isAccept = false; });
+                var iReplace = -1;
+                var done = false;
+                goToNextReplace();
+                $(window).on('resize', scrollToReplace);
+
+                function goToNextReplace() {
+                    while (!goToReplace(++iReplace)) {}
+                }
+
+                function goToPreviousReplace() {
+                    --iReplace;
+                    while (iReplace >= 0 && !goToReplace(iReplace)) {
+                        --iReplace;
+                    }
+                    if (iReplace < 0) {
+                        iReplace = 0;
+                        throw 'goToPreviousReplace: iReplace < 0';
+                    }
+                    replaces[iReplace].isAccept = false;
+                }
+
+                function makeChange(callback) {
+                    done = true;
+                    var replacesRight = replaces.filter(function (replace) { return replace.isAccept; });
+                    if (replacesRight.length === 0) {
+                        callback();
+                        return;
+                    }
+                    showStatus('Делаем правку: \nЗагружаем викитекст страницы...');
+                    getWikiText(function (wikitext) {
+                        showStatus('Делаем правку: \nПрименяем замены...');
+                        var replaceSomething = false;
+                        for (var i = 0; i < replacesRight.length; ++i) {
+                            var replace = replacesRight[i];
+                            var eword = replace.eword;
+                            if (wikitext.substr(replace.indexWordStart, eword.length) != eword.deefication()) {
+                                exit('Ошибка: викитекст страницы "' + currentPageTitle + '" не совпадает в индексе ' + replace.indexWordStart
+                                    + '\nПожалуйста, сообщите название этой страницы [[Участник:Дима74|автору скрипта]].'
+                                    + '\nожидается: "' + eword.deefication() + '"'
+                                    + '\nполучено: "' + wikitext.substr(replace.indexWordStart, eword.length) + '"', false);
+                                return;
+                            }
+                            wikitext = wikitext.insert(replace.indexWordStart, eword, eword.length);
+                            replaceSomething = true;
                         }
-                        wikitext = wikitext.insert(replace.indexWordStart, eword, eword.length);
-                        replaceSomething = true;
+
+                        if (replaceSomething) {
+                            showStatus('Делаем правку: \nОтправляем изменения...');
+                            editPage({
+                                title: currentPageTitle,
+                                text: wikitext,
+                                summary: editSummary
+                            }, callback);
+                        }
+                    });
+                }
+
+                function removeArgumentsFromUrl() {
+                    window.history.pushState('', '', window.location.href.replace('?efication=true', ''));
+                }
+
+                function goToReplace(iReplace) {
+                    if (iReplace == replaces.length) {
+                        textDiv.html(text);
+                        makeChange(continuousEfication ? goToNextPage : removeArgumentsFromUrl);
+                        return true;
+                    }
+                    if (iReplace > replaces.length) {
+                        throw 'goToReplace: iReplace > replaces.length';
                     }
 
-                    if (replaceSomething) {
-                        showStatus('Делаем правку: \nОтправляем изменения...');
-                        editPage({
-                            title: currentPageTitle,
-                            text: wikitext,
-                            summary: editSummary
-                        }, callback);
+                    var replace = replaces[iReplace];
+                    var eword = replace.eword;
+                    var status = 'Замена ' + (iReplace + 1) + ' из ' + replaces.length + '\n' + eword + '\nЧастота: ' + replace.frequency + '%';
+                    showStatus(status);
+                    var indexes = text.getIndexesOf(eword.deefication());
+
+                    // игнорируем вхождения dword внутри слов
+                    indexes = indexes.filter(function (i) {
+                        var j = i + eword.length;
+                        return (i == 0 || !text[i - 1].isRussianLetterInWord()) && (j == text.length || !text[j].isRussianLetterInWord());
+                    });
+
+                    // выделяем цветом
+                    if (indexes.length != replace.numberSameDwords) {
+                        showStatus(status + '\nПредупреждение: не совпадает numberSameDwords\nНайдено: ' + indexes.length + '\nДолжно быть: ' + replace.numberSameDwords + ' \n(индексы найденных: ' + indexes + ')');
+                        return false;
                     }
-                });
-            }
+                    var indexWordStart = indexes[replace.numberSameDwordsBefore];
+                    var textNew = text.insert(indexWordStart, '<span style="background: cyan;" id="efication-replace">' + eword + '</span>', eword.length);
+                    textDiv.html(textNew);
 
-            function removeArgumentsFromUrl() {
-                window.history.pushState('', '', window.location.href.replace('?efication=true', ''));
-            }
+                    // проверяем на видимость
+                    if (!$('#efication-replace').is(':visible')) {
+                        console.log('Предупреждение: замена не видна');
+                        return false;
+                    }
 
-            function goToReplace(iReplace) {
-                if (iReplace == replaces.length) {
-                    textDiv.html(text);
-                    makeChange(continuousEfication ? goToNextPage : removeArgumentsFromUrl);
+                    // скроллим
+                    scrollToReplace();
                     return true;
                 }
-                if (iReplace > replaces.length) {
-                    throw 'goToReplace: iReplace > replaces.length';
+
+                function acceptReplace() {
+                    replaces[iReplace].isAccept = true;
+                    goToNextReplace();
                 }
 
-                var replace = replaces[iReplace];
-                var eword = replace.eword;
-                var status = 'Замена ' + (iReplace + 1) + ' из ' + replaces.length + '\n' + eword + '\nЧастота: ' + replace.frequency + '%';
-                showStatus(status);
-                var indexes = text.getIndexesOf(eword.deefication());
+                function rejectReplace() {
+                    goToNextReplace();
+                }
 
-                // игнорируем вхождения dword внутри слов
-                indexes = indexes.filter(function (i) {
-                    var j = i + eword.length;
-                    return (i == 0 || !text[i - 1].isRussianLetterInWord()) && (j == text.length || !text[j].isRussianLetterInWord());
+                function showCurrentReplaceAgain() {
+                    scrollToReplace();
+                }
+
+                var actions = {
+                    'j': acceptReplace,
+                    'о': acceptReplace,
+                    'f': rejectReplace,
+                    'а': rejectReplace,
+                    // ещё раз показать последнюю замену
+                    ';': showCurrentReplaceAgain,
+                    'ж': showCurrentReplaceAgain,
+                    // вернуться к предыдущей замене
+                    'a': goToPreviousReplace,
+                    'ф': goToPreviousReplace
+                };
+
+                $(document).keypress(function (event) {
+                    if (!done && event.key in actions) {
+                        actions[event.key]();
+                    }
                 });
-
-                // выделяем цветом
-                if (indexes.length != replace.numberSameDwords) {
-                    showStatus(status + '\nПредупреждение: не совпадает numberSameDwords\nНайдено: ' + indexes.length + '\nДолжно быть: ' + replace.numberSameDwords + ' \n(индексы найденных: ' + indexes + ')');
-                    return false;
-                }
-                var indexWordStart = indexes[replace.numberSameDwordsBefore];
-                var textNew = text.insert(indexWordStart, '<span style="background: cyan;" id="efication-replace">' + eword + '</span>', eword.length);
-                textDiv.html(textNew);
-
-                // проверяем на видимость
-                if (!$('#efication-replace').is(':visible')) {
-                    console.log('Предупреждение: замена не видна');
-                    return false;
-                }
-
-                // скроллим
-                scrollToReplace();
-                return true;
-            }
-
-            function acceptReplace() {
-                replaces[iReplace].isAccept = true;
-                goToNextReplace();
-            }
-
-            function rejectReplace() {
-                goToNextReplace();
-            }
-
-            function showCurrentReplaceAgain() {
-                scrollToReplace();
-            }
-
-            var actions = {
-                'j': acceptReplace,
-                'о': acceptReplace,
-                'f': rejectReplace,
-                'а': rejectReplace,
-                // ещё раз показать последнюю замену
-                ';': showCurrentReplaceAgain,
-                'ж': showCurrentReplaceAgain,
-                // вернуться к предыдущей замене
-                'a': goToPreviousReplace,
-                'ф': goToPreviousReplace
             };
-
-            $(document).keypress(function (event) {
-                if (!done && event.key in actions) {
-                    actions[event.key]();
-                }
-            });
         }
 
         showStatus('Загружаем список замен...');
@@ -289,9 +289,17 @@ $(function () {
             url: replacesURL + '/replacesByTitles/' + currentPageTitle,
             dataType: 'json',
             error: function () {
-                showStatus('Эта страница и так уже ёфицирована. \n(Не найдено замен для этой страницы)');
+                showStatus('В последнем дампе Википедии не нашлось замен для этой страницы \nПроверяем, появились ли замены с того времени...');
+                $.ajax({
+                    url: generateURL + '/' + currentPageTitle,
+                    dataType: 'json',
+                    error: function () {
+                        showStatus('Эта страница и так уже ёфицирована. \n(Не найдено замен для этой страницы)');
+                    },
+                    success: getReplacesCallbackCreator(false)
+                });
             },
-            success: getReplacesCallback
+            success: getReplacesCallbackCreator(true)
         });
     }
 
