@@ -30,7 +30,7 @@ $(function () {
         checkForScrollTo();
         performEfication(window.location.search.indexOf('continuous_efication=true') != -1);
     } else if (addPortletLinkAction && mw.config.get('wgNamespaceNumber') === 0) {
-        mw.util.addPortletLink('p-cactions', mw.config.get('wgPageName') + '?efication=true', 'Ёфицировать', 'ca-eficator', ' Ёфицировать страницу');
+        mw.util.addPortletLink('p-cactions', '/wiki/' + mw.config.get('wgPageName') + '?efication=true', 'Ёфицировать', 'ca-eficator', ' Ёфицировать страницу');
     }
 
     function checkForScrollTo() {
