@@ -50,7 +50,6 @@ void printReplaces(int numberPages = -1, size_t numberPagesToSkip = 0) {
     mkdirs(pagesToEficationFolder);
     mkdirs(replacesByTitlesFolder);
 
-    freopen("results/ruwiki-my.txt", "r", stdin);
     ReplacesPrinter printer;
     TxtReader().readTo(printer, numberPages, numberPagesToSkip);
 

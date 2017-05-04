@@ -4,11 +4,16 @@
 using namespace std;
 
 int main() {
-	ReplacesCreator replacesCreator;
-	Page page;
-	cin >> page;
-	vector<Replace> replaces = replacesCreator.getReplaces(page);
-	json replacesJson = convertReplacesToJson(replaces, page, replacesCreator);
-	cout << replacesJson << endl;
-	return 0;
+    float minReplaceFrequency;
+    cin >> minReplaceFrequency;
+    string line;
+    getline(cin, line);
+
+    ReplacesCreator replacesCreator(minReplaceFrequency);
+    Page page;
+    cin >> page;
+    vector<Replace> replaces = replacesCreator.getReplaces(page);
+    json replacesJson = convertReplacesToJson(replaces, page, replacesCreator);
+    cout << replacesJson << endl;
+    return 0;
 }

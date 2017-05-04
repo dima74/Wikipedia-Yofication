@@ -24,12 +24,12 @@ struct ReplacesCreator {
 //    eword -> EwordInfo
     map<u16string, EwordInfo> ewords;
 
-    ReplacesCreator() {
+    ReplacesCreator(float minReplaceFrequency = 0) {
         ifstream in("results/frequencies.txt");
         assert(in);
 
         EwordInfo info;
-        while (in >> info && info.getFrequency() > .6) {
+        while (in >> info && info.getFrequency() > minReplaceFrequency) {
             if (isRussianLower(info.eword[0])) {
                 dwords[deefication(info.eword)] = info.eword;
                 ewords[info.eword] = info;

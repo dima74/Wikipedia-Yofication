@@ -13,13 +13,6 @@ struct AbstractParser {
 };
 
 struct TxtReader {
-//    ifstream in = ifstream("results/ruwiki-my.txt");
-    istream &in = cin;
-
-    TxtReader() {
-        assert(in);
-    }
-
     void readTo(AbstractParser &parser, int numberPages = -1, size_t numberPagesToSkip = 0) {
         readToLambda([&parser](Page page) { return parser.parse(page); }, numberPages, numberPagesToSkip);
     }
@@ -29,9 +22,9 @@ struct TxtReader {
         Page page;
         int ipage = 0;
         for (int i = 0; i < numberPagesToSkip; ++i) {
-            in >> page;
+            cin >> page;
         }
-        while ((in >> page) && (numberPages == -1 || ipage < numberPages)) {
+        while ((cin >> page) && (numberPages == -1 || ipage < numberPages)) {
             ipage += lambda(page);
         }
     }
