@@ -7,7 +7,9 @@
 $(function () {
     var addPortletLinkAction = typeof Eficator_AddPortletLinkAction === 'undefined' ? true : Eficator_AddPortletLinkAction;
     var editSummary = typeof Eficator_EditSummary === 'undefined' ? 'Ёфикация с помощью [[Участник:Дима74/Скрипт-Ёфикатор|скрипта-ёфикатора]]' : Eficator_EditSummary;
-    // var replacesURL = 'https://raw.githubusercontent.com/dima74/Wikipedia-Efication-Replaces/master';
+    var minReplaceFrequency = typeof Eficator_MinReplaceFrequency === 'undefined' ? 0.1 : Eficator_MinReplaceFrequency;
+
+    var MESSAGE_NO_REPLACES = 'Эта страница и так уже ёфицирована. \n(Не найдено замен для этой страницы)';
     var replacesURL = 'https://efication.diraria.ru/cache';
     var generateURL = 'https://efication.diraria.ru/generate';
 
@@ -123,6 +125,17 @@ $(function () {
     };
 
     function performEfication(continuousEfication) {
+        function generateReplaces(errorMessage) {
+            $.ajax({
+                url: generateURL + '/' + currentPageTitle + '?minReplaceFrequency=' + minReplaceFrequency,
+                dataType: 'json',
+                error: function () {
+                    showStatus(errorMessage);
+                },
+                success: getReplacesCallbackCreator(false)
+            });
+        }
+
         function getReplacesCallbackCreator(allowGenerate) {
             return function ReplacesCallback(object) {
                 var currentRevision = mw.config.get('wgCurRevisionId');
@@ -132,20 +145,19 @@ $(function () {
                     }
                     replacesGenerated = true;
                     showStatus('Генерируем замены...');
-                    $.ajax({
-                        url: generateURL + '/' + currentPageTitle,
-                        dataType: 'json',
-                        error: function () {
-                            showStatus('Произошла ошибка при генерации замен');
-                        },
-                        success: getReplacesCallbackCreator(false)
-                    });
+                    generateReplaces('Произошла ошибка при генерации замен');
                     return;
                 }
 
                 var textDiv = $('#mw-content-text');
                 var text = textDiv.html();
                 var replaces = object.replaces;
+                replaces = replaces.filter(function (replace) { return replace.frequency >= minReplaceFrequency * 100; });
+                if (replaces.length === 0) {
+                    showStatus(MESSAGE_NO_REPLACES);
+                    removeArgumentsFromUrl();
+                    return;
+                }
                 replaces.forEach(function (replace) { replace.isAccept = false; });
                 var iReplace = -1;
                 var done = false;
@@ -290,14 +302,7 @@ $(function () {
             dataType: 'json',
             error: function () {
                 showStatus('В последнем дампе Википедии не нашлось замен для этой страницы \nПроверяем, появились ли замены с того времени...');
-                $.ajax({
-                    url: generateURL + '/' + currentPageTitle,
-                    dataType: 'json',
-                    error: function () {
-                        showStatus('Эта страница и так уже ёфицирована. \n(Не найдено замен для этой страницы)');
-                    },
-                    success: getReplacesCallbackCreator(false)
-                });
+                generateReplaces(MESSAGE_NO_REPLACES);
             },
             success: getReplacesCallbackCreator(true)
         });
