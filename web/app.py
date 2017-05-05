@@ -24,7 +24,7 @@ def getReplaces(info, title, min_replace_frequency):
     revision = info['revid']
     text = info['*']
 
-    p = Popen(['/home/dima/Wikipedia-Efication/cmake-build-debug/create_replaces_for_page'], stdout=PIPE, stdin=PIPE, stderr=STDOUT, cwd=r'/home/dima/Wikipedia-Efication')
+    p = Popen(['/home/dima/Wikipedia-Efication/cmake-build-debug/replaces_printer_for_page'], stdout=PIPE, stdin=PIPE, stderr=STDOUT, cwd=r'/home/dima/Wikipedia-Efication')
     number_lines = text.count('\n') + 1
     input = '{}\n{}\n{} {}\n{}'.format(min_replace_frequency, title, revision, number_lines, text).encode('utf-8')
     ouput = p.communicate(input=input)[0]
