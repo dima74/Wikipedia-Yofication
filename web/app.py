@@ -27,8 +27,8 @@ def getReplaces(info, title, min_replace_frequency):
     p = Popen(['/home/dima/Wikipedia-Efication/cmake-build-debug/replaces_printer_for_page'], stdout=PIPE, stdin=PIPE, stderr=STDOUT, cwd=r'/home/dima/Wikipedia-Efication')
     number_lines = text.count('\n') + 1
     input = '{}\n{}\n{} {}\n{}'.format(min_replace_frequency, title, revision, number_lines, text).encode('utf-8')
-    ouput = p.communicate(input=input)[0]
-    return ouput.decode()
+    output = p.communicate(input=input)[0]
+    return output.decode()
 
 
 @app.route('/<path:title>')
