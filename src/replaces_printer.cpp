@@ -58,7 +58,6 @@ void printReplaces(int numberPages = -1, size_t numberPagesToSkip = 0) {
 }
 
 int main() {
-    setlocale(LC_ALL, "ru_RU.UTF-8");
     printReplaces();
     return 0;
 }

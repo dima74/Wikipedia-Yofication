@@ -8,6 +8,14 @@ using namespace std;
 #include <fmt/format.cc>
 using namespace fmt;
 
+struct LocaleSetter {
+    LocaleSetter() {
+        setlocale(LC_ALL, "ru_RU.UTF-8");
+    }
+};
+
+LocaleSetter localeSetter;
+
 string to8(u16string s) {
     wstring_convert<codecvt_utf8<char16_t>, char16_t> converter;
     return converter.to_bytes(s);
