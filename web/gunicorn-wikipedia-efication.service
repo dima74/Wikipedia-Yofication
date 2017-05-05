@@ -1,14 +1,12 @@
 [Unit]
-Description=gunicorn daemon
+Description=gunicorn daemon for Wikipedia-Efication
 After=network.target
 
 [Service]
-PIDFile=/run/gunicorn/pid
 User=dima
 Group=dima
-RuntimeDirectory=gunicorn
 WorkingDirectory=/home/dima/Wikipedia-Efication/web
-ExecStart=/usr/bin/gunicorn --pid /run/gunicorn/pid --config gunicorn-config.py app:app
+ExecStart=/usr/bin/gunicorn --config gunicorn-config.py app:app
 ExecReload=/bin/kill -s HUP $MAINPID
 ExecStop=/bin/kill -s TERM $MAINPID
 PrivateTmp=true
