@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ёфикатор</title>
+    <script>
+        function alertError(message) {
+            if (typeof(Materialize) === 'undefined') {
+                alert(message);
+            } else {
+                Materialize.toast(message, 10000);
+            }
+        }
+        window.addEventListener("unhandledrejection", function (event) {
+            let message = '[Непредвиденная ошибка] ' + event.reason;
+            alertError(message);
+        });
+    </script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.2/css/materialize.min.css">
+    {% block head %}{% endblock %}
+</head>
+<body>
+
+{% block body %}{% endblock %}
+
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.2/js/materialize.min.js"></script>
+<script>
+    $(document).ajaxError(function (event, xhr) {
+        alertError('[Непредвиденная ошибка] ' + xhr.responseText);
+    });
+</script>
+{% block script %}{% endblock %}
+
+</body>
+</html>

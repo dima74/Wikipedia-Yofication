@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block head %}
+    <style>
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #form {
+            width: 70%;
+        }
+
+        #text {
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <form method="POST" action="/yoficate" id="form" class="card">
+        <div class="card-content">
+            <span class="card-title">Автоматическая ёфикация текста</span>
+            <div class="input-field">
+                <textarea placeholder="Введите текст для ёфикации" id="text" name="text" class="materialize-textarea" autofocus></textarea>
+            </div>
+        </div>
+        <div class="card-action">
+            <button class="waves-effect waves-light btn">Ёфицировать</button>
+        </div>
+    </form>
+{% endblock %}
+
+{% block script %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.2.0/jquery.form.min.js"></script>
+    <script>
+        $(function () {
+            let paste = false;
+            let inSubmit = false;
+
+            $('#form').ajaxForm({
+                beforeSubmit: function () {
+                    if (inSubmit) {
+                        return false;
+                    }
+                    inSubmit = true;
+                    Materialize.toast('ёфицируем...');
+                },
+                success: function (data) {
+                    $('#text').val(data);
+                    Materialize.toast('Текст успешно ёфицирован!');
+                    inSubmit = false;
+                    $('#text').select();
+                }
+            });
+
+            $('#text').on('paste', function (event) {
+                paste = $('#text').val().length === 0;
+            });
+
+            $('#text').on('input', function (event) {
+                if (paste) {
+                    paste = false;
+                    $('#form').submit();
+                }
+            });
+        });
+    </script>
+{% endblock %}
