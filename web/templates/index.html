@@ -144,9 +144,7 @@
 
             $('#form').submit(function () {
                 let minFrequency = $('#minFrequency').val();
-                if (minFrequency !== '') {
-                    $('#minFrequencyHidden').val(minFrequency);
-                }
+                $('#minFrequencyHidden').val(minFrequency !== '' ? 60 : minFrequency);
             });
 
             $('#form').ajaxForm({

@@ -15,10 +15,12 @@ def index():
 @app.route('/yoficate', methods=["POST"])
 def yoficate():
     if 'text' not in request.form:
-        return 'Нет аргумента `text`', 401
+        return 'Нет аргумента `text`', 400
+    if 'minFrequency' not in request.form:
+        return 'Нет аргумента `minFrequency`', 400
 
     text = request.form['text']
-    min_frequency = int(request.form.get('minFrequency'))
+    min_frequency = int(request.form['minFrequency'])
     text_yoficated, number_replaces = yoficate_text(text, min_frequency)
     return jsonify({'text_yoficated': text_yoficated, 'number_replaces': number_replaces})
 
