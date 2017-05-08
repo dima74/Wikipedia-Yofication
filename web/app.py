@@ -1,4 +1,5 @@
-from flask import Flask, request, render_template
+import difflib
+from flask import Flask, request, render_template, jsonify
 from src.yofication import yoficate_text
 from src.wikipedia import wikipedia
 
@@ -17,7 +18,9 @@ def yoficate():
         return 'Нет аргумента `text`', 401
 
     text = request.form['text']
-    return yoficate_text(text)
+    min_frequency = int(request.form.get('minFrequency'))
+    text_yoficated, number_replaces = yoficate_text(text, min_frequency)
+    return jsonify({'text_yoficated': text_yoficated, 'number_replaces': number_replaces})
 
 
 if __name__ == '__main__':

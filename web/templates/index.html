@@ -15,10 +15,11 @@
 
         #form {
             width: 70%;
+            margin-top: 1rem;
         }
 
         #text {
-            max-height: 70vh;
+            max-height: 60vh;
             overflow-y: auto;
         }
     </style>
@@ -28,9 +29,9 @@
     <form method="POST" action="/yoficate" id="form" class="card">
         <div class="card-content">
             <span class="card-title">Автоматическая ёфикация текста</span>
-            <div class="input-field">
-                <textarea placeholder="Введите текст для ёфикации" id="text" name="text" class="materialize-textarea" autofocus></textarea>
-            </div>
+            <textarea class="input-field materialize-textarea" id="text" name="text" placeholder="Введите текст для ёфикации" autofocus></textarea>
+            <input class="input-field" id="minFrequency" type="text" placeholder="Минимальная частота для ёфикации (0-100, по умолчанию 60)">
+            <input id="minFrequencyHidden" name="minFrequency" type="hidden" value="60">
         </div>
         <div class="card-action">
             <button class="waves-effect waves-light btn">Ёфицировать</button>
@@ -45,6 +46,13 @@
             let paste = false;
             let inSubmit = false;
 
+            $('#form').submit(function () {
+                let minFrequency = $('#minFrequency').val();
+                if (minFrequency !== '') {
+                    $('#minFrequencyHidden').val(minFrequency);
+                }
+            });
+
             $('#form').ajaxForm({
                 beforeSubmit: function () {
                     if (inSubmit) {
@@ -54,10 +62,16 @@
                     Materialize.toast('ёфицируем...');
                 },
                 success: function (data) {
-                    $('#text').val(data);
-                    Materialize.toast('Текст успешно ёфицирован!');
+                    textYoficated = data.text_yoficated;
+                    numberReplaces = data.number_replaces;
+                    if (numberReplaces === 0) {
+                        Materialize.toast('Замен не найдено');
+                    } else {
+                        $('#text').val(textYoficated);
+                        Materialize.toast(`Текст успешно ёфицирован!<br> Найдено замен: ${numberReplaces}`);
+                        $('#text').select();
+                    }
                     inSubmit = false;
-                    $('#text').select();
                 }
             });
 

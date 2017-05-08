@@ -27,9 +27,10 @@ lines = readlines('all-ewords.txt') + readlines('frequencies.txt')
 words = {deyoficate(eword): EWord(eword, number_with_e, number_all) for (eword, number_with_e, number_all) in map(str.split, lines)}
 
 
-def yoficate_text(text, min_frequency=70, yoficate_words_starts_with_upper=True):
+def yoficate_text(text, min_frequency=60, yoficate_words_starts_with_upper=True):
     matches = re.finditer('([а-яА-ЯёЁ]+(-[а-яА-ЯёЁ]+)*)', text)
     text_mutable = ctypes.create_unicode_buffer(text)
+    number_replaces = 0
     for match in matches:
         dword = match.group()
         if dword in words:
@@ -38,4 +39,5 @@ def yoficate_text(text, min_frequency=70, yoficate_words_starts_with_upper=True)
                 start = match.start()
                 end = match.end()
                 text_mutable[start:end] = eword
-    return text_mutable.value
+                number_replaces += 1
+    return text_mutable.value, number_replaces
