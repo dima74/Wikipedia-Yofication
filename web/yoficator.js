@@ -5,9 +5,11 @@
  */
 
 $(function () {
+    // вы можете переопределить эти переменные, написав перед подключением скрипта что-то вроде
+    // var Eficator_MinReplaceFrequency = <число от нуля до ста, чем меньше, тем больше правок будет предлагаться, но некоторые из них придётся отменять>
     var addPortletLinkAction = typeof Eficator_AddPortletLinkAction === 'undefined' ? true : Eficator_AddPortletLinkAction;
     var editSummary = typeof Eficator_EditSummary === 'undefined' ? 'Ёфикация с помощью [[Участник:Дима74/Скрипт-Ёфикатор|скрипта-ёфикатора]]' : Eficator_EditSummary;
-    var minReplaceFrequency = typeof Eficator_MinReplaceFrequency === 'undefined' ? 0.1 : Eficator_MinReplaceFrequency;
+    var minReplaceFrequency = typeof Eficator_MinReplaceFrequency === 'undefined' ? 60 : Eficator_MinReplaceFrequency;
 
     var MESSAGE_NO_REPLACES = 'Эта страница и так уже ёфицирована. \n(Не найдено замен для этой страницы)';
     var replacesURL = 'https://efication.diraria.ru/cache';
@@ -27,13 +29,46 @@ $(function () {
     //@formatter:on
 
     var currentPageTitle = mw.config.get('wgTitle');
-    if (mw.config.get('wgPageName') == 'Служебная:Ёфикация') {
-        goToNextPage();
-    } else if (window.location.search.indexOf('efication=true') != -1) {
+    if (mw.config.get('wgPageName') === 'Служебная:Ёфикация') {
+        showStatus('Возможность непрерывной ёфикации в настоящий момент недоступна.\nДля подробностей смотрите конец [[Википедия:К_удалению/29_мая_2017#.D0.A3.D1.87.D0.B0.D1.81.D1.82.D0.BD.D0.B8.D0.BA:.D0.94.D0.B8.D0.BC.D0.B074.2F.D0.A1.D0.BA.D1.80.D0.B8.D0.BF.D1.82-.D0.81.D1.84.D0.B8.D0.BA.D0.B0.D1.82.D0.BE.D1.80|этого обсуждения]].');
+    } else if (window.location.search.indexOf('efication=true') !== -1) {
         checkForScrollTo();
-        performEfication(window.location.search.indexOf('continuous_efication=true') != -1);
+        performEfication(window.location.search.indexOf('continuous_efication=true') !== -1);
     } else if (addPortletLinkAction && mw.config.get('wgNamespaceNumber') === 0) {
         mw.util.addPortletLink('p-cactions', '/wiki/' + mw.config.get('wgPageName') + '?efication=true', 'Ёфицировать', 'ca-eficator', ' Ёфицировать страницу');
+    }
+
+    var customizeToolbarYoficateButton = function () {
+        $('#wpTextbox1').wikiEditor('addToToolbar', {
+            'section': 'main',
+            'group': 'insert',
+            'tools': {
+                'indent': {
+                    filters: ['body.ns-0'],
+                    label: 'Ёфицировать',
+                    type: 'button',
+                    icon: 'http://localhost:7777/yo.png',
+                    action: {
+                        type: 'callback',
+                        execute: function () {
+                            performEfication(false);
+                        }
+                    }
+                }
+            }
+        });
+    };
+
+    /* Check if view is in edit mode and that the required modules are available. Then, customize the toolbar … */
+    if ($.inArray(mw.config.get('wgAction'), ['edit', 'submit']) !== -1) {
+        mw.loader.using('user.options').then(function () {
+            // This can be the string "0" if the user disabled the preference ([[phab:T54542#555387]])
+            if (mw.user.options.get('usebetatoolbar') === 1) {
+                $.when(
+                    mw.loader.using('ext.wikiEditor.toolbar'), $.ready
+                ).then(customizeToolbarYoficateButton);
+            }
+        });
     }
 
     function checkForScrollTo() {
@@ -109,7 +144,7 @@ $(function () {
         var indexes = [];
         var start = 0;
         var position;
-        while ((position = this.indexOf(s, start)) != -1) {
+        while ((position = this.indexOf(s, start)) !== -1) {
             indexes.push(position);
             start = position + s.length;
         }
@@ -139,7 +174,7 @@ $(function () {
         function getReplacesCallbackCreator(allowGenerate) {
             return function ReplacesCallback(object) {
                 var currentRevision = mw.config.get('wgCurRevisionId');
-                if (currentRevision != object.revision) {
+                if (currentRevision !== object.revision) {
                     if (!allowGenerate) {
                         exit('Непредвиденная ошибка', 'Пожалуйста, сообщите название этой страницы [[Участник:Дима74|автору скрипта]].');
                     }
@@ -194,7 +229,7 @@ $(function () {
                         for (var i = 0; i < replacesRight.length; ++i) {
                             var replace = replacesRight[i];
                             var eword = replace.eword;
-                            if (wikitext.substr(replace.indexWordStart, eword.length) != eword.deefication()) {
+                            if (wikitext.substr(replace.indexWordStart, eword.length) !== eword.deefication()) {
                                 exit('Ошибка: викитекст страницы "' + currentPageTitle + '" не совпадает в индексе ' + replace.indexWordStart
                                     + '\nПожалуйста, сообщите название этой страницы [[Участник:Дима74|автору скрипта]].'
                                     + '\nожидается: "' + eword.deefication() + '"'
@@ -221,7 +256,7 @@ $(function () {
                 }
 
                 function goToReplace(iReplace) {
-                    if (iReplace == replaces.length) {
+                    if (iReplace === replaces.length) {
                         textDiv.html(text);
                         makeChange(continuousEfication ? goToNextPage : removeArgumentsFromUrl);
                         return true;
@@ -239,11 +274,11 @@ $(function () {
                     // игнорируем вхождения dword внутри слов
                     indexes = indexes.filter(function (i) {
                         var j = i + eword.length;
-                        return (i == 0 || !text[i - 1].isRussianLetterInWord()) && (j == text.length || !text[j].isRussianLetterInWord());
+                        return (i === 0 || !text[i - 1].isRussianLetterInWord()) && (j === text.length || !text[j].isRussianLetterInWord());
                     });
 
                     // выделяем цветом
-                    if (indexes.length != replace.numberSameDwords) {
+                    if (indexes.length !== replace.numberSameDwords) {
                         showStatus(status + '\nПредупреждение: не совпадает numberSameDwords\nНайдено: ' + indexes.length + '\nДолжно быть: ' + replace.numberSameDwords + ' \n(индексы найденных: ' + indexes + ')');
                         return false;
                     }
@@ -332,6 +367,7 @@ $(function () {
                 format: 'json',
                 action: 'edit',
                 title: currentPageTitle,
+                minor: true,
                 text: info.text,
                 summary: info.summary,
                 token: mw.user.tokens.get('editToken')
@@ -340,7 +376,7 @@ $(function () {
                 showStatus('Не удалось произвести правку', true);
             },
             success: function (data) {
-                if (!data.edit || data.edit.result != 'Success') {
+                if (!data.edit || data.edit.result !== 'Success') {
                     console.log(data);
                     showStatus('Не удалось произвести правку: ' + data.edit.info, true);
                     return;

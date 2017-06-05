@@ -17,7 +17,7 @@ def yoficate():
     if 'text' not in request.form:
         return 'Нет аргумента `text`', 400
     if 'minFrequency' not in request.form:
-        return 'Нет аргумента `minFrequency`', 400
+        return 'Нет аргумента minFrequency`', 400
 
     text = request.form['text']
     min_frequency = int(request.form['minFrequency'])
