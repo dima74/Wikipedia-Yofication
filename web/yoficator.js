@@ -32,13 +32,24 @@ $(function () {
     if (mw.config.get('wgPageName') === 'Служебная:Ёфикация') {
         showStatus('Возможность непрерывной ёфикации в настоящий момент недоступна.\nДля подробностей смотрите конец [[Википедия:К_удалению/29_мая_2017#.D0.A3.D1.87.D0.B0.D1.81.D1.82.D0.BD.D0.B8.D0.BA:.D0.94.D0.B8.D0.BC.D0.B074.2F.D0.A1.D0.BA.D1.80.D0.B8.D0.BF.D1.82-.D0.81.D1.84.D0.B8.D0.BA.D0.B0.D1.82.D0.BE.D1.80|этого обсуждения]].');
     } else if (window.location.search.indexOf('efication=true') !== -1) {
-        checkForScrollTo();
-        performEfication(window.location.search.indexOf('continuous_efication=true') !== -1);
+        performEfication();
     } else if (addPortletLinkAction && mw.config.get('wgNamespaceNumber') === 0) {
         mw.util.addPortletLink('p-cactions', '/wiki/' + mw.config.get('wgPageName') + '?efication=true', 'Ёфицировать', 'ca-eficator', ' Ёфицировать страницу');
     }
 
-    var customizeToolbarYoficateButton = function () {
+    /* Check if view is in edit mode and that the required modules are available. Then, customize the toolbar … */
+    if ($.inArray(mw.config.get('wgAction'), ['edit', 'submit']) !== -1) {
+        mw.loader.using('user.options').then(function () {
+            // This can be the string "0" if the user disabled the preference ([[phab:T54542#555387]])
+            if (mw.user.options.get('usebetatoolbar') == 1) {
+                $.when(
+                    mw.loader.using('ext.wikiEditor.toolbar'), $.ready
+                ).then(customizeToolbarYoficateButton);
+            }
+        });
+    }
+
+    function customizeToolbarYoficateButton() {
         $('#wpTextbox1').wikiEditor('addToToolbar', {
             'section': 'main',
             'group': 'insert',
@@ -57,7 +68,7 @@ $(function () {
                 }
             }
         });
-    };
+    }
 
     /* Check if view is in edit mode and that the required modules are available. Then, customize the toolbar … */
     if ($.inArray(mw.config.get('wgAction'), ['edit', 'submit']) !== -1) {
@@ -69,12 +80,6 @@ $(function () {
                 ).then(customizeToolbarYoficateButton);
             }
         });
-    }
-
-    function checkForScrollTo() {
-        if (typeof($.scrollTo) === 'undefined') {
-            exit('Ошибка: $.scrollTo не определено.');
-        }
     }
 
     function showStatus(status, error) {
@@ -110,30 +115,6 @@ $(function () {
 
     function getRandomInt(min, max) {
         return Math.floor(Math.random() * (max - min)) + min;
-    }
-
-    function goToNextPage() {
-        function errorGoToNextPage() {
-            showStatus('Ошибка: Не удалось получить следующую страницу для ёфикации', true);
-        }
-
-        showStatus('Переходим к следующей странице: \nЗагружаем число страниц для ёфикации...');
-        $.ajax({
-            url: replacesURL + '/numberPages',
-            error: errorGoToNextPage,
-            success: function (data) {
-                showStatus('Переходим к следующей странице: \nЗагружаем название статьи для ёфикации...');
-                var i = getRandomInt(0, Number(data));
-                $.ajax({
-                    url: replacesURL + '/pagesToEfication/' + i,
-                    error: errorGoToNextPage,
-                    success: function (pageTitle) {
-                        showStatus('Переходим к следующей странице: \nПеренаправляем на страницу "' + pageTitle + '"');
-                        window.location.href = 'https://ru.wikipedia.org/wiki/' + pageTitle + '?continuous_efication=true';
-                    }
-                });
-            }
-        });
     }
 
     String.prototype.insert = function (i, s, numberCharsToReplace) {
