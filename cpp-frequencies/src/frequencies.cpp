@@ -1,18 +1,18 @@
 #include <bits/stdc++.h>
-#include "ewords_parser.h"
+#include "yowords_parser.h"
 using namespace std;
 
-struct FrequenciesParser : public EwordsParser {
+struct FrequenciesParser : public YowordsParser {
     void summary() {
-        vector<EwordInfo> bests;
+        vector<YowordInfo> bests;
         for (pair<u16string, DwordInfo> p : infos) {
-            EwordInfo best = p.second.getBest();
+            YowordInfo best = p.second.getBest();
             if (best.number != best.numberAll) {
                 bests.push_back(best);
             }
         }
         sort(bests.begin(), bests.end());
-        for (EwordInfo best : bests) {
+        for (YowordInfo best : bests) {
             cout << best << endl;
         }
     }

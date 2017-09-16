@@ -13,26 +13,26 @@ using namespace std;
 
 struct Replace {
     size_t indexWordStart;
-    u16string eword;
+    u16string yoword;
 
-    Replace(size_t indexWordStart, const u16string &eword) : indexWordStart(indexWordStart), eword(eword) {}
+    Replace(size_t indexWordStart, const u16string &yoword) : indexWordStart(indexWordStart), yoword(yoword) {}
 };
 
 struct ReplacesCreator {
-//    dword -> eword
+//    dword -> yoword
     map<u16string, u16string> dwords;
-//    eword -> EwordInfo
-    map<u16string, EwordInfo> ewords;
+//    yoword -> YowordInfo
+    map<u16string, YowordInfo> yowords;
 
     ReplacesCreator(float minReplaceFrequency = 0) {
         ifstream in("results/frequencies.txt");
         assert(in);
 
-        EwordInfo info;
+        YowordInfo info;
         while (in >> info && info.getFrequency() > minReplaceFrequency) {
-            if (isRussianLower(info.eword[0])) {
-                dwords[deefication(info.eword)] = info.eword;
-                ewords[info.eword] = info;
+            if (isRussianLower(info.yoword[0])) {
+                dwords[deefication(info.yoword)] = info.yoword;
+                yowords[info.yoword] = info;
             }
         }
     }
@@ -54,10 +54,10 @@ struct ReplacesCreator {
                     }
                 }
 
-                u16string eword = it->second;
-                assert(eword.length() < MAX_LENGTH);
+                u16string yoword = it->second;
+                assert(yoword.length() < MAX_LENGTH);
                 if (checker.check(i)) {
-                    infos.emplace_back(i, eword);
+                    infos.emplace_back(i, yoword);
                 }
             }
         });

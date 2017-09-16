@@ -6,10 +6,10 @@
 using namespace std;
 
 // dword --- деёфицированное слово
-// eword --- слово с ё
+// yoword --- слово с ё
 
-struct EwordInfo {
-    u16string eword;
+struct YowordInfo {
+    u16string yoword;
     size_t number;
     size_t numberAll;
 
@@ -17,24 +17,24 @@ struct EwordInfo {
         return number / (float) numberAll;
     }
 
-    bool operator<(EwordInfo info) {
+    bool operator<(YowordInfo info) {
 //        return number / numberAll > info.number / info.numberAll;
 //        return number * info.numberAll > info.number * numberAll;
         return make_pair(number * info.numberAll, number) > make_pair(info.number * numberAll, info.number);
     }
 };
 
-ostream &operator<<(ostream &out, EwordInfo info) {
-    return out << info.eword << " " << info.number << " " << info.numberAll;
+ostream &operator<<(ostream &out, YowordInfo info) {
+    return out << info.yoword << " " << info.number << " " << info.numberAll;
 }
 
-istream &operator>>(istream &in, EwordInfo &info) {
-    return in >> info.eword >> info.number >> info.numberAll;
+istream &operator>>(istream &in, YowordInfo &info) {
+    return in >> info.yoword >> info.number >> info.numberAll;
 }
 
 struct DwordInfo {
     size_t number = 0;
-    // ключи --- eword
+    // ключи --- yoword
     map<u16string, size_t> numbers;
 
     size_t getNumberAll() {
@@ -45,7 +45,7 @@ struct DwordInfo {
         return numberAll;
     }
 
-    EwordInfo getBest() {
+    YowordInfo getBest() {
         vector<pair<size_t, u16string>> numbers_v;
         for (auto p : numbers) {
             numbers_v.emplace_back(p.second, p.first);

@@ -1,5 +1,5 @@
-#ifndef PARSE_EWORDS_PARSER_H
-#define PARSE_EWORDS_PARSER_H
+#ifndef PARSE_YOWORDS_PARSER_H
+#define PARSE_YOWORDS_PARSER_H
 
 #include <bits/stdc++.h>
 #include "txt_reader.h"
@@ -8,7 +8,7 @@
 #include "string_helper.h"
 using namespace std;
 
-struct EwordsParser : public AbstractParser {
+struct YowordsParser : public AbstractParser {
     // ключи --- dword
     map<u16string, DwordInfo> infos;
 
@@ -25,7 +25,7 @@ struct EwordsParser : public AbstractParser {
         return true;
     }
 
-    virtual ~EwordsParser() {}
+    virtual ~YowordsParser() {}
 };
 
-#endif //PARSE_EWORDS_PARSER_H
+#endif //PARSE_YOWORDS_PARSER_H

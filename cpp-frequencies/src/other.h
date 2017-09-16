@@ -14,15 +14,15 @@ void showFrequenciesInfo() {
     ifstream in("results/frequencies.txt");
     assert(in);
 
-    EwordInfo info;
+    YowordInfo info;
     int n = 10;
     size_t numbers[n] = {0};
     vector<u16string> words[n];
     while (in >> info) {
-        if (isRussianLower(info.eword[0])) {
+        if (isRussianLower(info.yoword[0])) {
             size_t frequency = info.number * n / info.numberAll;
             if (rand() % 100 == 0) {
-                words[frequency].push_back(info.eword);
+                words[frequency].push_back(info.yoword);
             }
             ++numbers[frequency];
         }

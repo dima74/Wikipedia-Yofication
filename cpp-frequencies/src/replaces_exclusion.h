@@ -21,8 +21,8 @@ struct ReplacesExclusion {
         }
     }
 
-    void exclude(u16string eword) {
-        u16string dword = deefication(eword);
+    void exclude(u16string yoword) {
+        u16string dword = deefication(yoword);
         assert(exclusions.find(dword) == exclusions.end());
         exclusions.insert(dword);
         ofstream out(exclusionsFile, fstream::app);

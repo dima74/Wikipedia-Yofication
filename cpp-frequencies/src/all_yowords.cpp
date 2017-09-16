@@ -1,18 +1,18 @@
 #include <bits/stdc++.h>
-#include "ewords_parser.h"
+#include "yowords_parser.h"
 using namespace std;
 
-struct AllEwordsParser : public EwordsParser {
+struct AllYowordsParser : public YowordsParser {
     void summary() {
-        vector<EwordInfo> bests;
+        vector<YowordInfo> bests;
         for (pair<u16string, DwordInfo> p : infos) {
-            EwordInfo best = p.second.getBest();
+            YowordInfo best = p.second.getBest();
             if (best.number == best.numberAll) {
                 bests.push_back(best);
             }
         }
         sort(bests.begin(), bests.end());
-        for (EwordInfo best : bests) {
+        for (YowordInfo best : bests) {
             cout << best << endl;
         }
     }
@@ -20,8 +20,8 @@ struct AllEwordsParser : public EwordsParser {
 
 int main() {
 //    freopen("results/ruwiki-my.txt", "r", stdin);
-//    freopen("results/all-ewords.txt", "w", stdout);
-    AllEwordsParser parser;
+//    freopen("results/all-yowords.txt", "w", stdout);
+    AllYowordsParser parser;
     TxtReader().readTo(parser);
     parser.summary();
     return 0;

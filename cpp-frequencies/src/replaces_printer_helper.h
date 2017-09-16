@@ -13,12 +13,12 @@ json convertReplacesToJson(const vector<Replace> &replaces, const Page &page, Re
 	json replacesJson = json::array();
 	u16string text16 = to16(page.text);
 	for (Replace replace : replaces) {
-		size_t length = replace.eword.length();
+		size_t length = replace.yoword.length();
 		if (replace.indexWordStart == 0 || replace.indexWordStart + length == text16.length()) {
 			continue;
 		}
 
-		u16string eword = replace.eword;
+		u16string yoword = replace.yoword;
 		u16string dword = text16.substr(replace.indexWordStart, length);
 
 		size_t numberSameDwordsBefore = CounterNumberRussianWords::getNumberRussianWords(text16, dword, 0, replace.indexWordStart);
@@ -26,10 +26,10 @@ json convertReplacesToJson(const vector<Replace> &replaces, const Page &page, Re
 		assert(numberSameDwords > 0);
 		json replaceJson;
 		replaceJson["indexWordStart"] = replace.indexWordStart;
-		replaceJson["eword"] = to8(eword);
+		replaceJson["yoword"] = to8(yoword);
 		replaceJson["numberSameDwordsBefore"] = numberSameDwordsBefore;
 		replaceJson["numberSameDwords"] = numberSameDwords;
-		replaceJson["frequency"] = lround(replacesCreator.ewords[eword].getFrequency() * 100);
+		replaceJson["frequency"] = lround(replacesCreator.yowords[yoword].getFrequency() * 100);
 		replacesJson.push_back(replaceJson);
 	}
 	info["replaces"] = replacesJson;
