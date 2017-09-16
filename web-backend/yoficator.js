@@ -1,7 +1,7 @@
 /*
  * Скрипт-Ёфикатор для Википедии
  * Инструкция по использованию находится по адресу https://ru.wikipedia.org/wiki/Участник:Дима74/Скрипт-Ёфикатор
- * Историю изменений можно найти на гитхабе: https://github.com/dima74/Wikipedia-Efication/commits/master
+ * Историю изменений можно найти на гитхабе: https://github.com/dima74/Wikipedia-Yofication/commits/master
  */
 
 $(function () {
@@ -12,8 +12,8 @@ $(function () {
     var minReplaceFrequency = typeof Eficator_MinReplaceFrequency === 'undefined' ? 60 : Eficator_MinReplaceFrequency;
 
     var MESSAGE_NO_REPLACES = 'Эта страница и так уже ёфицирована. \n(Не найдено замен для этой страницы)';
-    var replacesURL = 'https://efication.diraria.ru/cache';
-    var generateURL = 'https://efication.diraria.ru/generate';
+    var replacesURL = 'https://yofication.diraria.ru/cache';
+    var generateURL = 'https://yofication.diraria.ru/generate';
 
     // импорт через
     // mw.loader.load('https://cdnjs.cloudflare.com/ajax/libs/jquery-scrollTo/2.1.2/jquery.scrollTo.min.js', 'text/javascript');
@@ -31,22 +31,10 @@ $(function () {
     var currentPageTitle = mw.config.get('wgTitle');
     if (mw.config.get('wgPageName') === 'Служебная:Ёфикация') {
         showStatus('Возможность непрерывной ёфикации в настоящий момент недоступна.\nДля подробностей смотрите конец [[Википедия:К_удалению/29_мая_2017#.D0.A3.D1.87.D0.B0.D1.81.D1.82.D0.BD.D0.B8.D0.BA:.D0.94.D0.B8.D0.BC.D0.B074.2F.D0.A1.D0.BA.D1.80.D0.B8.D0.BF.D1.82-.D0.81.D1.84.D0.B8.D0.BA.D0.B0.D1.82.D0.BE.D1.80|этого обсуждения]].');
-    } else if (window.location.search.indexOf('efication=true') !== -1) {
-        performEfication();
+    } else if (window.location.search.indexOf('yofication=true') !== -1) {
+        performYofication();
     } else if (addPortletLinkAction && mw.config.get('wgNamespaceNumber') === 0) {
-        mw.util.addPortletLink('p-cactions', '/wiki/' + mw.config.get('wgPageName') + '?efication=true', 'Ёфицировать', 'ca-eficator', ' Ёфицировать страницу');
-    }
-
-    /* Check if view is in edit mode and that the required modules are available. Then, customize the toolbar … */
-    if ($.inArray(mw.config.get('wgAction'), ['edit', 'submit']) !== -1) {
-        mw.loader.using('user.options').then(function () {
-            // This can be the string "0" if the user disabled the preference ([[phab:T54542#555387]])
-            if (mw.user.options.get('usebetatoolbar') == 1) {
-                $.when(
-                    mw.loader.using('ext.wikiEditor.toolbar'), $.ready
-                ).then(customizeToolbarYoficateButton);
-            }
-        });
+        mw.util.addPortletLink('p-cactions', '/wiki/' + mw.config.get('wgPageName') + '?yofication=true', 'Ёфицировать', 'ca-eficator', ' Ёфицировать страницу');
     }
 
     function customizeToolbarYoficateButton() {
@@ -62,7 +50,7 @@ $(function () {
                     action: {
                         type: 'callback',
                         execute: function () {
-                            performEfication(false);
+                            performYofication(false);
                         }
                     }
                 }
@@ -98,7 +86,7 @@ $(function () {
     }
 
     function scrollToReplace() {
-        var replace = $('#efication-replace');
+        var replace = $('#yofication-replace');
         if (replace.length) {
             $.scrollTo(replace, {over: 0.5, offset: -$(window).height() / 2});
         }
@@ -132,7 +120,7 @@ $(function () {
         return indexes;
     };
 
-    String.prototype.deefication = function () {
+    String.prototype.deyofication = function () {
         return this.replace('ё', 'е');
     };
 
@@ -140,7 +128,7 @@ $(function () {
         return this.length === 1 && this.match(/[а-яА-ЯёЁ\-\u00AD\u0301]/);
     };
 
-    function performEfication(continuousEfication) {
+    function performYofication(continuousYofication) {
         function generateReplaces(errorMessage) {
             $.ajax({
                 url: generateURL + '/' + currentPageTitle + '?minReplaceFrequency=' + minReplaceFrequency,
@@ -210,10 +198,10 @@ $(function () {
                         for (var i = 0; i < replacesRight.length; ++i) {
                             var replace = replacesRight[i];
                             var eword = replace.eword;
-                            if (wikitext.substr(replace.indexWordStart, eword.length) !== eword.deefication()) {
+                            if (wikitext.substr(replace.indexWordStart, eword.length) !== eword.deyofication()) {
                                 exit('Ошибка: викитекст страницы "' + currentPageTitle + '" не совпадает в индексе ' + replace.indexWordStart
                                     + '\nПожалуйста, сообщите название этой страницы [[Участник:Дима74|автору скрипта]].'
-                                    + '\nожидается: "' + eword.deefication() + '"'
+                                    + '\nожидается: "' + eword.deyofication() + '"'
                                     + '\nполучено: "' + wikitext.substr(replace.indexWordStart, eword.length) + '"', false);
                                 return;
                             }
@@ -233,13 +221,13 @@ $(function () {
                 }
 
                 function removeArgumentsFromUrl() {
-                    window.history.pushState('', '', window.location.href.replace('?efication=true', ''));
+                    window.history.pushState('', '', window.location.href.replace('?yofication=true', ''));
                 }
 
                 function goToReplace(iReplace) {
                     if (iReplace === replaces.length) {
                         textDiv.html(text);
-                        makeChange(continuousEfication ? goToNextPage : removeArgumentsFromUrl);
+                        makeChange(continuousYofication ? goToNextPage : removeArgumentsFromUrl);
                         return true;
                     }
                     if (iReplace > replaces.length) {
@@ -250,7 +238,7 @@ $(function () {
                     var eword = replace.eword;
                     var status = 'Замена ' + (iReplace + 1) + ' из ' + replaces.length + '\n' + eword + '\nЧастота: ' + replace.frequency + '%';
                     showStatus(status);
-                    var indexes = text.getIndexesOf(eword.deefication());
+                    var indexes = text.getIndexesOf(eword.deyofication());
 
                     // игнорируем вхождения dword внутри слов
                     indexes = indexes.filter(function (i) {
@@ -264,11 +252,11 @@ $(function () {
                         return false;
                     }
                     var indexWordStart = indexes[replace.numberSameDwordsBefore];
-                    var textNew = text.insert(indexWordStart, '<span style="background: cyan;" id="efication-replace">' + eword + '</span>', eword.length);
+                    var textNew = text.insert(indexWordStart, '<span style="background: cyan;" id="yofication-replace">' + eword + '</span>', eword.length);
                     textDiv.html(textNew);
 
                     // проверяем на видимость
-                    if (!$('#efication-replace').is(':visible')) {
+                    if (!$('#yofication-replace').is(':visible')) {
                         console.log('Предупреждение: замена не видна');
                         return false;
                     }

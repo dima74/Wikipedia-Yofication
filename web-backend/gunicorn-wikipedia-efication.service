@@ -1,11 +1,11 @@
 [Unit]
-Description=gunicorn daemon for Wikipedia-Efication
+Description=gunicorn daemon for Wikipedia-Yofication
 After=network.target
 
 [Service]
 User=dima
 Group=dima
-WorkingDirectory=/home/dima/Wikipedia-Efication/web
+WorkingDirectory=/home/dima/Wikipedia-Yofication/web
 ExecStart=/usr/bin/gunicorn --config gunicorn-config.py app:app
 ExecReload=/bin/kill -s HUP $MAINPID
 ExecStop=/bin/kill -s TERM $MAINPID

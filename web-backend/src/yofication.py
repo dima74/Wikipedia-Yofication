@@ -22,7 +22,7 @@ class EWord(str):
 
 
 def readlines(filename):
-    return open('/home/dima/Wikipedia-Efication/results/' + filename).readlines()
+    return open('/home/dima/Wikipedia-Yofication/results/' + filename).readlines()
 
 
 lines = readlines('all-ewords.txt') + readlines('frequencies.txt')
