@@ -1,7 +1,7 @@
 import json
 import requests
 from subprocess import Popen, PIPE, STDOUT
-from flask import Blueprint, request, abort
+from flask import Blueprint, request, abort, jsonify
 
 wikipedia = Blueprint('wikipedia', __name__)
 WIKIPEDIA_HOST = 'https://ru.wikipedia.org'
@@ -28,6 +28,14 @@ def getReplaces(info, title, min_replace_frequency):
     input = '{}\n{}\n{} {}\n{}'.format(min_replace_frequency, title, revision, number_lines, text).encode('utf-8')
     output = p.communicate(input=input)[0]
     return output.decode()
+
+
+@wikipedia.route('/wikipedia/randomPageName')
+def randomPageName():
+    response = get(params={'action': 'query', 'list': 'random', 'rnnamespace': 0, 'rnlimit': 10}).json()
+    pages = [page['title'] for page in response['query']['random']]
+    return json.dumps(pages, ensure_ascii=False, indent=4)
+    # return jsonify(pages)
 
 
 @wikipedia.route('/wikipedia/<path:title>')

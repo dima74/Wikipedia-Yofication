@@ -1,10 +1,13 @@
 import difflib
+
+import sys
 from flask import Flask, request, render_template, jsonify
 from src.yofication import yoficate_text
 from src.wikipedia import wikipedia
 
 app = Flask(__name__)
 app.register_blueprint(wikipedia)
+app.config['JSON_AS_ASCII'] = False
 
 
 @app.route('/')
@@ -26,4 +29,5 @@ def yoficate():
 
 
 if __name__ == '__main__':
+    # sys.setdefaultencoding('utf-8')
     app.run(debug=True)
