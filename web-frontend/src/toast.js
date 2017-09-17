@@ -1,6 +1,9 @@
 import {assert} from './base';
 
-const SNACKBAR_HTML = `
+let toastInitialized = false;
+
+function initToast() {
+    const SNACKBAR_HTML = `
     <div 
         id="yoficator-snackbar" 
         style="
@@ -16,10 +19,15 @@ const SNACKBAR_HTML = `
             left: 50%; 
             bottom: 30px;"
     >Спасибо, что воспользовались ёфикатором!</div>`;
-$('body').append(SNACKBAR_HTML);
+    $('body').append(SNACKBAR_HTML);
+}
 
 // todo убрать `error`
 export default function toast(status, error = null) {
+    if (!toastInitialized) {
+        toastInitialized = true;
+        initToast();
+    }
     console.log(status);
     let snackbar = $('#yoficator-snackbar');
     assert(snackbar.length === 1);

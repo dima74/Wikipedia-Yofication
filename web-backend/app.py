@@ -1,6 +1,3 @@
-import difflib
-
-import sys
 from flask import Flask, request, render_template, jsonify
 from src.yofication import yoficate_text
 from src.wikipedia import wikipedia

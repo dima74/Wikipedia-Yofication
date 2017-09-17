@@ -17,17 +17,13 @@ struct LocaleSetter {
 LocaleSetter localeSetter;
 
 string to8(u16string s) {
-    wstring_convert<codecvt_utf8<char16_t>, char16_t> converter;
+    wstring_convert<codecvt_utf8_utf16<char16_t>, char16_t> converter;
     return converter.to_bytes(s);
 }
 
 u16string to16(string s) {
-    wstring_convert<codecvt_utf8<char16_t>, char16_t> converter;
+    wstring_convert<codecvt_utf8_utf16<char16_t>, char16_t> converter;
     return converter.from_bytes(s);
-}
-
-string to8(char16_t c) {
-    return to8(u16string(1, c));
 }
 
 char16_t toupper_char(char16_t c) {

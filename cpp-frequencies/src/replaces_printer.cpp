@@ -2,19 +2,12 @@
 #include "txt_reader.h"
 #include "replaces_creator.h"
 #include "replaces_printer_helper.h"
+#include "base.h"
 using namespace std;
 
 const string replacesFolder = "replaces/";
 const string pagesToEficationFolder = replacesFolder + "pagesToEfication/";
 const string replacesByTitlesFolder = replacesFolder + "replacesByTitles/";
-
-int system(string command) {
-    return system(command.c_str());
-}
-
-void mkdirs(string path) {
-    system("mkdir -p " + path);
-}
 
 struct ReplacesPrinter : public AbstractParser {
     ReplacesCreator replacesCreator;

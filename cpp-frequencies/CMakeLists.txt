@@ -10,7 +10,10 @@ add_subdirectory(fmt)
 add_executable(converter src/converter.cpp)
 add_executable(frequencies src/frequencies.cpp)
 add_executable(all_yowords src/all_yowords.cpp)
+add_executable(all_pages src/all_pages.cpp)
 add_executable(replaces_printer src/replaces_printer.cpp)
 add_executable(replaces_printer_for_page src/replaces_printer_for_page.cpp)
+
+add_executable(fake src/temp.cpp src/alignment.h src/colors.h src/counter_number_russian_words.h src/other.h src/page.h src/replaces_checker.h src/replaces_creator.h src/replaces_exclusion.h src/replaces_printer_helper.h src/string_helper.h src/txt_reader.h src/u16string.h src/word_info.h src/yowords_parser.h src/base.h)
 
 include_directories(fmt)

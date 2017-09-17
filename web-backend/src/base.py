@@ -1,5 +1,4 @@
 import difflib
-import re
 import requests
 import sys
 import time

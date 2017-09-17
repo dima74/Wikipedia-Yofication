@@ -1,5 +1,5 @@
 import 'jquery.scrollto';
-import WikipediaApi from './wikipedia-api';
+import WikipediaApi, {currentPageName} from './wikipedia-api';
 import toast from './toast';
 import Backend from './backend';
 import Yofication from './yofication';
@@ -14,27 +14,24 @@ class Main {
     constructor() {
         this.wikipediaApi = new WikipediaApi();
         this.backend = new Backend();
+        this.settings = settings;
     }
 
     start() {
-        this.performContinuousYofication();
-        return;
-
-        if (this.wikipediaApi.getPageNameFull() === 'Служебная:Ёфикация') {
+        if (currentPageName === 'Служебная:Ёфикация') {
             this.performContinuousYofication();
         } else if (window.location.search.includes('yofication')) {
             let continuousYofication = window.location.search.includes('continuous_yofication');
-            new Yofication(continuousYofication).perform();
+            new Yofication(currentPageName, continuousYofication).perform();
         } else if (settings.addPortletLinkAction && this.wikipediaApi.isMainNamespace()) {
-            mw.util.addPortletLink('p-cactions', '/wiki/' + this.wikipediaApi.getPageNameFull() + '?yofication', 'Ёфицировать', 'ca-eficator', ' Ёфицировать страницу');
+            mw.util.addPortletLink('p-cactions', '/wiki/' + currentPageName + '?yofication', 'Ёфицировать', 'ca-eficator', ' Ёфицировать страницу');
         }
     }
 
     async performContinuousYofication() {
         toast('Переходим к следующей странице: \nЗагружаем название статьи для ёфикации...');
         let pageName = await this.backend.getRandomPageName();
-        console.log(pageName);
-        // window.location.href = 'https://ru.wikipedia.org/wiki/' + pageName + '?continuous_yofication';
+        window.location.href = 'https://ru.wikipedia.org/wiki/' + pageName + '?continuous_yofication';
     }
 }
 

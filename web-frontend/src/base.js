@@ -7,16 +7,24 @@ export function assert(expression, message = 'Непредвиденная ош�
     }
 }
 
-export async function fetchJson(url, info) {
-    info = Object.assign({errorMessage: 'todo'}, info);
+export async function fetchJson(url, settings = {}) {
+    let errorMessage = settings.errorMessage || 'todo';
+    delete settings.errorMessage;
 
     try {
-        return (await fetch(url)).json();
+        let text = await $.ajax(url, settings);
+        console.log(url);
+        // console.log(url, text);
+        return text;
     } catch (e) {
-        toast(info.errorMessage);
+        toast(errorMessage);
         throw e;
     }
 }
+
+// export async function fetchJson(url, settings) {
+//     return JSON.parse(await fetchText(url, settings));
+// }
 
 export function removeArgumentsFromUrl() {
     window.history.pushState('', '', window.location.href.replace('?yofication', ''));
