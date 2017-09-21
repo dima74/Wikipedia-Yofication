@@ -1,5 +1,6 @@
 import {fetchJson} from './base';
 import {BACKEND_HOST} from './settings';
+import {main} from './main';
 
 export default class Backend {
     async getRandomPageName() {
@@ -8,7 +9,12 @@ export default class Backend {
     }
 
     async getReplaces(pageName) {
-        let errorMessage = 'Произошла ошибка при загрузке списка замен';
-        return await fetchJson(BACKEND_HOST + '/replaces/' + pageName, {errorMessage});
+        let settings = {
+            errorMessage: 'Произошла ошибка при загрузке списка замен',
+            data: {
+                minReplaceFrequency: main.settings.minReplaceFrequency
+            }
+        };
+        return await fetchJson(BACKEND_HOST + '/replaces/' + pageName, settings);
     }
 }

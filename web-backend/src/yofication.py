@@ -31,24 +31,97 @@ words = {deyoficate(yoword): YoWord(yoword, number_with_yo, number_all) for (yow
 words = {dword: yoword for dword, yoword in words.items() if yoword.number_with_yo > 100}
 
 
+def get_sections_start_index(text):
+    sections = ['литература', 'ссылки', 'примечания', 'сочинения', 'источники']
+    result = len(text)
+    for section in sections:
+        match = re.search('==\s*{}\s*=='.format(section), text, re.IGNORECASE)
+        if match:
+            result = min(result, match.start())
+    return result
+
+
+def check_match(text, match, dword):
+    start = match.start()
+    end = match.end()
+    prev_char = text[start - 1] if start > 0 else ''
+    next_char = text[end] if end < len(text) else ''
+
+    def is_russian_letter_in_word(char):
+        # обычный дефис
+        # мягкий перенос
+        # ударение
+        return re.match('[а-яА-ЯёЁ\-\u00AD\u0301]', char)
+
+    if is_russian_letter_in_word(prev_char) or is_russian_letter_in_word(next_char):
+        return False
+
+    if prev_char == ']':
+        # слова вида [[воздух]]е
+        return False
+
+    if next_char == '.' and len(dword) <= 5:
+        # сокращения: нем.
+        return False
+
+    return True
+
+
+def is_dword_inside_tags(dword, text, wordStartIndex):
+    tags = [
+        ('<', '>'),
+        ('[[', ']]'),
+        ('[', ']'),
+        ('{{', '}}'),
+        ('{{начало цитаты', '{{конец цитаты'),
+        ('«', '»'),
+        ('<!--', '-->'),
+        ('<source', '</source'),
+        ('<ref', '</ref'),
+        ('<blockquote', '</blockquote')
+    ]
+
+    for tag in tags:
+        start = text.rfind(tag[0], 0, wordStartIndex)
+        if start == -1:
+            continue
+
+        end = text.find(tag[1], start)
+        if end == -1:
+            # raise Exception('Непарный тег {} в позиции {}'.format(tag[0], start))
+            continue
+
+        if wordStartIndex < end:
+            return True
+
+    return False
+
+
 def yoficate_text_complex(text, **kwargs):
-    min_frequency = kwargs.get('min_frequency', 60)
+    text_lower = text.lower()
+    min_replace_frequency = kwargs.get('min_replace_frequency', 60)
     yoficate_words_starts_with_upper = kwargs.get('yoficate_words_starts_with_upper', True)
 
     matches = re.finditer('([а-яА-ЯёЁ]+(-[а-яА-ЯёЁ]+)*)', text)
     text_mutable = ctypes.create_unicode_buffer(text)
     replaces = []
+    sections_start_index = get_sections_start_index(text)
     for match in matches:
         start = match.start()
         end = match.end()
-        if start > 0 and text[start - 1] == ']':
-            # слова вида [[воздух]]е
-            continue
-
         dword = match.group()
         if dword in words:
+            if start >= sections_start_index:
+                break
+
+            if not check_match(text, match, dword):
+                continue
+
+            if is_dword_inside_tags(dword, text_lower, start):
+                continue
+
             yoword = words[dword]
-            if yoword.frequency() >= min_frequency and (yoficate_words_starts_with_upper or yoword[0].islower()):
+            if yoword.frequency() >= min_replace_frequency and (yoficate_words_starts_with_upper or yoword[0].islower()):
                 text_mutable[start:end] = yoword
                 replace = {
                     'yoword': yoword,

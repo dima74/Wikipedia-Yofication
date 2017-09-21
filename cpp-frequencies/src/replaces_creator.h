@@ -24,7 +24,7 @@ struct ReplacesCreator {
 //    yoword -> YowordInfo
     map<u16string, YowordInfo> yowords;
 
-    ReplacesCreator(float minReplaceFrequency = 0) {
+    ReplacesCreator(float minReplaceFrequency = 0.6) {
         ifstream in("results/frequencies.txt");
         assert(in);
 

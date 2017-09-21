@@ -1,5 +1,5 @@
 import toast from './toast';
-import {fetchJson, removeArgumentsFromUrl} from './base';
+import {assert, fetchJson, removeArgumentsFromUrl} from './base';
 import {main} from './main'
 import {currentPageName} from "./wikipedia-api";
 
@@ -19,7 +19,7 @@ String.prototype.getIndexesOf = function (s) {
 };
 
 String.prototype.deyofication = function () {
-    return this.replace('ё', 'е');
+    return this.replace('ё', 'е').replace('Ё', 'Е');
 };
 
 String.prototype.isRussianLetterInWord = function () {
@@ -33,7 +33,7 @@ export default class Yofication {
         this.text = this.textDiv.html();
         this.iReplace = -1;
         this.done = false;
-        this.wikitext = main.wikipediaApi.getWikitext(currentPageName);
+        this.wikitextPromise = main.wikipediaApi.getWikitext(currentPageName);
     }
 
     async perform() {
@@ -41,18 +41,46 @@ export default class Yofication {
         let {replaces, revision} = await main.backend.getReplaces(currentPageName);
         this.replaces = replaces;
 
+        toast('Загружаем викитекст...');
+        this.wikitext = await this.wikitextPromise;
+        for (let replace of replaces) {
+            let dwordRemote = replace.yoword.deyofication();
+            let dwordLocal = this.wikitext.substr(replace.wordStartIndex, dwordRemote.length);
+            if (dwordLocal !== dwordRemote) {
+                throw `викитекст страницы "${currentPageName}" не совпадает в индексе ${replace.wordStartIndex}`
+                + `\nожидается: ${dwordRemote}"`
+                + `\nполучено: "${dwordLocal}"`;
+            }
+        }
+
         let revisionLocal = mw.config.get('wgCurRevisionId');
         if (revision !== revisionLocal) {
             throw `revision doesn't match\n local: ${revisionLocal} \nremote: ${revision}`;
         }
 
-        replaces = replaces.filter(replace => replace.frequency >= main.settings.minReplaceFrequency);
+        toast('Обрабатываем замены...');
+        for (let replace of replaces) {
+            assert(replace.frequency >= main.settings.minReplaceFrequency);
+            replace.indexes = this.text.getIndexesOf(replace.yoword.deyofication());
+            // игнорируем вхождения dword внутри слов
+            replace.indexes = replace.indexes.filter(i => {
+                    let j = i + replace.yoword.length;
+                    return (i === 0 || !this.text[i - 1].isRussianLetterInWord()) && (j === this.text.length || !this.text[j].isRussianLetterInWord());
+                }
+            );
+        }
+        replaces = replaces.filter(replace => replace.indexes.length === replace.numberSameDwords);
+
         if (replaces.length === 0) {
             toast('Эта страница и так уже ёфицирована. \n(Не найдено замен для этой страницы)');
-            removeArgumentsFromUrl();
+            this.afterYofication();
             return;
         }
         replaces.forEach(replace => replace.isAccept = false);
+
+        if (replaces.length < 3) {
+            this.afterYofication();
+        }
 
         this.goToNextReplace();
         $(window).on('resize', this.scrollToReplace);
@@ -66,7 +94,9 @@ export default class Yofication {
             // ещё раз показать последнюю замену
             [this.showCurrentReplaceAgain, ';', 'ж'],
             // вернуться к предыдущей замене
-            [this.goToPreviousReplace, 'a', 'ф']
+            [this.goToPreviousReplace, 'a', 'ф'],
+            // отменить ёфикация текущей страницы
+            [this.afterYofication, 'q', 'й']
         ];
 
         let actions = {};
@@ -80,17 +110,21 @@ export default class Yofication {
 
         $(document).keypress((event) => {
                 if (!this.done && event.key in actions) {
-                    actions[event.key]();
+                    actions[event.key].call(this);
                 }
             }
         );
     }
 
     goToNextReplace() {
+        assert(this.iReplace !== this.replaces.length);
         while (!this.goToReplace(++this.iReplace)) {}
     }
 
     goToPreviousReplace() {
+        if (this.iReplace === 0) {
+            return;
+        }
         --this.iReplace;
         while (this.iReplace >= 0 && !this.goToReplace(this.iReplace)) {
             --this.iReplace;
@@ -104,8 +138,11 @@ export default class Yofication {
 
     goToReplace(iReplace) {
         if (this.iReplace === this.replaces.length) {
-            this.textDiv.html(text);
-            this.makeChange(this.continuousYofication ? this.goToNextPage : removeArgumentsFromUrl);
+            this.textDiv.html(this.text);
+            (async () => {
+                await this.makeChange();
+                this.afterYofication();
+            })();
             return true;
         }
         if (this.iReplace > this.replaces.length) {
@@ -114,24 +151,21 @@ export default class Yofication {
 
         let replace = this.replaces[iReplace];
         let yoword = replace.yoword;
-        let status = 'Замена ' + (this.iReplace + 1) + ' из ' + this.replaces.length + '\n' + yoword + '\nЧастота: ' + replace.frequency + '%';
+        let status = `Замена ${this.iReplace + 1} из ${this.replaces.length}\n${yoword}\nЧастота: ${replace.frequency}%`;
         toast(status);
-        let indexes = this.text.getIndexesOf(yoword.deyofication());
-
-        // игнорируем вхождения dword внутри слов
-        indexes = indexes.filter(i => {
-                let j = i + yoword.length;
-                return (i === 0 || !this.text[i - 1].isRussianLetterInWord()) && (j === this.text.length || !this.text[j].isRussianLetterInWord());
-            }
-        );
+        let indexes = replace.indexes;
 
         // выделяем цветом
         if (indexes.length !== replace.numberSameDwords) {
-            toast(status + '\nПредупреждение: не совпадает numberSameDwords\nНайдено: ' + indexes.length + '\nДолжно быть: ' + replace.numberSameDwords + ' \n(индексы найденных: ' + indexes + ')');
+            toast(status + `
+Предупреждение: не совпадает numberSameDwords
+Найдено: ${indexes.length}
+Должно быть: ${replace.numberSameDwords} 
+(индексы найденных: ${indexes})`);
             return false;
         }
-        let wordIndexStart = indexes[replace.numberSameDwordsBefore];
-        let textNew = this.text.insert(wordIndexStart, '<span style="background: cyan;" id="yofication-replace">' + yoword + '</span>', yoword.length);
+        let wordStartIndex = indexes[replace.numberSameDwordsBefore];
+        let textNew = this.text.insert(wordStartIndex, '<span style="background: cyan;" id="yofication-replace">' + yoword + '</span>', yoword.length);
         this.textDiv.html(textNew);
 
         // проверяем на видимость
@@ -146,7 +180,7 @@ export default class Yofication {
     }
 
     acceptReplace() {
-        this.replaces[iReplace].isAccept = true;
+        this.replaces[this.iReplace].isAccept = true;
         this.goToNextReplace();
     }
 
@@ -161,7 +195,8 @@ export default class Yofication {
     scrollToReplace() {
         let replace = $('#yofication-replace');
         if (replace.length) {
-            $.scrollTo(replace, {over: 0.5, offset: -$(window).height() / 2});
+            let y = replace.offset().top - ($(window).height() - replace.height()) / 2;
+            window.scrollTo(0, y);
         }
     }
 
@@ -169,25 +204,25 @@ export default class Yofication {
         this.done = true;
         let replacesRight = this.replaces.filter(replace => replace.isAccept);
         if (replacesRight.length === 0) {
-            toast();
+            toast('Ни одна замена не была принята');
             return;
         }
 
         toast('Делаем правку: \nЗагружаем викитекст страницы...');
-        let wikitext = await this.wikitext;
+        let wikitext = await this.wikitextPromise;
         toast('Делаем правку: \nПрименяем замены...');
         let replaceSomething = false;
         for (let i = 0; i < replacesRight.length; ++i) {
             let replace = replacesRight[i];
             let yoword = replace.yoword;
-            if (wikitext.substr(replace.wordIndexStart, yoword.length) !== yoword.deyofication()) {
-                exit('Ошибка: викитекст страницы "' + currentPageName + '" не совпадает в индексе ' + replace.wordIndexStart
+            if (wikitext.substr(replace.wordStartIndex, yoword.length) !== yoword.deyofication()) {
+                toast('Ошибка: викитекст страницы "' + currentPageName + '" не совпадает в индексе ' + replace.wordStartIndex
                     + '\nПожалуйста, сообщите название этой страницы [[Участник:Дима74|автору скрипта]].'
                     + '\nожидается: "' + yoword.deyofication() + '"'
-                    + '\nполучено: "' + wikitext.substr(replace.wordIndexStart, yoword.length) + '"', false);
+                    + '\nполучено: "' + wikitext.substr(replace.wordStartIndex, yoword.length) + '"');
                 return;
             }
-            wikitext = wikitext.insert(replace.wordIndexStart, yoword, yoword.length);
+            wikitext = wikitext.insert(replace.wordStartIndex, yoword, yoword.length);
             replaceSomething = true;
         }
 
@@ -217,5 +252,12 @@ export default class Yofication {
 
     goToNextPage() {
         main.performContinuousYofication();
+    }
+
+    afterYofication() {
+        if (this.continuousYofication)
+            this.goToNextPage();
+        else
+            removeArgumentsFromUrl();
     }
 }
