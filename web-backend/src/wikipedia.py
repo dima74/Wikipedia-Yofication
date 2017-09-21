@@ -30,7 +30,7 @@ def random_page_name():
 
 @wikipedia.route('/wikipedia/replaces/<path:title>')
 def generate(title):
-    min_replace_frequency = request.args.get('minReplaceFrequency', 60)
+    min_replace_frequency = int(request.args.get('minReplaceFrequency', 60))
     r = get('/w/api.php', params={'action': 'query', 'prop': 'revisions', 'titles': title, 'rvprop': 'ids|content'}).json()
     page_info = list(r['query']['pages'].values())[0]['revisions'][0]
     page_text = page_info['*']

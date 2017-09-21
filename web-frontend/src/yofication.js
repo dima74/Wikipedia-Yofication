@@ -39,7 +39,6 @@ export default class Yofication {
     async perform() {
         toast('Загружаем список замен...');
         let {replaces, revision} = await main.backend.getReplaces(currentPageName);
-        this.replaces = replaces;
 
         toast('Загружаем викитекст...');
         this.wikitext = await this.wikitextPromise;
@@ -69,6 +68,22 @@ export default class Yofication {
                 }
             );
         }
+
+        for (let replace of replaces) {
+            if (replace.indexes.length !== replace.numberSameDwords) {
+                console.log(`
+${replace.yoword}
+Предупреждение: не совпадает numberSameDwords
+Найдено: ${replace.indexes.length}
+Должно быть: ${replace.numberSameDwords} 
+(индексы найденных: ${replace.indexes})`);
+                for (let index of replace.indexes) {
+                    console.log(`${index}: ${this.text.substr(index - 20, 40)}`)
+                }
+                // todo
+                // assert(false);
+            }
+        }
         replaces = replaces.filter(replace => replace.indexes.length === replace.numberSameDwords);
 
         if (replaces.length === 0) {
@@ -77,6 +92,7 @@ export default class Yofication {
             return;
         }
         replaces.forEach(replace => replace.isAccept = false);
+        this.replaces = replaces;
 
         if (replaces.length < 3) {
             this.afterYofication();
@@ -153,18 +169,9 @@ export default class Yofication {
         let yoword = replace.yoword;
         let status = `Замена ${this.iReplace + 1} из ${this.replaces.length}\n${yoword}\nЧастота: ${replace.frequency}%`;
         toast(status);
-        let indexes = replace.indexes;
 
         // выделяем цветом
-        if (indexes.length !== replace.numberSameDwords) {
-            toast(status + `
-Предупреждение: не совпадает numberSameDwords
-Найдено: ${indexes.length}
-Должно быть: ${replace.numberSameDwords} 
-(индексы найденных: ${indexes})`);
-            return false;
-        }
-        let wordStartIndex = indexes[replace.numberSameDwordsBefore];
+        let wordStartIndex = replace.indexes[replace.numberSameDwordsBefore];
         let textNew = this.text.insert(wordStartIndex, '<span style="background: cyan;" id="yofication-replace">' + yoword + '</span>', yoword.length);
         this.textDiv.html(textNew);
 
