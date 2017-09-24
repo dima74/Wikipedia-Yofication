@@ -28,11 +28,13 @@ def readlines(filename):
 
 lines = readlines('all-yowords.txt') + readlines('frequencies.txt')
 words = {deyoficate(yoword): YoWord(yoword, number_with_yo, number_all) for (yoword, number_with_yo, number_all) in map(str.split, lines)}
-words = {dword: yoword for dword, yoword in words.items() if yoword.number_with_yo > 100}
+
+
+# words = {dword: yoword for dword, yoword in words.items() if yoword.number_with_yo > 100}
 
 
 def get_sections_start_index(text):
-    sections = ['литература', 'ссылки', 'примечания', 'сочинения', 'источники']
+    sections = ['литература', 'ссылки', 'примечания', 'сочинения', 'источники', 'труды']
     result = len(text)
     for section in sections:
         match = re.search('==\s*{}\s*=='.format(section), text, re.IGNORECASE)

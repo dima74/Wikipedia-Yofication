@@ -46,6 +46,7 @@ class TestCase(unittest.TestCase):
         self.noyofication('== примечания ==\nее')
         self.noyofication('== сочинения ==\nее')
         self.noyofication('== источники ==\nее')
+        self.noyofication('== труды ==\nее')
 
         self.noyofication('== Источники ==\nее')
         self.noyofication('== ИСТОЧНИКИ ==\nее')
