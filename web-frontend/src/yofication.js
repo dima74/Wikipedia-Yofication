@@ -29,7 +29,7 @@ String.prototype.isRussianLetterInWord = function () {
 export default class Yofication {
     constructor(continuousYofication) {
         this.continuousYofication = continuousYofication;
-        this.textDiv = $('#mw-content-text');
+        this.textDiv = this.getTextDiv();
         this.text = this.textDiv.html();
         this.iReplace = -1;
         this.done = false;
@@ -94,7 +94,7 @@ ${replace.yoword}
         replaces.forEach(replace => replace.isAccept = false);
         this.replaces = replaces;
 
-        if (replaces.length < 3) {
+        if (replaces.length < main.settings.minimumNumberReplacesForContinuousYofication) {
             this.afterYofication();
         }
 
@@ -171,6 +171,12 @@ ${replace.yoword}
         toast(status);
 
         // выделяем цветом
+        // let range = document.createRange();
+        // let start = replace.indexes[replace.numberSameDwordsBefore];
+        // range.setStart(this.textDiv[0], start);
+        // range.setEnd(this.textDiv[0], start + yoword.length);
+        // console.log(range.getBoundingClientRect());
+
         let wordStartIndex = replace.indexes[replace.numberSameDwordsBefore];
         let textNew = this.text.insert(wordStartIndex, '<span style="background: cyan;" id="yofication-replace">' + yoword + '</span>', yoword.length);
         this.textDiv.html(textNew);
@@ -178,6 +184,7 @@ ${replace.yoword}
         // проверяем на видимость
         if (!$('#yofication-replace').is(':visible')) {
             console.log('Предупреждение: замена не видна');
+            throw 1;
             return false;
         }
 

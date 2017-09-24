@@ -1,13 +1,14 @@
-import 'jquery.scrollto';
 import WikipediaApi, {currentPageName} from './wikipedia-api';
 import toast from './toast';
 import Backend from './backend';
-import Yofication from './yofication';
+import PageYofication from './yofication-page';
+import EditYofication from './yofication-edit';
 
 const settings = {
     addPortletLinkAction: typeof Eficator_AddPortletLinkAction === 'undefined' ? true : Eficator_AddPortleteLinkAction,
     editSummary: typeof Eficator_EditSummary === 'undefined' ? 'Ёфикация с помощью [[Участник:Дима74/Скрипт-Ёфикатор|скрипта-ёфикатора]]' : Eficator_EditSummary,
-    minReplaceFrequency: typeof Eficator_MinReplaceFrequency === 'undefined' ? 40 : Eficator_MinReplaceFrequency
+    minReplaceFrequency: typeof Eficator_MinReplaceFrequency === 'undefined' ? 25 : Eficator_MinReplaceFrequency,
+    minimumNumberReplacesForContinuousYofication: 5,
 };
 
 class Main {
@@ -22,9 +23,47 @@ class Main {
             this.performContinuousYofication();
         } else if (window.location.search.includes('yofication')) {
             let continuousYofication = window.location.search.includes('continuous_yofication');
-            new Yofication(continuousYofication).perform();
+            new PageYofication(continuousYofication).perform();
         } else if (settings.addPortletLinkAction && this.wikipediaApi.isMainNamespace()) {
             mw.util.addPortletLink('p-cactions', '/wiki/' + currentPageName + '?yofication', 'Ёфицировать', 'ca-yoficator', ' Ёфицировать страницу');
+            this.customizeToolbarYoficateButton();
+        }
+    }
+
+    customizeToolbarYoficateButton() {
+        function customizeToolbarYoficateButtonCallback() {
+            $('#wpTextbox1').wikiEditor('addToToolbar', {
+                'section': 'main',
+                'group': 'insert',
+                'tools': {
+                    'indent': {
+                        filters: ['body.ns-0'],
+                        label: 'Ёфицировать',
+                        type: 'button',
+                        icon: 'http://localhost:7777/yo.png',
+                        action: {
+                            type: 'callback',
+                            execute: function () {
+                                new EditYofication().perform();
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        // new EditYofication().perform();
+
+        // https://www.mediawiki.org/wiki/Extension:WikiEditor/Toolbar_customization
+        /* Check if view is in edit mode and that the required modules are available. Then, customize the toolbar … */
+        if ($.inArray(mw.config.get('wgAction'), ['edit', 'submit']) !== -1) {
+            mw.loader.using('user.options').then(function () {
+                // This can be the string "0" if the user disabled the preference ([[phab:T54542#555387]])
+                if (mw.user.options.get('usebetatoolbar') == 1) {
+                    $.when(
+                        mw.loader.using('ext.wikiEditor.toolbar'), $.ready
+                    ).then(customizeToolbarYoficateButtonCallback);
+                }
+            });
         }
     }
 
