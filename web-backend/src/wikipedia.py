@@ -8,7 +8,16 @@ wikipedia = Blueprint('wikipedia', __name__)
 WIKIPEDIA_HOST = 'https://ru.wikipedia.org'
 
 with open('/home/dima/Wikipedia-Yofication/cpp-frequencies/results/all-pages.txt') as input:
-    all_pages = input.readlines()
+    def parse_page(line):
+        first_space_index = line.index(' ')
+        number_replaces = int(line[:first_space_index])
+        page_name = line[first_space_index:]
+        return [number_replaces, page_name]
+
+
+    lines = input.readlines()
+    all_pages = list(map(parse_page, lines))
+    all_pages = [page[1] for page in all_pages if page[0] >= 10]
 
 
 def add_parameter_format_json(kwargs, parameter):
