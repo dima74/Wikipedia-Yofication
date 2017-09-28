@@ -1,29 +1,11 @@
 import toast from './toast';
 import {assert, fetchJson, removeArgumentsFromUrl} from './base';
-import {main} from './main'
-import {currentPageName} from "./wikipedia-api";
+import {main} from './main';
+import {currentPageName} from './wikipedia-api';
+import StringHelper from './string-helper';
 
 String.prototype.insert = function (i, s, numberCharsToReplace) {
     return this.substr(0, i) + s + this.substr(i + numberCharsToReplace);
-};
-
-String.prototype.getIndexesOf = function (s) {
-    let indexes = [];
-    let start = 0;
-    let position;
-    while ((position = this.indexOf(s, start)) !== -1) {
-        indexes.push(position);
-        start = position + s.length;
-    }
-    return indexes;
-};
-
-String.prototype.deyofication = function () {
-    return this.replace('ё', 'е').replace('Ё', 'Е');
-};
-
-String.prototype.isRussianLetterInWord = function () {
-    return this.length === 1 && this.match(/[а-яА-ЯёЁ\-\u00AD\u0301]/);
 };
 
 export default class Yofication {
@@ -36,66 +18,146 @@ export default class Yofication {
         this.wikitextPromise = main.wikipediaApi.getWikitext(currentPageName);
     }
 
-    async perform() {
+    async loadReplaces() {
         toast('Загружаем список замен...');
-        let {replaces, revision} = await main.backend.getReplaces(currentPageName);
+        let {yowordsToReplaces, revision, timestamp} = await main.backend.getReplaces(currentPageName);
+        this.yowordsToReplaces = yowordsToReplaces;
+        this.revision = revision;
+        this.timestamp = timestamp;
+        this.yowords = Object.keys(yowordsToReplaces);
+    }
 
+    async checkWikitextMatch() {
         toast('Загружаем викитекст...');
         this.wikitext = await this.wikitextPromise;
-        for (let replace of replaces) {
-            let dwordRemote = replace.yoword.deyofication();
-            let dwordLocal = this.wikitext.substr(replace.wordStartIndex, dwordRemote.length);
-            if (dwordLocal !== dwordRemote) {
-                throw `викитекст страницы "${currentPageName}" не совпадает в индексе ${replace.wordStartIndex}`
-                + `\nожидается: ${dwordRemote}"`
-                + `\nполучено: "${dwordLocal}"`;
+        for (let yoword of this.yowords) {
+            let yowordInfo = this.yowordsToReplaces[yoword];
+            assert(yowordInfo.frequency >= main.settings.minReplaceFrequency);
+            let dwordRemote = StringHelper.deyoficate(yoword);
+            for (let replace of yowordInfo.replaces) {
+                let dwordLocal = this.wikitext.substr(replace.wordStartIndex, dwordRemote.length);
+                if (dwordLocal !== dwordRemote) {
+                    throw `викитекст страницы "${currentPageName}" не совпадает в индексе ${replace.wordStartIndex}`
+                    + `\nожидается: ${dwordRemote}"`
+                    + `\nполучено: "${dwordLocal}"`;
+                }
             }
         }
 
         let revisionLocal = mw.config.get('wgCurRevisionId');
-        if (revision !== revisionLocal) {
-            throw `revision doesn't match\n local: ${revisionLocal} \nremote: ${revision}`;
+        if (this.revision !== revisionLocal) {
+            throw `revision doesn't match\n local: ${revisionLocal} \nremote: ${this.revision}`;
+        }
+    }
+
+    createHighlights() {
+        let element = document.getElementById('mw-content-text');
+        let walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+
+        let yowordsInfos = {};
+        for (let yoword of this.yowords) {
+            yowordsInfos[yoword] = [];
         }
 
-        toast('Обрабатываем замены...');
-        for (let replace of replaces) {
-            assert(replace.frequency >= main.settings.minReplaceFrequency);
-            replace.indexes = this.text.getIndexesOf(replace.yoword.deyofication());
-            // игнорируем вхождения dword внутри слов
-            replace.indexes = replace.indexes.filter(i => {
-                    let j = i + replace.yoword.length;
-                    return (i === 0 || !this.text[i - 1].isRussianLetterInWord()) && (j === this.text.length || !this.text[j].isRussianLetterInWord());
+        let indexOfOccurence = 0;
+        while (walker.nextNode()) {
+            let node = walker.currentNode;
+            let text = node.nodeValue;
+            for (let yoword of this.yowords) {
+                let dword = StringHelper.deyoficate(yoword);
+                if (text.includes(dword)) {
+                    let indexes = StringHelper.findIndexesOfWord(dword, text);
+                    let occurrences = indexes.map(wordIndex => { return {wordIndex, node, index: indexOfOccurence++}; });
+                    yowordsInfos[yoword].push(...occurrences);
                 }
-            );
-        }
-
-        for (let replace of replaces) {
-            if (replace.indexes.length !== replace.numberSameDwords) {
-                console.log(`
-${replace.yoword}
-Предупреждение: не совпадает numberSameDwords
-Найдено: ${replace.indexes.length}
-Должно быть: ${replace.numberSameDwords} 
-(индексы найденных: ${replace.indexes})`);
-                for (let index of replace.indexes) {
-                    console.log(`${index}: ${this.text.substr(index - 20, 40)}`)
-                }
-                // todo
-                // assert(false);
             }
         }
-        replaces = replaces.filter(replace => replace.indexes.length === replace.numberSameDwords);
 
-        if (replaces.length === 0) {
+        for (let yoword of this.yowords) {
+            let highlights = [];
+            for (let occurrence of yowordsInfos[yoword]) {
+                let node = occurrence.node;
+                let wordIndex = occurrence.wordIndex;
+
+                let range = document.createRange();
+                range.setStart(node, wordIndex);
+                range.setEnd(node, wordIndex + yoword.length);
+                let rect = range.getBoundingClientRect();
+
+                let highlight = document.createElement('span');
+                node.parentElement.appendChild(highlight);
+
+                let root = highlight.offsetParent;
+                let rootRect = root.getBoundingClientRect();
+
+                let padding = 0;
+                let left = rect.left - padding;
+                let top = rect.top - padding;
+                let width = rect.width + padding * 2;
+                let height = rect.height + padding * 2;
+                left -= rootRect.left;
+                top -= rootRect.top;
+                $(highlight).css({
+                    position: 'absolute',
+                    left, top, width, height,
+                    zIndex: -1,
+                    background: 'aquamarine',
+                    display: 'none'
+                });
+                highlights.push({element: highlight, index: occurrence.index});
+            }
+            this.yowordsToReplaces[yoword].highlights = highlights;
+        }
+    }
+
+    createReplaces() {
+        let replaces = [];
+        for (let yoword of this.yowords) {
+            let yowordInfo = this.yowordsToReplaces[yoword];
+            if (yowordInfo.numberSameDwords === yowordInfo.highlights.length) {
+                for (let replaceInfo of yowordInfo.replaces) {
+                    let replace = {
+                        yoword,
+                        frequency: yowordInfo.frequency,
+                        highlight: yowordInfo.highlights[replaceInfo.numberSameDwordsBefore],
+                        isAccept: false
+                    };
+                    replaces.push(replace);
+                }
+            } else {
+                console.log(`
+${yoword}
+Предупреждение: не совпадает numberSameDwords
+Найдено: ${yowordInfo.highlights.length}
+Должно быть: ${yowordInfo.numberSameDwords}`);
+                // todo
+                assert(false);
+            }
+        }
+        replaces.sort((replace1, replace2) => replace1.highlight.index - replace2.highlight.index);
+        for (let replace of replaces) {
+            replace.highlight = replace.highlight.element;
+        }
+        this.replaces = replaces;
+    }
+
+    async perform() {
+        await this.loadReplaces();
+        await this.checkWikitextMatch();
+        toast('Обрабатываем замены...');
+        this.createHighlights();
+        this.createReplaces();
+
+        if (this.replaces.length === 0) {
             toast('Эта страница и так уже ёфицирована. \n(Не найдено замен для этой страницы)');
             this.afterYofication();
             return;
         }
-        replaces.forEach(replace => replace.isAccept = false);
-        this.replaces = replaces;
 
-        if (replaces.length < main.settings.minimumNumberReplacesForContinuousYofication) {
+        if (this.replaces.length < main.settings.minimumNumberReplacesForContinuousYofication) {
+            toast('todo');
             this.afterYofication();
+            return;
         }
 
         this.goToNextReplace();
@@ -132,17 +194,31 @@ ${replace.yoword}
         );
     }
 
+    checkIReplace() {
+        return 0 <= this.iReplace && this.iReplace < this.replaces.length;
+    }
+
+    hideCurrentReplace() {
+        if (this.checkIReplace()) {
+            this.replaces[this.iReplace].highlight.style.display = 'none';
+        }
+    }
+
     goToNextReplace() {
+        this.hideCurrentReplace();
         assert(this.iReplace !== this.replaces.length);
-        while (!this.goToReplace(++this.iReplace)) {}
+        do {
+            ++this.iReplace;
+        } while (!this.goToCurrentReplace());
     }
 
     goToPreviousReplace() {
+        this.hideCurrentReplace();
         if (this.iReplace === 0) {
             return;
         }
         --this.iReplace;
-        while (this.iReplace >= 0 && !this.goToReplace(this.iReplace)) {
+        while (this.iReplace >= 0 && !this.goToCurrentReplace()) {
             --this.iReplace;
         }
         if (this.iReplace < 0) {
@@ -152,7 +228,7 @@ ${replace.yoword}
         this.replaces[this.iReplace].isAccept = false;
     }
 
-    goToReplace(iReplace) {
+    goToCurrentReplace() {
         if (this.iReplace === this.replaces.length) {
             this.textDiv.html(this.text);
             (async () => {
@@ -162,33 +238,15 @@ ${replace.yoword}
             return true;
         }
         if (this.iReplace > this.replaces.length) {
-            throw 'goToReplace: iReplace > replaces.length';
+            throw 'goToCurrentReplace: iReplace > replaces.length';
         }
 
-        let replace = this.replaces[iReplace];
+        let replace = this.replaces[this.iReplace];
         let yoword = replace.yoword;
         let status = `Замена ${this.iReplace + 1} из ${this.replaces.length}\n${yoword}\nЧастота: ${replace.frequency}%`;
         toast(status);
 
-        // выделяем цветом
-        // let range = document.createRange();
-        // let start = replace.indexes[replace.numberSameDwordsBefore];
-        // range.setStart(this.textDiv[0], start);
-        // range.setEnd(this.textDiv[0], start + yoword.length);
-        // console.log(range.getBoundingClientRect());
-
-        let wordStartIndex = replace.indexes[replace.numberSameDwordsBefore];
-        let textNew = this.text.insert(wordStartIndex, '<span style="background: cyan;" id="yofication-replace">' + yoword + '</span>', yoword.length);
-        this.textDiv.html(textNew);
-
-        // проверяем на видимость
-        if (!$('#yofication-replace').is(':visible')) {
-            console.log('Предупреждение: замена не видна');
-            throw 1;
-            return false;
-        }
-
-        // скроллим
+        replace.highlight.style.display = 'block';
         this.scrollToReplace();
         return true;
     }
@@ -207,9 +265,10 @@ ${replace.yoword}
     }
 
     scrollToReplace() {
-        let replace = $('#yofication-replace');
-        if (replace.length) {
-            let y = replace.offset().top - ($(window).height() - replace.height()) / 2;
+        if (this.checkIReplace()) {
+            let highlight = this.replaces[this.iReplace].highlight;
+            let highlightRect = highlight.getBoundingClientRect();
+            let y = (window.scrollY + highlightRect.top) - (window.innerHeight - highlightRect.height) / 2;
             window.scrollTo(0, y);
         }
     }
@@ -222,26 +281,20 @@ ${replace.yoword}
             return;
         }
 
-        toast('Делаем правку: \nЗагружаем викитекст страницы...');
-        let wikitext = await this.wikitextPromise;
+        let wikitext = this.wikitext;
         toast('Делаем правку: \nПрименяем замены...');
         let replaceSomething = false;
         for (let i = 0; i < replacesRight.length; ++i) {
             let replace = replacesRight[i];
             let yoword = replace.yoword;
-            if (wikitext.substr(replace.wordStartIndex, yoword.length) !== yoword.deyofication()) {
-                toast('Ошибка: викитекст страницы "' + currentPageName + '" не совпадает в индексе ' + replace.wordStartIndex
-                    + '\nПожалуйста, сообщите название этой страницы [[Участник:Дима74|автору скрипта]].'
-                    + '\nожидается: "' + yoword.deyofication() + '"'
-                    + '\nполучено: "' + wikitext.substr(replace.wordStartIndex, yoword.length) + '"');
-                return;
-            }
+            // todo
             wikitext = wikitext.insert(replace.wordStartIndex, yoword, yoword.length);
             replaceSomething = true;
         }
 
         if (replaceSomething) {
             toast('Делаем правку: \nОтправляем изменения...');
+            throw 1;
             let response = await fetchJson('/w/api.php', {
                 errorMessage: 'Не удалось произвести правку',
                 type: 'POST',
@@ -252,6 +305,7 @@ ${replace.yoword}
                     minor: true,
                     text: wikitext,
                     summary: main.settings.editSummary,
+                    basetimestamp: this.timestamp,
                     token: mw.user.tokens.get('editToken')
                 }
             });

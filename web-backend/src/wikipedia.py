@@ -2,7 +2,7 @@ import random
 import re
 import requests
 from flask import Blueprint, request, jsonify
-from src.yofication import yoficate_text_complex, check_match
+from src.yofication import yoficate_text_complex, check_match, deyoficate
 
 wikipedia = Blueprint('wikipedia', __name__)
 WIKIPEDIA_HOST = 'https://ru.wikipedia.org'
@@ -37,29 +37,68 @@ def random_page_name():
     return random.choice(all_pages)
 
 
+def count_russian_words(text, word):
+    return len([match for match in re.finditer(word, text) if check_match(text, match, word)])
+
+
 @wikipedia.route('/wikipedia/replaces/<path:title>')
 def generate(title):
     min_replace_frequency = int(request.args.get('minReplaceFrequency', 60))
-    r = get('/w/api.php', params={'action': 'query', 'prop': 'revisions', 'titles': title, 'rvprop': 'ids|content'}).json()
+    r = get('/w/api.php', params={'action': 'query', 'prop': 'revisions', 'titles': title, 'rvprop': 'ids|content|timestamp'}).json()
     page_info = list(r['query']['pages'].values())[0]['revisions'][0]
     page_text = page_info['*']
     yofication_info = yoficate_text_complex(page_text, min_replace_frequency=min_replace_frequency)
     # if not yofication_info['is_text_changed']:
     #     abort(404)
 
+    """
+    result = {
+        revision: <number>,
+        yowordsToReplaces: {
+            <yoword>: {
+                frequency: <number>,
+                numberSameDwords: <number>,
+                replaces: [
+                    {
+                        wordStartIndex: <number>,
+                        numberSameDwordsBefore: <number>
+                    },
+                    ...
+                ]
+            },
+            ...
+        }
+    }
+    """
+
     replaces = yofication_info['replaces']
+    yowordsToReplaces = {}
     for replace in replaces:
-        dword = replace['yoword'].replace('ё', 'е')
+        yoword = replace['yoword']
+        dword = deyoficate(yoword)
 
-        def count_russian_words(text, word):
-            return len([match for match in re.finditer(word, text) if check_match(text, match, dword)])
+        if yoword not in yowordsToReplaces:
+            yowordsToReplaces[yoword] = {
+                'frequency': replace['frequency'],
+                'numberSameDwords': count_russian_words(page_text, dword),
+                'replaces': []
+            }
 
-        replace['numberSameDwords'] = count_russian_words(page_text, dword)
-        replace['numberSameDwordsBefore'] = count_russian_words(page_text[:replace['wordStartIndex']], dword)
+        wordStartIndex = replace['wordStartIndex']
+        numberSameDwordsBefore = count_russian_words(page_text[:wordStartIndex], dword)
+        replace = {
+            'wordStartIndex': wordStartIndex,
+            'numberSameDwordsBefore': numberSameDwordsBefore
+        }
+
+        replaces = yowordsToReplaces[yoword]['replaces']
+        replaces.append(replace)
 
     revision = page_info['revid']
+    timestamp = page_info['timestamp']
     result = {
-        'replaces': replaces,
-        'revision': revision
+        'revision': revision,
+        'timestamp': timestamp,
+        'yowordsToReplaces': yowordsToReplaces
     }
     return jsonify(result)

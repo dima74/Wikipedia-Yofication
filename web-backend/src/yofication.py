@@ -75,12 +75,12 @@ def is_dword_inside_tags(dword, text, wordStartIndex):
         ('[[', ']]'),
         ('[', ']'),
         ('{{', '}}'),
-        ('{{начало цитаты', '{{конец цитаты'),
-        ('«', '»'),
+        # ('{{начало цитаты', '{{конец цитаты'),
+        # ('«', '»'),
         ('<!--', '-->'),
-        ('<source', '</source'),
-        ('<ref', '</ref'),
-        ('<blockquote', '</blockquote')
+        # ('<source', '</source'),
+        # ('<ref', '</ref'),
+        # ('<blockquote', '</blockquote')
     ]
 
     for tag in tags:
@@ -93,6 +93,7 @@ def is_dword_inside_tags(dword, text, wordStartIndex):
             # raise Exception('Непарный тег {} в позиции {}'.format(tag[0], start))
             continue
 
+        # либо сначала искать закрывающий тег, а потом открывающий, либо вообще убрать проверку на нахождение внутри тега, и чекать это на клиенте (либо пусть пользователь чекает, либо по классам родителей, наверняка цитаты и всё такое имеют собственные классы (да, кажется обычно цитаты лежат внутри тега <blockquote>, можно игнорить его!))
         if wordStartIndex < end:
             return True
 
