@@ -9,8 +9,7 @@ String.prototype.insert = function (i, s, numberCharsToReplace) {
 };
 
 export default class Yofication {
-    constructor(continuousYofication) {
-        this.continuousYofication = continuousYofication;
+    constructor() {
         this.textDiv = this.getTextDiv();
         this.text = this.textDiv.html();
         this.iReplace = -1;
@@ -126,7 +125,7 @@ export default class Yofication {
                     replaces.push(replace);
                 }
             } else {
-                console.log(`
+                console.error(`
 ${yoword}
 Предупреждение: не совпадает numberSameDwords
 Найдено: ${yowordInfo.highlights.length}
@@ -137,7 +136,7 @@ ${yoword}
                 }
 
                 // todo
-                assert(false);
+                assert(false, 'не совпадает numberSameDwords');
             }
         }
         replaces.sort((replace1, replace2) => replace1.highlight.index - replace2.highlight.index);
@@ -162,6 +161,11 @@ ${yoword}
 
         if (this.replaces.length < main.settings.minimumNumberReplacesForContinuousYofication) {
             toast('todo');
+            this.afterYofication();
+            return;
+        }
+
+        if (this.wikitext.length > 5000) {
             this.afterYofication();
             return;
         }
@@ -288,6 +292,7 @@ ${yoword}
         }
 
         let wikitext = this.wikitext;
+        let wikitextLength = wikitext.length;
         toast('Делаем правку: \nПрименяем замены...');
         let replaceSomething = false;
         for (let i = 0; i < replacesRight.length; ++i) {
@@ -299,6 +304,7 @@ ${yoword}
             wikitext = wikitext.insert(replace.wordStartIndex, yoword, yoword.length);
             replaceSomething = true;
         }
+        assert(wikitext.length === wikitextLength);
 
         if (replaceSomething) {
             toast('Делаем правку: \nОтправляем изменения...');
@@ -330,7 +336,7 @@ ${yoword}
     }
 
     afterYofication() {
-        if (this.continuousYofication)
+        if (main.continuousYofication)
             this.goToNextPage();
         else
             removeArgumentsFromUrl();
