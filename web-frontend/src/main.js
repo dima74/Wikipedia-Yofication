@@ -5,10 +5,10 @@ import PageYofication from './yofication-page';
 import EditYofication from './yofication-edit';
 
 const settings = {
-    addPortletLinkAction: typeof Eficator_AddPortletLinkAction === 'undefined' ? true : Eficator_AddPortleteLinkAction,
-    editSummary: typeof Eficator_EditSummary === 'undefined' ? 'Ёфикация с помощью [[Участник:Дима74/Скрипт-Ёфикатор|скрипта-ёфикатора]]' : Eficator_EditSummary,
-    minReplaceFrequency: typeof Eficator_MinReplaceFrequency === 'undefined' ? 25 : Eficator_MinReplaceFrequency,
-    minimumNumberReplacesForContinuousYofication: 5,
+    addPortletLinkAction: true,
+    editSummary: 'Ёфикация с помощью [[Участник:Дима74/Скрипт-Ёфикатор|скрипта-ёфикатора]]',
+    minReplaceFrequency: 25,
+    minimumNumberReplacesForContinuousYofication: 5
 };
 
 class Main {

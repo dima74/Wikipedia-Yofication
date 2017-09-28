@@ -67,7 +67,7 @@ export default class Yofication {
                 let dword = StringHelper.deyoficate(yoword);
                 if (text.includes(dword)) {
                     let indexes = StringHelper.findIndexesOfWord(dword, text);
-                    let occurrences = indexes.map(wordIndex => { return {wordIndex, node, index: indexOfOccurence++}; });
+                    let occurrences = indexes.map(wordIndex => { return {wordIndex, wordNode: node, index: indexOfOccurence++}; });
                     yowordsInfos[yoword].push(...occurrences);
                 }
             }
@@ -76,18 +76,18 @@ export default class Yofication {
         for (let yoword of this.yowords) {
             let highlights = [];
             for (let occurrence of yowordsInfos[yoword]) {
-                let node = occurrence.node;
+                let wordNode = occurrence.wordNode;
                 let wordIndex = occurrence.wordIndex;
 
                 let range = document.createRange();
-                range.setStart(node, wordIndex);
-                range.setEnd(node, wordIndex + yoword.length);
+                range.setStart(wordNode, wordIndex);
+                range.setEnd(wordNode, wordIndex + yoword.length);
                 let rect = range.getBoundingClientRect();
 
-                let highlight = document.createElement('span');
-                node.parentElement.appendChild(highlight);
+                let highlightElement = document.createElement('span');
+                wordNode.parentElement.appendChild(highlightElement);
 
-                let root = highlight.offsetParent;
+                let root = highlightElement.offsetParent;
                 let rootRect = root.getBoundingClientRect();
 
                 let padding = 0;
@@ -97,14 +97,14 @@ export default class Yofication {
                 let height = rect.height + padding * 2;
                 left -= rootRect.left;
                 top -= rootRect.top;
-                $(highlight).css({
+                $(highlightElement).css({
                     position: 'absolute',
                     left, top, width, height,
                     zIndex: -1,
                     background: 'aquamarine',
                     display: 'none'
                 });
-                highlights.push({element: highlight, index: occurrence.index});
+                highlights.push({wordNode, highlightElement, index: occurrence.index});
             }
             this.yowordsToReplaces[yoword].highlights = highlights;
         }
@@ -118,6 +118,7 @@ export default class Yofication {
                 for (let replaceInfo of yowordInfo.replaces) {
                     let replace = {
                         yoword,
+                        wordStartIndex: replaceInfo.wordStartIndex,
                         frequency: yowordInfo.frequency,
                         highlight: yowordInfo.highlights[replaceInfo.numberSameDwordsBefore],
                         isAccept: false
@@ -130,13 +131,18 @@ ${yoword}
 Предупреждение: не совпадает numberSameDwords
 Найдено: ${yowordInfo.highlights.length}
 Должно быть: ${yowordInfo.numberSameDwords}`);
+
+                for (let highlight of yowordInfo.highlights) {
+                    console.log(highlight.wordNode.nodeValue);
+                }
+
                 // todo
                 assert(false);
             }
         }
         replaces.sort((replace1, replace2) => replace1.highlight.index - replace2.highlight.index);
         for (let replace of replaces) {
-            replace.highlight = replace.highlight.element;
+            replace.highlight = replace.highlight.highlightElement;
         }
         this.replaces = replaces;
     }
@@ -288,13 +294,14 @@ ${yoword}
             let replace = replacesRight[i];
             let yoword = replace.yoword;
             // todo
+            assert(replace.wordStartIndex !== undefined);
+            assert(yoword !== undefined);
             wikitext = wikitext.insert(replace.wordStartIndex, yoword, yoword.length);
             replaceSomething = true;
         }
 
         if (replaceSomething) {
             toast('Делаем правку: \nОтправляем изменения...');
-            throw 1;
             let response = await fetchJson('/w/api.php', {
                 errorMessage: 'Не удалось произвести правку',
                 type: 'POST',
@@ -311,7 +318,7 @@ ${yoword}
             });
             if (!response.edit || response.edit.result !== 'Success') {
                 console.log(response);
-                toast('Не удалось произвести правку: ' + (data.edit ? data.edit.info : 'неизвестная ошибка'));
+                toast('Не удалось произвести правку: ' + (response.edit ? response.edit.info : 'неизвестная ошибка'));
                 return;
             }
             toast('Правка выполена');

@@ -66,6 +66,9 @@ def check_match(text, match, dword):
         # сокращения: нем.
         return False
 
+    if is_dword_inside_tags(dword, text, start):
+        return False
+
     return True
 
 
@@ -101,7 +104,6 @@ def is_dword_inside_tags(dword, text, wordStartIndex):
 
 
 def yoficate_text_complex(text, **kwargs):
-    text_lower = text.lower()
     min_replace_frequency = kwargs.get('min_replace_frequency', 60)
     yoficate_words_starts_with_upper = kwargs.get('yoficate_words_starts_with_upper', True)
 
@@ -118,9 +120,6 @@ def yoficate_text_complex(text, **kwargs):
                 break
 
             if not check_match(text, match, dword):
-                continue
-
-            if is_dword_inside_tags(dword, text_lower, start):
                 continue
 
             yoword = words[dword]
