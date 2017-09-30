@@ -3,7 +3,7 @@ import toast from './toast';
 export function assert(expression, message = 'Непредвиденная ошибка') {
     if (!expression) {
         toast(message);
-        throw message;
+        throw new Error(message);
     }
 }
 
@@ -21,10 +21,6 @@ export async function fetchJson(url, settings = {}) {
         throw e;
     }
 }
-
-// export async function fetchJson(url, settings) {
-//     return JSON.parse(await fetchText(url, settings));
-// }
 
 export function removeArgumentsFromUrl() {
     window.history.pushState('', '', window.location.href.replace('?yofication', ''));

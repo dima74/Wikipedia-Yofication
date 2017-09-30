@@ -1,8 +1,6 @@
 import ctypes
 import re
 
-from termcolor import cprint
-
 
 def deyoficate(string):
     return string.replace('ё', 'е').replace('Ё', 'Е')
@@ -43,7 +41,7 @@ def get_sections_start_index(text):
     return result
 
 
-def check_match(text, text_lower, match, dword):
+def check_match(text, match, dword):
     start = match.start()
     end = match.end()
     prev_char = text[start - 1] if start > 0 else ''
@@ -68,8 +66,8 @@ def check_match(text, text_lower, match, dword):
         if not is_this_word_last_in_sentence:
             return False
 
-    if is_dword_inside_tags(dword, text_lower, start):
-        return False
+    # if is_dword_inside_tags(dword, text_lower, start):
+    #     return False
 
     return True
 
@@ -116,32 +114,25 @@ def is_dword_inside_tags(dword, text_lower, wordStartIndex):
     return False
 
 
-def yoficate_text_complex(text, **kwargs):
-    text_lower = text.lower()
+def get_replaces(text, **kwargs):
     min_replace_frequency = kwargs.get('min_replace_frequency', 60)
     yoficate_words_starts_with_upper = kwargs.get('yoficate_words_starts_with_upper', True)
 
     matches = re.finditer('([а-яА-ЯёЁ]+(-[а-яА-ЯёЁ]+)*)', text)
-    text_mutable = ctypes.create_unicode_buffer(text)
     replaces = []
-    sections_start_index = get_sections_start_index(text)
     for match in matches:
         start = match.start()
         end = match.end()
         dword = match.group()
         if dword in words:
-            # if start >= sections_start_index:
-            #     break
-
-            if not check_match(text, text_lower, match, dword):
-                print('skip word {}, context: `{}`'.format(dword, text[start - 20:end + 40].replace('\n', r'\n')))
+            if not check_match(text, match, dword):
+                # print('skip word {}, context: `{}`'.format(dword, text[start - 20:end + 40].replace('\n', r'\n')))
                 # for debug
-                check_match(text, text_lower, match, dword)
+                check_match(text, match, dword)
                 continue
 
             yoword = words[dword]
             if yoword.frequency() >= min_replace_frequency and (yoficate_words_starts_with_upper or yoword[0].islower()):
-                text_mutable[start:end] = yoword
                 replace = {
                     'yoword': yoword,
                     'wordStartIndex': start,
@@ -150,7 +141,6 @@ def yoficate_text_complex(text, **kwargs):
                 replaces.append(replace)
 
     result = {
-        'yotext': text_mutable.value,
         'replaces': replaces,
         'is_text_changed': len(replaces) > 0
     }
@@ -158,5 +148,13 @@ def yoficate_text_complex(text, **kwargs):
 
 
 def yoficate_text(text, **kwargs):
-    result = yoficate_text_complex(text)
-    return result['yotext'], len(result['replaces'])
+    result = get_replaces(text, **kwargs)
+    replaces = result['replaces']
+
+    text_mutable = ctypes.create_unicode_buffer(text)
+    for replace in replaces:
+        wordStartIndex = replace['wordStartIndex']
+        yoword = replace['yoword']
+        text_mutable[wordStartIndex:wordStartIndex + len(yoword)] = yoword
+
+    return text_mutable.value, len(replaces)

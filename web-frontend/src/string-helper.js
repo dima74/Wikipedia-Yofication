@@ -26,4 +26,20 @@ export default class StringHelper {
         }
         return indexes;
     }
+
+    static longestPrefix(a, b) {
+        let result = 0;
+        while (result < a.length && result < b.length && a[result] === b[result]) {
+            ++result;
+        }
+        return result;
+    }
+
+    static longestSuffix(a, b) {
+        let result = 0;
+        while (result < a.length && result < b.length && a[a.length - result - 1] === b[b.length - result - 1]) {
+            ++result;
+        }
+        return result;
+    }
 }
