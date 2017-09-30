@@ -8,4 +8,8 @@ export default class PageYofication extends Yofication {
     getTextDiv() {
         return $('#mw-content-text');
     }
+
+    getRootElement() {
+        return document.getElementById('mw-content-text');
+    }
 }

@@ -43,7 +43,7 @@ def get_sections_start_index(text):
     return result
 
 
-def check_match(text, match, dword):
+def check_match(text, text_lower, match, dword):
     start = match.start()
     end = match.end()
     prev_char = text[start - 1] if start > 0 else ''
@@ -64,46 +64,60 @@ def check_match(text, match, dword):
 
     if next_char == '.' and len(dword) <= 5:
         # сокращения: нем.
-        return False
+        is_this_word_last_in_sentence = end + 2 < len(text) and text[end + 2].isupper()
+        if not is_this_word_last_in_sentence:
+            return False
 
-    if is_dword_inside_tags(dword, text, start):
+    if is_dword_inside_tags(dword, text_lower, start):
         return False
 
     return True
 
 
-def is_dword_inside_tags(dword, text, wordStartIndex):
+def is_dword_inside_tags(dword, text_lower, wordStartIndex):
     tags = [
-        ('<', '>'),
-        ('[[', ']]'),
+        # ('<', '>'),
+        # ('[[', ']]'),
         ('[', ']'),
-        ('{{', '}}'),
+        # ('{{', '}}'),
         # ('{{начало цитаты', '{{конец цитаты'),
         # ('«', '»'),
         ('<!--', '-->'),
         # ('<source', '</source'),
         # ('<ref', '</ref'),
-        # ('<blockquote', '</blockquote')
+        # ('<blockquote', '</blockquote'),
+        ('{{начало скрытого блока', '{{конец скрытого блока'),
+        ('Файл:', '.jpg'),
+        ('Файл:', '.png')
     ]
 
     for tag in tags:
-        start = text.rfind(tag[0], 0, wordStartIndex)
+        start = text_lower.rfind(tag[0], 0, wordStartIndex)
         if start == -1:
             continue
 
-        end = text.find(tag[1], start)
+        file_prefix = 'Файл'
+        if text_lower[start + 1:start + 1 + len(file_prefix)] == file_prefix:
+            # обычно картинки вставляются вот так: [[Файл:Image.jpg|мини|Описание]]
+            # Имя файла будем игнорить
+            # А описание нет
+            continue
+
+        end = text_lower.find(tag[1], start)
         if end == -1:
             # raise Exception('Непарный тег {} в позиции {}'.format(tag[0], start))
             continue
 
         # либо сначала искать закрывающий тег, а потом открывающий, либо вообще убрать проверку на нахождение внутри тега, и чекать это на клиенте (либо пусть пользователь чекает, либо по классам родителей, наверняка цитаты и всё такое имеют собственные классы (да, кажется обычно цитаты лежат внутри тега <blockquote>, можно игнорить его!))
         if wordStartIndex < end:
+            for_debug = text_lower[start:end + 1]
             return True
 
     return False
 
 
 def yoficate_text_complex(text, **kwargs):
+    text_lower = text.lower()
     min_replace_frequency = kwargs.get('min_replace_frequency', 60)
     yoficate_words_starts_with_upper = kwargs.get('yoficate_words_starts_with_upper', True)
 
@@ -116,10 +130,13 @@ def yoficate_text_complex(text, **kwargs):
         end = match.end()
         dword = match.group()
         if dword in words:
-            if start >= sections_start_index:
-                break
+            # if start >= sections_start_index:
+            #     break
 
-            if not check_match(text, match, dword):
+            if not check_match(text, text_lower, match, dword):
+                print('skip word {}, context: `{}`'.format(dword, text[start - 20:end + 40].replace('\n', r'\n')))
+                # for debug
+                check_match(text, text_lower, match, dword)
                 continue
 
             yoword = words[dword]

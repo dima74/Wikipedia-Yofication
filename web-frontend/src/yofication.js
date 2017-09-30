@@ -10,8 +10,9 @@ String.prototype.insert = function (i, s, numberCharsToReplace) {
 
 export default class Yofication {
     constructor() {
-        this.textDiv = this.getTextDiv();
-        this.text = this.textDiv.html();
+        this.root = this.getRootElement();
+        this.rootInner = this.root.childNodes[0];
+        assert(this.rootInner.classList.contains('mw-parser-output'));
         this.iReplace = -1;
         this.done = false;
         this.wikitextPromise = main.wikipediaApi.getWikitext(currentPageName);
@@ -50,8 +51,14 @@ export default class Yofication {
     }
 
     createHighlights() {
-        let element = document.getElementById('mw-content-text');
-        let walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+        let root = this.root;
+        let filter = {
+            acceptNode: (node) => {
+                let visible = node.offsetParent !== null;
+                return visible ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+            }
+        };
+        let walker = document.createTreeWalker(root, NodeFilter.SHOW_ALL, filter);
 
         let yowordsInfos = {};
         for (let yoword of this.yowords) {
@@ -61,13 +68,15 @@ export default class Yofication {
         let indexOfOccurence = 0;
         while (walker.nextNode()) {
             let node = walker.currentNode;
-            let text = node.nodeValue;
-            for (let yoword of this.yowords) {
-                let dword = StringHelper.deyoficate(yoword);
-                if (text.includes(dword)) {
-                    let indexes = StringHelper.findIndexesOfWord(dword, text);
-                    let occurrences = indexes.map(wordIndex => { return {wordIndex, wordNode: node, index: indexOfOccurence++}; });
-                    yowordsInfos[yoword].push(...occurrences);
+            if (node.nodeType === 3) {
+                let text = node.nodeValue;
+                for (let yoword of this.yowords) {
+                    let dword = StringHelper.deyoficate(yoword);
+                    if (text.includes(dword)) {
+                        let indexes = StringHelper.findIndexesOfWord(dword, text);
+                        let occurrences = indexes.map(wordIndex => { return {wordIndex, wordNode: node, index: indexOfOccurence++}; });
+                        yowordsInfos[yoword].push(...occurrences);
+                    }
                 }
             }
         }
@@ -103,10 +112,58 @@ export default class Yofication {
                     background: 'aquamarine',
                     display: 'none'
                 });
-                highlights.push({wordNode, highlightElement, index: occurrence.index});
+                if (this.checkWordNodePartOne(wordNode, yoword)) {
+                    highlights.push({wordNode, highlightElement, index: occurrence.index});
+                }
             }
             this.yowordsToReplaces[yoword].highlights = highlights;
         }
+    }
+
+    // фильтрует вхождения, которые дублируют другое вхождение из викитекста
+    // не находится внутри содержания и т.д.
+    checkWordNodePartOne(wordNode, yoword) {
+        for (let element = wordNode; element !== this.root; element = element.parentElement) {
+            if (element.id === 'toc') {
+                console.log(`ignore word "${yoword}" inside #toc`);
+                return false;
+            }
+            if (element.tagName === 'A' && element.href.startsWith('/wiki')) {
+                console.log(`ignore word "${yoword}" inside <a>`);
+                return false;
+            }
+            // if (element.nodeType === 1 && element.classList.contains('thumbinner')) {
+            //     console.log(`ignore word "${yoword}" inside .thumbinner\ntodo: не игнорить их, а придумать что-нибудь получше`);
+            //     return false;
+            // }
+        }
+        return true;
+    }
+
+    // фильтрует вхождения, которые однозначно соответствуют викитексту
+    // не находится внутри blockquote, не находится в секции `литература` и т.д.
+    checkWordNodePartTwo(wordNode, yoword) {
+        for (let element = wordNode; element !== this.root; element = element.parentElement) {
+            if (element.tagName === 'BLOCKQUOTE') {
+                console.log(`ignore word "${yoword}" inside <blockquote>`);
+                return false;
+            }
+            if (element.parentElement === this.rootInner) {
+                // верхний уровень, проверяем что ближайший заголовок сверху допустимый
+                for (let previousElement = element; previousElement !== null; previousElement = previousElement.previousSibling) {
+                    if (previousElement.nodeType === 1 && previousElement.tagName[0] === 'H' && previousElement.childNodes.length > 0) {
+                        const sectionsIgnored = ['литература', 'ссылки', 'примечания', 'сочинения', 'источники', 'труды'];
+                        let latestSectionName = previousElement.childNodes[0].id;
+                        if (sectionsIgnored.includes(latestSectionName.toLowerCase())) {
+                            console.log(`ignore section "${latestSectionName}" for word "${yoword}"`);
+                            return false;
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     createReplaces() {
@@ -140,6 +197,7 @@ ${yoword}
             }
         }
         replaces.sort((replace1, replace2) => replace1.highlight.index - replace2.highlight.index);
+        replaces = replaces.filter(replace => this.checkWordNodePartTwo(replace.highlight.wordNode, replace.yoword));
         for (let replace of replaces) {
             replace.highlight = replace.highlight.highlightElement;
         }
@@ -160,12 +218,13 @@ ${yoword}
         }
 
         if (this.replaces.length < main.settings.minimumNumberReplacesForContinuousYofication) {
-            toast('todo');
+            toast('assert: this.replaces.length < main.settings.minimumNumberReplacesForContinuousYofication');
             this.afterYofication();
             return;
         }
 
         if (this.wikitext.length > 5000) {
+            toast('temp: викитекст слишком большой');
             this.afterYofication();
             return;
         }
@@ -240,7 +299,6 @@ ${yoword}
 
     goToCurrentReplace() {
         if (this.iReplace === this.replaces.length) {
-            this.textDiv.html(this.text);
             (async () => {
                 await this.makeChange();
                 this.afterYofication();

@@ -8,7 +8,7 @@ const settings = {
     addPortletLinkAction: true,
     editSummary: 'Ёфикация с помощью [[Участник:Дима74/Скрипт-Ёфикатор|скрипта-ёфикатора]]',
     minReplaceFrequency: 25,
-    minimumNumberReplacesForContinuousYofication: 5
+    minimumNumberReplacesForContinuousYofication: 0
 };
 
 class Main {

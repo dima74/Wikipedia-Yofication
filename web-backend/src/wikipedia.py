@@ -11,7 +11,7 @@ with open('/home/dima/Wikipedia-Yofication/cpp-frequencies/results/all-pages.txt
     def parse_page(line):
         first_space_index = line.index(' ')
         number_replaces = int(line[:first_space_index])
-        page_name = line[first_space_index:]
+        page_name = line[first_space_index + 1:]
         return [number_replaces, page_name]
 
 
@@ -37,16 +37,17 @@ def random_page_name():
     return random.choice(all_pages)
 
 
-def count_russian_words(text, word):
-    return len([match for match in re.finditer(word, text) if check_match(text, match, word)])
+def count_russian_words(text, text_lower, dword):
+    return len([match for match in re.finditer(dword, text) if check_match(text, text_lower, match, dword)])
 
 
 @wikipedia.route('/wikipedia/replaces/<path:title>')
 def generate(title):
-    min_replace_frequency = int(request.args.get('minReplaceFrequency', 60))
+    min_replace_frequency = int(request.args.get('minReplaceFrequency', 25))
     r = get('/w/api.php', params={'action': 'query', 'prop': 'revisions', 'titles': title, 'rvprop': 'ids|content|timestamp'}).json()
     page_info = list(r['query']['pages'].values())[0]['revisions'][0]
     page_text = page_info['*']
+    page_text_lower = page_text.lower()
     yofication_info = yoficate_text_complex(page_text, min_replace_frequency=min_replace_frequency)
     # if not yofication_info['is_text_changed']:
     #     abort(404)
@@ -80,12 +81,12 @@ def generate(title):
         if yoword not in yowordsToReplaces:
             yowordsToReplaces[yoword] = {
                 'frequency': replace['frequency'],
-                'numberSameDwords': count_russian_words(page_text, dword),
+                # 'numberSameDwords': count_russian_words(page_text, dword),
                 'replaces': []
             }
 
         wordStartIndex = replace['wordStartIndex']
-        numberSameDwordsBefore = count_russian_words(page_text[:wordStartIndex], dword)
+        numberSameDwordsBefore = count_russian_words(page_text[:wordStartIndex], page_text_lower[:wordStartIndex], dword)
         replace = {
             'wordStartIndex': wordStartIndex,
             'numberSameDwordsBefore': numberSameDwordsBefore
@@ -93,6 +94,11 @@ def generate(title):
 
         replaces = yowordsToReplaces[yoword]['replaces']
         replaces.append(replace)
+
+        print(yoword, '`' + page_text[wordStartIndex - 20:][:40] + '`')
+
+    for yowordInfo in yowordsToReplaces.values():
+        yowordInfo['numberSameDwords'] = len(yowordInfo['replaces'])
 
     revision = page_info['revid']
     timestamp = page_info['timestamp']
