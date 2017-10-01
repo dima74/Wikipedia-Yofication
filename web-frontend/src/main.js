@@ -28,7 +28,13 @@ class Main {
                 this.nextPageNamePromise = this.backend.getRandomPageName();
             }
         } else if (settings.addPortletLinkAction && this.wikipediaApi.isMainNamespace()) {
-            mw.util.addPortletLink('p-cactions', '/wiki/' + currentPageName + '?yofication', 'Ёфицировать', 'ca-yoficator', ' Ёфицировать страницу');
+            let portletLink = mw.util.addPortletLink('p-cactions', '/wiki/' + currentPageName + '?yofication', 'Ёфицировать', 'ca-yoficator', ' Ёфицировать страницу');
+            $(portletLink).click(function (event) {
+                event.preventDefault();
+                window.history.pushState('', '', window.location.href + '?yofication');
+                $('#ca-yoficator').remove();
+                new PageYofication(false).perform();
+            });
             this.customizeToolbarYoficateButton();
         }
     }
@@ -54,6 +60,7 @@ class Main {
                 }
             });
         }
+
         // new EditYofication().perform();
 
         // https://www.mediawiki.org/wiki/Extension:WikiEditor/Toolbar_customization
