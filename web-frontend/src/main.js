@@ -36,6 +36,7 @@ class Main {
                 new PageYofication(false).perform();
             });
             this.customizeToolbarYoficateButton();
+            // new EditYofication().perform();
         }
     }
 

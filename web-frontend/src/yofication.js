@@ -11,8 +11,10 @@ String.prototype.insert = function (i, s, numberCharsToReplace) {
 export default class Yofication {
     constructor() {
         this.root = this.getRootElement();
-        this.rootInner = this.root.childNodes[0];
-        assert(this.rootInner.classList.contains('mw-parser-output'));
+        if (this.pageMode) {
+            this.rootInner = this.root.childNodes[0];
+            assert(this.rootInner.classList.contains('mw-parser-output'));
+        }
         this.iReplace = -1;
         this.done = false;
         this.wikitextPromise = main.wikipediaApi.getWikitext(currentPageName);
@@ -273,6 +275,7 @@ export default class Yofication {
         for (let yoword of this.yowords) {
             let yowordInfo = this.yowordsToReplaces[yoword];
 
+            let yowordReplaces = [];
             const contextLength = 20;
             for (let highlight of yowordInfo.highlights) {
                 let wordNodeValue = highlight.wordNode.nodeValue;
@@ -280,10 +283,22 @@ export default class Yofication {
                 let wordNodeEndIndex = highlight.wordIndex + yoword.length;
                 let contextBefore = wordNodeValue.substring(Math.max(wordNodeStartIndex - contextLength, 0), wordNodeStartIndex);
                 let contextAfter = wordNodeValue.substring(wordNodeEndIndex, Math.min(wordNodeEndIndex + contextLength, wordNodeValue.length));
+                // перед сортировкой обязательно нужно создать копию массива
+                // сейчас копию создаётся в процессе `map`
                 let replaces = yowordInfo.replaces
                     .map(replace => { return {replace, commonLength: this.getCommonLength(contextBefore, contextAfter, replace)}; })
                     .sort((replace1, replace2) => replace2.commonLength - replace1.commonLength);
-                if (replaces.length === 1 || replaces[0].commonLength >= 10 && replaces[0].commonLength > replaces[1].commonLength * 2) {
+                // найденное число вхождений, ожидаемое число вхождений, результат
+                //  1,  1, сопоставляем
+                // >1,  1, выбираем из найденных замен лучшую подходящую
+                //  1, >1, подбираем для найденной замены лучшую ожидаемую
+                // >1, >1, по контексту
+                let numberReplacesLocal = yowordInfo.highlights.length;
+                let numberReplacesRemote = replaces.length;
+                let singleLocalSingleRemote = numberReplacesLocal === 1 && numberReplacesRemote === 1;
+                let multipleLocalSingleRemote = numberReplacesLocal > 1 && numberReplacesRemote === 1 && replaces[0].commonLength >= 20;
+                let multipleRemote = numberReplacesRemote > 1 && replaces[0].commonLength >= 10 && replaces[0].commonLength > replaces[1].commonLength * 1.5;
+                if (singleLocalSingleRemote || multipleLocalSingleRemote || multipleRemote) {
                     let replaceRemote = replaces[0];
 
                     let replace = {
@@ -294,8 +309,22 @@ export default class Yofication {
                         isAccept: false
                     };
                     assert(replace.wordStartIndex !== undefined);
+
+                    let indexRemote = yowordInfo.replaces.indexOf(replaceRemote.replace);
+                    assert(indexRemote !== -1, 'indexRemote === -1');
+                    yowordReplaces.push({replace, indexRemote});
+                }
+            }
+
+            let indexesRemote = yowordReplaces.map(replace => replace.indexRemote);
+            let checkSingleMatching = (new Set(indexesRemote)).size === indexesRemote.length;
+            if (checkSingleMatching) {
+                for (let {replace, indexRemote} of yowordReplaces) {
                     replacesLocal.push(replace);
                 }
+            } else {
+                console.error(`${yoword}\nНесколько локальных вхождений были сопоставлены одному remote\n${indexesRemote}`);
+                assert(false, 'checkSingleMatching');
             }
         }
         const compareTwoElementArrays = (a, b) => (a[0] === b[0] ? a[1] - b[1] : a[0] - b[0]);
