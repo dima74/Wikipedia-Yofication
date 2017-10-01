@@ -37,11 +37,11 @@ export default class Yofication {
             return;
         }
 
-        if (this.wikitext.length > 50000) {
-            toast('temp: викитекст слишком большой');
-            this.afterYofication();
-            return;
-        }
+        // if (this.wikitext.length > 50000) {
+        //     toast('temp: викитекст слишком большой');
+        //     this.afterYofication();
+        //     return;
+        // }
 
         this.goToNextReplace();
         $(window).on('resize', () => this.scrollToCurrentVisibleHighlight());
@@ -58,6 +58,11 @@ export default class Yofication {
     }
 
     async checkWikitextMatch() {
+        let revisionLocal = mw.config.get('wgCurRevisionId');
+        if (this.revision !== revisionLocal) {
+            throw `ревизии не совпадают\n локальная: ${revisionLocal} \nожидается: ${this.revision}`;
+        }
+
         toast('Загружаем викитекст...');
         this.wikitext = await this.wikitextPromise;
         console.log(`длина викитекста: ${this.wikitext.length}`);
@@ -74,11 +79,51 @@ export default class Yofication {
                 }
             }
         }
+    }
 
-        let revisionLocal = mw.config.get('wgCurRevisionId');
-        if (this.revision !== revisionLocal) {
-            throw `ревизии не совпадают\n локальная: ${revisionLocal} \nожидается: ${this.revision}`;
+    static getColorRGB(value) {
+        let r = Math.round((1 - value) * 255);
+        let g = Math.round(value * 255);
+        let b = Math.round(0);
+        return `rgb(${r}, ${g}, ${b})`;
+    }
+
+    static getColorHSL(value) {
+        let hue = Math.round(value * 120);
+        return `hsl(${hue}, 100%, 50%)`;
+    }
+
+    static getColorSimple(value) {
+        const limits = [
+            [0.6, 'green'],
+            [0.4, 'orange'],
+            [0.0, 'red']
+        ];
+        for (let limit of limits) {
+            if (value >= limit[0]) {
+                return limit[1];
+            }
         }
+        assert(false, 'getColorSimple::assert(false)');
+    }
+
+    addProgressToHighlight(highlightElement, frequencyPercent) {
+        // const getColor = Yofication.getColorRGB;
+        // const getColor = Yofication.getColorHSL;
+        const getColor = Yofication.getColorSimple;
+
+        let value = frequencyPercent / 100;
+        let progress = document.createElement('span');
+        highlightElement.appendChild(progress);
+        $(progress).css({
+            width: `${frequencyPercent}%`,
+            backgroundColor: getColor(value),
+            content: '',
+            height: '3px',
+            position: 'absolute',
+            left: '0',
+            top: '-3px'
+        });
     }
 
     createHighlights() {
@@ -129,6 +174,8 @@ export default class Yofication {
                 wordNode.before(highlightElement);
                 highlightElement.parentElement.style.isolation = 'isolate';
 
+                this.addProgressToHighlight(highlightElement, this.yowordsToReplaces[yoword].frequency);
+
                 function recalcPosition() {
                     let rect = range.getBoundingClientRect();
                     let root = highlightElement.offsetParent;
@@ -162,44 +209,38 @@ export default class Yofication {
     }
 
     checkWordNode(wordNode, yoword) {
-        return this.checkWordNodePartOne(wordNode, yoword)
-            && this.checkWordNodePartTwo(wordNode, yoword);
-    }
-
-    // фильтрует вхождения, которые дублируют другое вхождение из викитекста
-    // не находится внутри содержания и т.д.
-    checkWordNodePartOne(wordNode, yoword) {
         for (let element = wordNode; element !== this.root; element = element.parentElement) {
-            // содержание
-            if (element.id === 'toc') {
-                console.log(`ignore word "${yoword}" inside #toc`);
-                return false;
-            }
+            if (element.nodeType === 1) {
+                // цитаты, ссылки
+                const ignoredTags = ['blockquote', 'a'];
+                for (let ignoredTag of ignoredTags) {
+                    if (element.tagName.toLowerCase() === ignoredTag) {
+                        console.log(`ignore word "${yoword}" inside <${ignoredTag}>`);
+                        return false;
+                    }
+                }
 
-            // ссылки
-            if (element.tagName === 'A') {
-                console.log(`ignore word "${yoword}" inside <a>`);
-                return false;
-            }
+                // поэмы
+                const ignoredClasses = ['poem'];
+                for (let ignoredClass of ignoredClasses) {
+                    if (element.classList.contains(ignoredClass)) {
+                        console.log(`ignore word "${yoword}" inside .${ignoredClass}`);
+                        return false;
+                    }
+                }
 
-            // цитаты из шаблона {{Quote}}
-            let previousElement = element.previousElementSibling;
-            if (element.nodeType === 1 && element.tagName === 'TD' && previousElement !== null && previousElement.tagName === 'TD' && previousElement.innerHTML.includes('quote1.png')) {
-                console.log(`ignore word "${yoword}" inside quote`);
-                return false;
-            }
-        }
-        return true;
-    }
+                // содержание
+                if (element.id === 'toc') {
+                    console.log(`ignore word "${yoword}" inside #toc`);
+                    return false;
+                }
 
-    // фильтрует вхождения, которые однозначно соответствуют викитексту
-    // не находится внутри blockquote, не находится в секции `литература` и т.д.
-    checkWordNodePartTwo(wordNode, yoword) {
-        for (let element = wordNode; element !== this.root; element = element.parentElement) {
-            // цитаты
-            if (element.tagName === 'BLOCKQUOTE') {
-                console.log(`ignore word "${yoword}" inside <blockquote>`);
-                return false;
+                // цитаты из шаблона {{Quote}}
+                let previousElement = element.previousElementSibling;
+                if (element.tagName === 'TD' && previousElement !== null && previousElement.tagName === 'TD' && previousElement.innerHTML.includes('quote1.png')) {
+                    console.log(`ignore word "${yoword}" inside quote`);
+                    return false;
+                }
             }
 
             // секции типа Литература
@@ -287,7 +328,7 @@ export default class Yofication {
             // вернуться к предыдущей замене
             [this.goToPreviousReplace, 'a', 'ф'],
             // отменить ёфикация текущей страницы
-            [this.afterYofication, 'q', 'й']
+            [this.abortYofication, 'q', 'й']
         ];
 
         let actions = {};
@@ -438,5 +479,12 @@ export default class Yofication {
             this.goToNextPage();
         else
             removeArgumentsFromUrl();
+    }
+
+    abortYofication() {
+        if (!main.continuousYofication) {
+            toast('Ёфикация отменена');
+        }
+        this.afterYofication();
     }
 }

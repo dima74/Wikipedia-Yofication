@@ -26,9 +26,7 @@ def readlines(filename):
 
 lines = readlines('all-yowords.txt') + readlines('frequencies.txt')
 words = {deyoficate(yoword): YoWord(yoword, number_with_yo, number_all) for (yoword, number_with_yo, number_all) in map(str.split, lines)}
-
-
-# words = {dword: yoword for dword, yoword in words.items() if yoword.number_with_yo > 100}
+words = {dword: yoword for dword, yoword in words.items() if yoword.number_with_yo > 5}
 
 
 def get_sections_start_index(text):
@@ -62,53 +60,55 @@ def check_match(text, match, dword):
 
     if next_char == '.' and len(dword) <= 5:
         # сокращения: нем.
-        is_this_word_last_in_sentence = end + 2 < len(text) and text[end + 2].isupper()
+        next_word_length = 3
+        next_word = text[end + 2:end + 2 + next_word_length]
+        is_this_word_last_in_sentence = len(next_word) == next_word_length and next_word[0].isupper() and next_word.isalpha()
         if not is_this_word_last_in_sentence:
             return False
 
-    # if is_dword_inside_tags(dword, text_lower, start):
-    #     return False
+    if is_dword_inside_tags(dword, text, start):
+        return False
 
     return True
 
 
-def is_dword_inside_tags(dword, text_lower, wordStartIndex):
+def is_dword_inside_tags(dword, text, wordStartIndex):
     tags = [
         # ('<', '>'),
         # ('[[', ']]'),
-        ('[', ']'),
+        # ('[', ']'),
         # ('{{', '}}'),
         # ('{{начало цитаты', '{{конец цитаты'),
-        # ('«', '»'),
+        ('«', '»'),
         ('<!--', '-->'),
         # ('<source', '</source'),
         # ('<ref', '</ref'),
         # ('<blockquote', '</blockquote'),
-        ('{{начало скрытого блока', '{{конец скрытого блока'),
-        ('Файл:', '.jpg'),
-        ('Файл:', '.png')
+        # ('{{начало скрытого блока', '{{конец скрытого блока'),
+        # ('Файл:', '.jpg'),
+        # ('Файл:', '.png')
     ]
 
     for tag in tags:
-        start = text_lower.rfind(tag[0], 0, wordStartIndex)
+        start = text.rfind(tag[0], 0, wordStartIndex)
         if start == -1:
             continue
 
-        file_prefix = 'Файл'
-        if text_lower[start + 1:start + 1 + len(file_prefix)] == file_prefix:
+            # file_prefix = 'Файл'
+            # if text[start + 1:start + 1 + len(file_prefix)] == file_prefix:
             # обычно картинки вставляются вот так: [[Файл:Image.jpg|мини|Описание]]
             # Имя файла будем игнорить
             # А описание нет
-            continue
+            # continue
 
-        end = text_lower.find(tag[1], start)
+        end = text.find(tag[1], start)
         if end == -1:
             # raise Exception('Непарный тег {} в позиции {}'.format(tag[0], start))
             continue
 
         # либо сначала искать закрывающий тег, а потом открывающий, либо вообще убрать проверку на нахождение внутри тега, и чекать это на клиенте (либо пусть пользователь чекает, либо по классам родителей, наверняка цитаты и всё такое имеют собственные классы (да, кажется обычно цитаты лежат внутри тега <blockquote>, можно игнорить его!))
         if wordStartIndex < end:
-            for_debug = text_lower[start:end + 1]
+            for_debug = text[start:end + 1]
             return True
 
     return False

@@ -16,7 +16,7 @@ with open('/home/dima/Wikipedia-Yofication/cpp-frequencies/results/all-pages.txt
 
     lines = input.readlines()
     all_pages = list(map(parse_page, lines))
-    # all_pages = [page for page in all_pages if page[0] >= 10]
+    all_pages = [page for page in all_pages if page[0] >= 5]
     all_pages = [page[1] for page in all_pages]
 
 
