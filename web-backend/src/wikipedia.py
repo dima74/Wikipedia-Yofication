@@ -1,6 +1,6 @@
 import random
 import requests
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, abort
 from src.yofication import get_replaces, deyoficate
 
 wikipedia = Blueprint('wikipedia', __name__)
@@ -37,17 +37,38 @@ def random_page_name():
     return random.choice(all_pages)
 
 
-@wikipedia.route('/wikipedia/replaces/<path:title>')
-def generate(title):
-    min_replace_frequency = int(request.args.get('minReplaceFrequency', 25))
+default_min_replace_frequency = 25
+
+
+@wikipedia.route('/wikipedia/replacesByTitle/<path:title>')
+def generateReplacesByTitle(title):
+    min_replace_frequency = int(request.args.get('minReplaceFrequency', default_min_replace_frequency))
+
     # todo get занимает большую часть времени метода
     response = get('/w/api.php', params={'action': 'query', 'prop': 'revisions', 'titles': title, 'rvprop': 'ids|content|timestamp'}).json()
     page_info = list(response['query']['pages'].values())[0]['revisions'][0]
-    page_text = page_info['*']
-    yofication_info = get_replaces(page_text, min_replace_frequency=min_replace_frequency)
-    # if not yofication_info['is_text_changed']:
-    #     abort(404)
+    wikitext = page_info['*']
 
+    revision = page_info['revid']
+    timestamp = page_info['timestamp']
+    result = {
+        'revision': revision,
+        'timestamp': timestamp,
+        'yowordsToReplaces': generateReplaces(wikitext, min_replace_frequency)
+    }
+    return jsonify(result)
+
+
+@wikipedia.route('/wikipedia/replacesByWikitext', methods=['POST'])
+def generateReplacesByWikitext():
+    min_replace_frequency = int(request.form.get('minReplaceFrequency', default_min_replace_frequency))
+    if 'minReplaceFrequency' not in request.form:
+        abort(400)
+    wikitext = request.form['wikitext']
+    return jsonify(generateReplaces(wikitext, min_replace_frequency))
+
+
+def generateReplaces(wikitext, min_replace_frequency):
     """
     result = {
         revision: <number>,
@@ -68,6 +89,7 @@ def generate(title):
     }
     """
 
+    yofication_info = get_replaces(wikitext, min_replace_frequency=min_replace_frequency)
     replaces = yofication_info['replaces']
     yowordsToReplaces = {}
     for replace in replaces:
@@ -85,8 +107,8 @@ def generate(title):
         contextLength = 20
         replace = {
             'wordStartIndex': wordStartIndex,
-            'contextBefore': page_text[max(wordStartIndex - contextLength, 0):wordStartIndex],
-            'contextAfter': page_text[wordEndIndex:min(wordEndIndex + contextLength, len(page_text))]
+            'contextBefore': wikitext[max(wordStartIndex - contextLength, 0):wordStartIndex],
+            'contextAfter': wikitext[wordEndIndex:min(wordEndIndex + contextLength, len(wikitext))]
         }
 
         replaces = yowordsToReplaces[yoword]['replaces']
@@ -94,11 +116,4 @@ def generate(title):
 
         # print(yoword, '`' + page_text[wordStartIndex - 20:wordStartIndex + 20] + '`')
 
-    revision = page_info['revid']
-    timestamp = page_info['timestamp']
-    result = {
-        'revision': revision,
-        'timestamp': timestamp,
-        'yowordsToReplaces': yowordsToReplaces
-    }
-    return jsonify(result)
+    return yowordsToReplaces

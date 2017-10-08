@@ -18,31 +18,22 @@ export default class Yofication {
             this.wikitextPromise = main.wikipediaApi.getWikitext(currentPageName);
         } else {
             this.root = document.getElementById('wpTextbox1');
-            // this.wikitext = this.root.innerHTML;
-            // this.wikitextPromise = Promise.resolve(this.wikitext/*.replace(/\r/g, '')*/);
+            this.root.blur();
 
-            this.root.previousElementSibling.style.color = 'initial';
-            // this.root.previousElementSibling.style.opacity = 0.99;
-            // this.root.previousElementSibling.style.isolation = 'isolate';
-            // this.root.previousElementSibling.style.zIndex = 1;
-            this.root.previousElementSibling.style.position = 'relative';
+            this.highlightsWrapper = this.root.previousElementSibling;
+            this.highlightsWrapper.style.color = 'initial';
+            this.highlightsWrapper.style.position = 'relative';
             this.root.style.isolation = 'isolate';
             this.root.style.zIndex = 1;
 
-            // this.highlightsWrapper = document.createElement('div');
-            // this.highlightsWrapper.id = 'highlightsWrapper';
-            // this.highlightsWrapper.style.isolation = 'isolate';
-            // this.root.previousElementSibling.appendChild(this.highlightsWrapper);
-            this.highlightsWrapper = this.root.previousElementSibling;
-
             this.fakeElement = document.createElement('div');
             this.fakeElement.id = 'fakeElement';
-            this.fakeElement.innerHTML = this.root.innerHTML;
+            this.fakeElement.textContent = this.root.value;
             this.fakeElement.style.cssText = this.root.style.cssText;
             this.fakeElement.style.fontFamily = 'monospace';
             this.fakeElement.style.tabSize = 4;
-            this.fakeElement.style.visibility = 'hidden';
             this.fakeElement.style.whiteSpace = 'pre-wrap';
+            this.fakeElement.style.visibility = 'hidden';
             this.root.parentElement.appendChild(this.fakeElement);
         }
 
@@ -52,8 +43,9 @@ export default class Yofication {
 
     async perform() {
         await this.loadReplaces();
-        this.checkRevisionsMatch();
         if (this.pageMode) {
+            // ёфицировать можно не обязательно статью, это может быть раздел статьи и т.д. (то есть у этого может не быть ревизии)
+            this.checkRevisionsMatch();
             // при ёфикации викитекст не важен, так как результатом работы скрипта будет изменнение содержимого <textarea>
             await this.checkWikitextMatch();
         }
@@ -86,11 +78,16 @@ export default class Yofication {
 
     async loadReplaces() {
         toast('Загружаем список замен...');
-        let {yowordsToReplaces, revision, timestamp} = await main.backend.getReplaces(currentPageName);
-        this.yowordsToReplaces = yowordsToReplaces;
-        this.revision = revision;
-        this.timestamp = timestamp;
-        this.yowords = Object.keys(yowordsToReplaces);
+        if (this.pageMode) {
+            let {yowordsToReplaces, revision, timestamp} = await main.backend.getReplacesByPageName(currentPageName);
+            this.yowordsToReplaces = yowordsToReplaces;
+            this.revision = revision;
+            this.timestamp = timestamp;
+        } else {
+            let wikitext = this.root.value;
+            this.yowordsToReplaces = await main.backend.getReplacesByWikitext(wikitext);
+        }
+        this.yowords = Object.keys(this.yowordsToReplaces);
     }
 
     checkRevisionsMatch() {
@@ -171,52 +168,60 @@ export default class Yofication {
     }
 
     createHighlights() {
-        let root = this.root;
-        let filter = {
-            acceptNode: (node) => {
-                let visible = node.offsetParent !== null;
-                return visible ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
-            }
-        };
-        let walker = document.createTreeWalker(root, NodeFilter.SHOW_ALL, filter);
-
         let yowordsInfos = {};
         for (let yoword of this.yowords) {
             yowordsInfos[yoword] = [];
         }
 
         let nodeOrderIndex = 0;
-        while (walker.nextNode()) {
-            let node = walker.currentNode;
-            if (node.nodeType === 3) {
-                let text = node.nodeValue;
-                for (let yoword of this.yowords) {
-                    let dword = StringHelper.deyoficate(yoword);
-                    if (text.includes(dword)) {
-                        let indexes = StringHelper.findIndexesOfWord(dword, text);
-                        let occurrences = indexes.map(wordStartIndex => { return {wordStartIndex, wordNode: node, wordOrderIndex: [nodeOrderIndex, wordStartIndex]}; });
-                        yowordsInfos[yoword].push(...occurrences);
-                    }
+        let processTextNode = (node, nodeValue) => {
+            for (let yoword of this.yowords) {
+                let dword = StringHelper.deyoficate(yoword);
+                if (nodeValue.includes(dword)) {
+                    assert(nodeValue);
+                    let indexes = StringHelper.findIndexesOfWord(dword, nodeValue);
+                    let occurrences = indexes.map(wordStartIndex => { return {wordStartIndex, wordNode: node, wordNodeValue: nodeValue, wordOrderIndex: [nodeOrderIndex, wordStartIndex]}; });
+                    yowordsInfos[yoword].push(...occurrences);
                 }
-                ++nodeOrderIndex;
             }
+            ++nodeOrderIndex;
+        };
+
+        if (this.pageMode) {
+            let filter = {
+                acceptNode: (node) => {
+                    let visible = node.offsetParent !== null;
+                    return visible ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+                }
+            };
+            let walker = document.createTreeWalker(this.root, NodeFilter.SHOW_ALL, filter);
+            while (walker.nextNode()) {
+                let node = walker.currentNode;
+                if (node.nodeType === 3) {
+                    processTextNode(node, node.nodeValue);
+                }
+            }
+        } else {
+            // вообще this.root это Element, а не Node
+            processTextNode(this.root, this.root.value);
         }
 
         for (let yoword of this.yowords) {
-            let highlights = [];
+            let occurrences = [];
             for (let occurrence of yowordsInfos[yoword]) {
-                let wordNode = this.pageMode ? occurrence.wordNode : this.fakeElement.childNodes[0];
-                let wordStartIndex = occurrence.wordStartIndex;
+                if (!this.pageMode) {
+                    occurrence.wordNode = this.fakeElement.childNodes[0];
+                }
 
                 let range = document.createRange();
-                range.setStart(wordNode, wordStartIndex);
-                range.setEnd(wordNode, wordStartIndex + yoword.length);
+                range.setStart(occurrence.wordNode, occurrence.wordStartIndex);
+                range.setEnd(occurrence.wordNode, occurrence.wordStartIndex + yoword.length);
 
                 let highlightElement = document.createElement('span');
                 // https://stackoverflow.com/questions/46505758/why-offsetparent-returns-nearest-table-for-non-positioned-element
                 highlightElement.style.position = 'absolute';
                 if (this.pageMode) {
-                    wordNode.before(highlightElement);
+                    occurrence.wordNode.before(highlightElement);
                     highlightElement.parentElement.style.isolation = 'isolate';
                     // верхней строчки недостаточно из-за бага в хроме
                     // https://stackoverflow.com/questions/46621884/different-behaviour-of-isolation-isolate-when-div-is-inside-table
@@ -253,15 +258,19 @@ export default class Yofication {
                 if (this.pageMode) {
                     $(highlightElement).css('zIndex', -1);
                 }
-                if (!this.pageMode || this.checkWordNode(wordNode, yoword)) {
-                    highlights.push({wordNode, wordStartIndex, highlightElement, wordOrderIndex: occurrence.wordOrderIndex});
+                if (this.checkWordNode(occurrence.wordNode, yoword)) {
+                    occurrence.highlightElement = highlightElement;
+                    occurrences.push(occurrence);
                 }
             }
-            this.yowordsToReplaces[yoword].highlights = highlights;
+            this.yowordsToReplaces[yoword].occurrences = occurrences;
         }
     }
 
     checkWordNode(wordNode, yoword) {
+        if (!this.pageMode) {
+            return true;
+        }
         for (let element = wordNode; element !== this.root; element = element.parentElement) {
             if (element.nodeType === 1) {
                 // цитаты, ссылки
@@ -329,10 +338,10 @@ export default class Yofication {
 
             let yowordReplaces = [];
             const contextLength = 20;
-            for (let highlight of yowordInfo.highlights) {
-                let wordNodeValue = highlight.wordNode.nodeValue;
-                let wordNodeStartIndex = highlight.wordStartIndex;
-                let wordNodeEndIndex = highlight.wordStartIndex + yoword.length;
+            for (let occurrence of yowordInfo.occurrences) {
+                let wordNodeValue = occurrence.wordNodeValue;
+                let wordNodeStartIndex = occurrence.wordStartIndex;
+                let wordNodeEndIndex = occurrence.wordStartIndex + yoword.length;
                 let contextBefore = wordNodeValue.substring(Math.max(wordNodeStartIndex - contextLength, 0), wordNodeStartIndex);
                 let contextAfter = wordNodeValue.substring(wordNodeEndIndex, Math.min(wordNodeEndIndex + contextLength, wordNodeValue.length));
                 // перед сортировкой обязательно нужно создать копию массива
@@ -345,7 +354,7 @@ export default class Yofication {
                 // >1,  1, выбираем из найденных замен лучшую подходящую
                 //  1, >1, подбираем для найденной замены лучшую ожидаемую
                 // >1, >1, по контексту
-                let numberReplacesLocal = yowordInfo.highlights.length;
+                let numberReplacesLocal = yowordInfo.occurrences.length;
                 let numberReplacesRemote = replaces.length;
                 let singleLocalSingleRemote = numberReplacesLocal === 1 && numberReplacesRemote === 1;
                 let multipleLocalSingleRemote = numberReplacesLocal > 1 && numberReplacesRemote === 1 && replaces[0].commonLength >= 20;
@@ -357,7 +366,7 @@ export default class Yofication {
                         yoword,
                         wordStartIndex: replaceRemote.replace.wordStartIndex,
                         frequency: yowordInfo.frequency,
-                        highlightInfo: highlight,
+                        highlightInfo: occurrence,
                         isAccept: false
                     };
                     assert(replace.wordStartIndex !== undefined);
@@ -390,7 +399,7 @@ export default class Yofication {
         console.log(`${'yoword'.padEnd(20 - 'local'.length + 1)} local:remote => associated`);
         for (let yoword of this.yowords) {
             let yowordInfo = this.yowordsToReplaces[yoword];
-            let numberLocal = yowordInfo.highlights.length;
+            let numberLocal = yowordInfo.occurrences.length;
             let numberRemote = yowordInfo.replaces.length;
             let numberAssociated = replacesLocal.filter(replace => replace.yoword === yoword).length;
             console.log(`${yoword.padEnd(20)} ${numberLocal}:${numberRemote} => ${numberAssociated}`);
@@ -453,7 +462,7 @@ export default class Yofication {
 
     goToCurrentReplace() {
         if (this.iReplace === this.replaces.length) {
-            this.makeChange();
+            this.makeChange().then(() => this.afterYofication());
             return true;
         }
         if (this.iReplace > this.replaces.length) {
@@ -505,6 +514,7 @@ export default class Yofication {
     async makeChange() {
         if (this.visibleHighlight) {
             this.visibleHighlight.style.display = 'none';
+            delete this.visibleHighlight;
         }
 
         this.done = true;
@@ -516,7 +526,6 @@ export default class Yofication {
 
         if (this.pageMode) {
             await this.makeChangePageMode();
-            this.afterYofication();
         } else {
             this.makeChangeEditMode();
         }
@@ -578,6 +587,9 @@ export default class Yofication {
     }
 
     afterYofication() {
+        if (!this.pageMode) {
+            return;
+        }
         if (main.continuousYofication)
             this.goToNextPage();
         else

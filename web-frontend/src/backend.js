@@ -8,13 +8,25 @@ export default class Backend {
         return await fetchJson(BACKEND_HOST + '/randomPageName', {errorMessage});
     }
 
-    async getReplaces(pageName) {
+    async getReplacesByPageName(pageName) {
         let settings = {
             errorMessage: 'Произошла ошибка при загрузке списка замен',
             data: {
                 minReplaceFrequency: main.settings.minReplaceFrequency
             }
         };
-        return await fetchJson(BACKEND_HOST + '/replaces/' + pageName, settings);
+        return await fetchJson(BACKEND_HOST + '/replacesByTitle/' + pageName, settings);
+    }
+
+    async getReplacesByWikitext(wikitext) {
+        let settings = {
+            errorMessage: 'Произошла ошибка при загрузке списка замен',
+            data: {
+                minReplaceFrequency: main.settings.minReplaceFrequency,
+                wikitext
+            },
+            method: 'POST'
+        };
+        return await fetchJson(BACKEND_HOST + '/replacesByWikitext', settings);
     }
 }
