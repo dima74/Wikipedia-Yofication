@@ -1,3 +1,7 @@
+# sudo systemctl start gunicorn-wikipedia-yofication.service
+# sudo systemctl enable gunicorn-wikipedia-yofication.service
+# sudo systemctl daemon-reload
+
 [Unit]
 Description=gunicorn daemon for Wikipedia-Yofication
 After=network.target

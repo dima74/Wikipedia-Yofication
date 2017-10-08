@@ -3,6 +3,7 @@ import toast from './toast';
 import Backend from './backend';
 import Yofication from './yofication';
 import {sleep} from './base';
+import {YO_IMAGE_URL} from './settings';
 
 const settings = {
     editSummary: 'Ёфикация с помощью [[Участник:Дима74/Скрипт-Ёфикатор|скрипта-ёфикатора]]',
@@ -56,7 +57,7 @@ class Main {
                         // filters: ['body.ns-0'],
                         label: 'Ёфицировать',
                         type: 'button',
-                        icon: 'http://localhost:7777/yo.png',
+                        icon: YO_IMAGE_URL,
                         action: {
                             type: 'callback',
                             execute: function () {

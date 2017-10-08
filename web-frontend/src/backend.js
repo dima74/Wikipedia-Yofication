@@ -15,7 +15,7 @@ export default class Backend {
                 minReplaceFrequency: main.settings.minReplaceFrequency
             }
         };
-        return await fetchJson(BACKEND_HOST + '/replacesByTitle/' + pageName, settings);
+        return await fetchJson(BACKEND_HOST + '/replacesByTitle/' + encodeURIComponent(pageName), settings);
     }
 
     async getReplacesByWikitext(wikitext) {
