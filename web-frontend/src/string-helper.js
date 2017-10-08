@@ -1,3 +1,5 @@
+import {assert} from './base';
+
 export default class StringHelper {
     static deyoficate(yoword) {
         return yoword.replace(/ё/g, 'е').replace(/Ё/g, 'Е');
@@ -41,5 +43,50 @@ export default class StringHelper {
             ++result;
         }
         return result;
+    }
+
+    static replaceWordAt(string, index, newWord) {
+        assert(0 <= index && index + newWord.length <= string.length);
+        return string.substr(0, index) + newWord + string.substr(index + newWord.length);
+    }
+
+    static assertNewStringIsYoficatedVersionOfOld(stringOld, stringNew) {
+        assert(stringOld.length === stringNew.length);
+        for (let i = 0; i < stringOld.length; ++i) {
+            let charOld = stringOld[i];
+            let charNew = stringNew[i];
+            let ok = charOld === charNew
+                || charOld === 'е' && charNew === 'ё'
+                || charOld === 'Е' && charNew === 'Ё';
+            if (!ok) {
+                StringHelper.compareStringSummary(stringOld, stringNew, 'from assertNewStringIsYoficatedVersionOfOld');
+                console.error(`assertNewStringIsYoficatedVersionOfOld, old: '${charOld}', new: '${charNew}`);
+            }
+            assert(ok);
+        }
+    }
+
+    static compareStringSummary(first, second, stringsName) {
+        console.error('сравнение строк: ' + stringsName);
+        if (first.length !== second.length) {
+            console.error(`длины различаются: ${first.length}:${second.length}`);
+        }
+        for (let i = 0; i < first.length; ++i) {
+            if (first[i] !== second[i] && second[i] !== 'ё') {
+                console.error(`
+первое различие в индексе ${i}:
+local: '${first.substr(i, 10)}'
+remote: '${second.substr(i, 10)}'
+`);
+                break;
+            }
+        }
+    }
+
+    static tests() {
+        assert(StringHelper.deyoficate('чёрно-зелёный') === 'черно-зеленый');
+        assert(StringHelper.longestPrefix('abacaba', 'abc') === 2);
+        assert(StringHelper.longestPrefix('abacaba', 'cba') === 2);
+        assert(StringHelper.replaceWordAt('01234', 2, 'ab') === '01ab4');
     }
 }

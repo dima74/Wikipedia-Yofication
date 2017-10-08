@@ -9,20 +9,54 @@ String.prototype.insert = function (i, s, numberCharsToReplace) {
 };
 
 export default class Yofication {
-    constructor() {
-        this.root = this.getRootElement();
+    constructor(pageMode) {
+        this.pageMode = pageMode;
         if (this.pageMode) {
+            this.root = document.getElementById('mw-content-text');
             this.rootInner = this.root.childNodes[0];
             assert(this.rootInner.classList.contains('mw-parser-output'));
+            this.wikitextPromise = main.wikipediaApi.getWikitext(currentPageName);
+        } else {
+            this.root = document.getElementById('wpTextbox1');
+            // this.wikitext = this.root.innerHTML;
+            // this.wikitextPromise = Promise.resolve(this.wikitext/*.replace(/\r/g, '')*/);
+
+            this.root.previousElementSibling.style.color = 'initial';
+            // this.root.previousElementSibling.style.opacity = 0.99;
+            // this.root.previousElementSibling.style.isolation = 'isolate';
+            // this.root.previousElementSibling.style.zIndex = 1;
+            this.root.previousElementSibling.style.position = 'relative';
+            this.root.style.isolation = 'isolate';
+            this.root.style.zIndex = 1;
+
+            // this.highlightsWrapper = document.createElement('div');
+            // this.highlightsWrapper.id = 'highlightsWrapper';
+            // this.highlightsWrapper.style.isolation = 'isolate';
+            // this.root.previousElementSibling.appendChild(this.highlightsWrapper);
+            this.highlightsWrapper = this.root.previousElementSibling;
+
+            this.fakeElement = document.createElement('div');
+            this.fakeElement.id = 'fakeElement';
+            this.fakeElement.innerHTML = this.root.innerHTML;
+            this.fakeElement.style.cssText = this.root.style.cssText;
+            this.fakeElement.style.fontFamily = 'monospace';
+            this.fakeElement.style.tabSize = 4;
+            this.fakeElement.style.visibility = 'hidden';
+            this.fakeElement.style.whiteSpace = 'pre-wrap';
+            this.root.parentElement.appendChild(this.fakeElement);
         }
+
         this.iReplace = -1;
         this.done = false;
-        this.wikitextPromise = main.wikipediaApi.getWikitext(currentPageName);
     }
 
     async perform() {
         await this.loadReplaces();
-        await this.checkWikitextMatch();
+        this.checkRevisionsMatch();
+        if (this.pageMode) {
+            // при ёфикации викитекст не важен, так как результатом работы скрипта будет изменнение содержимого <textarea>
+            await this.checkWikitextMatch();
+        }
         toast('Обрабатываем замены...');
         this.createHighlights();
         this.createReplaces();
@@ -59,12 +93,14 @@ export default class Yofication {
         this.yowords = Object.keys(yowordsToReplaces);
     }
 
-    async checkWikitextMatch() {
+    checkRevisionsMatch() {
         let revisionLocal = mw.config.get('wgCurRevisionId');
         if (this.revision !== revisionLocal) {
             throw `ревизии не совпадают\n локальная: ${revisionLocal} \nожидается: ${this.revision}`;
         }
+    }
 
+    async checkWikitextMatch() {
         toast('Загружаем викитекст...');
         this.wikitext = await this.wikitextPromise;
         console.log(`длина викитекста: ${this.wikitext.length}`);
@@ -75,6 +111,8 @@ export default class Yofication {
             for (let replace of yowordInfo.replaces) {
                 let dwordLocal = this.wikitext.substr(replace.wordStartIndex, dwordRemote.length);
                 if (dwordLocal !== dwordRemote) {
+                    let wikitextRemote = await main.wikipediaApi.getWikitext(currentPageName);
+                    StringHelper.compareStringSummary(this.wikitext, wikitextRemote, 'викитекст');
                     throw `викитекст страницы "${currentPageName}" не совпадает в индексе ${replace.wordStartIndex}`
                     + `\nожидается: ${dwordRemote}"`
                     + `\nполучено: "${dwordLocal}"`;
@@ -117,15 +155,19 @@ export default class Yofication {
         let value = frequencyPercent / 100;
         let progress = document.createElement('span');
         highlightElement.appendChild(progress);
+        let progressHeight = this.pageMode ? 3 : 5;
         $(progress).css({
             width: `${frequencyPercent}%`,
             backgroundColor: getColor(value),
             content: '',
-            height: '3px',
+            height: `${progressHeight}px`,
             position: 'absolute',
             left: '0',
-            top: '-3px'
+            top: `-${progressHeight}px`
         });
+        if (!this.pageMode) {
+            progress.style.zIndex = 2;
+        }
     }
 
     createHighlights() {
@@ -152,7 +194,7 @@ export default class Yofication {
                     let dword = StringHelper.deyoficate(yoword);
                     if (text.includes(dword)) {
                         let indexes = StringHelper.findIndexesOfWord(dword, text);
-                        let occurrences = indexes.map(wordIndex => { return {wordIndex, wordNode: node, wordOrderIndex: [nodeOrderIndex, wordIndex]}; });
+                        let occurrences = indexes.map(wordStartIndex => { return {wordStartIndex, wordNode: node, wordOrderIndex: [nodeOrderIndex, wordStartIndex]}; });
                         yowordsInfos[yoword].push(...occurrences);
                     }
                 }
@@ -163,47 +205,56 @@ export default class Yofication {
         for (let yoword of this.yowords) {
             let highlights = [];
             for (let occurrence of yowordsInfos[yoword]) {
-                let wordNode = occurrence.wordNode;
-                let wordIndex = occurrence.wordIndex;
+                let wordNode = this.pageMode ? occurrence.wordNode : this.fakeElement.childNodes[0];
+                let wordStartIndex = occurrence.wordStartIndex;
 
                 let range = document.createRange();
-                range.setStart(wordNode, wordIndex);
-                range.setEnd(wordNode, wordIndex + yoword.length);
+                range.setStart(wordNode, wordStartIndex);
+                range.setEnd(wordNode, wordStartIndex + yoword.length);
 
                 let highlightElement = document.createElement('span');
                 // https://stackoverflow.com/questions/46505758/why-offsetparent-returns-nearest-table-for-non-positioned-element
                 highlightElement.style.position = 'absolute';
-                wordNode.before(highlightElement);
-                highlightElement.parentElement.style.isolation = 'isolate';
+                if (this.pageMode) {
+                    wordNode.before(highlightElement);
+                    highlightElement.parentElement.style.isolation = 'isolate';
+                    // верхней строчки недостаточно из-за бага в хроме
+                    // https://stackoverflow.com/questions/46621884/different-behaviour-of-isolation-isolate-when-div-is-inside-table
+                    highlightElement.parentElement.style.opacity = 0.99;
+                } else {
+                    this.highlightsWrapper.appendChild(highlightElement);
+                }
 
                 this.addProgressToHighlight(highlightElement, this.yowordsToReplaces[yoword].frequency);
 
-                function recalcPosition() {
+                let recalcPosition = () => {
                     let rect = range.getBoundingClientRect();
                     let root = highlightElement.offsetParent;
                     let rootRect = root.getBoundingClientRect();
 
-                    let padding = 0;
-                    let left = rect.left - padding;
-                    let top = rect.top - padding;
+                    let padding = this.pageMode ? 0 : 2;
+                    let left = rect.left - padding - (this.pageMode ? 0 : 1);
+                    let top = rect.top - padding - (this.pageMode ? 0 : 1);
                     let width = rect.width + padding * 2;
                     let height = rect.height + padding * 2;
                     left -= rootRect.left;
                     top -= rootRect.top;
                     $(highlightElement).css({left, top, width, height});
-                }
+                };
 
                 // todo ask on SO is adding functions to HTMLElement instance allowed
                 highlightElement.recalcPosition = recalcPosition;
                 highlightElement.recalcPosition();
 
                 $(highlightElement).css({
-                    zIndex: -1,
                     background: 'aquamarine',
                     display: 'none'
                 });
-                if (this.checkWordNode(wordNode, yoword)) {
-                    highlights.push({wordNode, wordIndex, highlightElement, wordOrderIndex: occurrence.wordOrderIndex});
+                if (this.pageMode) {
+                    $(highlightElement).css('zIndex', -1);
+                }
+                if (!this.pageMode || this.checkWordNode(wordNode, yoword)) {
+                    highlights.push({wordNode, wordStartIndex, highlightElement, wordOrderIndex: occurrence.wordOrderIndex});
                 }
             }
             this.yowordsToReplaces[yoword].highlights = highlights;
@@ -265,6 +316,7 @@ export default class Yofication {
     }
 
     getCommonLength(contextBefore, contextAfter, replaceInfo) {
+        // todo сопоставление с учётом &nbsp;
         let lengthBefore = StringHelper.longestSuffix(contextBefore, replaceInfo.contextBefore);
         let lengthAfter = StringHelper.longestPrefix(contextAfter, replaceInfo.contextAfter);
         return lengthBefore + lengthAfter;
@@ -279,8 +331,8 @@ export default class Yofication {
             const contextLength = 20;
             for (let highlight of yowordInfo.highlights) {
                 let wordNodeValue = highlight.wordNode.nodeValue;
-                let wordNodeStartIndex = highlight.wordIndex;
-                let wordNodeEndIndex = highlight.wordIndex + yoword.length;
+                let wordNodeStartIndex = highlight.wordStartIndex;
+                let wordNodeEndIndex = highlight.wordStartIndex + yoword.length;
                 let contextBefore = wordNodeValue.substring(Math.max(wordNodeStartIndex - contextLength, 0), wordNodeStartIndex);
                 let contextAfter = wordNodeValue.substring(wordNodeEndIndex, Math.min(wordNodeEndIndex + contextLength, wordNodeValue.length));
                 // перед сортировкой обязательно нужно создать копию массива
@@ -305,7 +357,7 @@ export default class Yofication {
                         yoword,
                         wordStartIndex: replaceRemote.replace.wordStartIndex,
                         frequency: yowordInfo.frequency,
-                        highlight,
+                        highlightInfo: highlight,
                         isAccept: false
                     };
                     assert(replace.wordStartIndex !== undefined);
@@ -328,9 +380,9 @@ export default class Yofication {
             }
         }
         const compareTwoElementArrays = (a, b) => (a[0] === b[0] ? a[1] - b[1] : a[0] - b[0]);
-        replacesLocal.sort((replace1, replace2) => compareTwoElementArrays(replace1.highlight.wordOrderIndex, replace2.highlight.wordOrderIndex));
+        replacesLocal.sort((replace1, replace2) => compareTwoElementArrays(replace1.highlightInfo.wordOrderIndex, replace2.highlightInfo.wordOrderIndex));
         for (let replace of replacesLocal) {
-            replace.highlight = replace.highlight.highlightElement;
+            replace.highlightElement = replace.highlightInfo.highlightElement;
         }
 
         // статистика сопоставления замен
@@ -401,7 +453,7 @@ export default class Yofication {
 
     goToCurrentReplace() {
         if (this.iReplace === this.replaces.length) {
-            this.makeChange().then(() => this.afterYofication());
+            this.makeChange();
             return true;
         }
         if (this.iReplace > this.replaces.length) {
@@ -416,8 +468,8 @@ export default class Yofication {
         if (this.visibleHighlight) {
             this.visibleHighlight.style.display = 'none';
         }
-        replace.highlight.style.display = 'block';
-        this.visibleHighlight = replace.highlight;
+        replace.highlightElement.style.display = 'block';
+        this.visibleHighlight = replace.highlightElement;
         this.scrollToCurrentVisibleHighlight();
         return true;
     }
@@ -440,24 +492,41 @@ export default class Yofication {
             let highlight = this.visibleHighlight;
             highlight.recalcPosition();
             let highlightRect = highlight.getBoundingClientRect();
-            let y = (window.scrollY + highlightRect.top) - (window.innerHeight - highlightRect.height) / 2;
-            window.scrollTo(0, y);
+            if (this.pageMode) {
+                let y = (window.scrollY + highlightRect.top) - (window.innerHeight - highlightRect.height) / 2;
+                window.scrollTo(0, y);
+            } else {
+                let y = parseInt(highlight.style.top) - (this.root.clientHeight - highlightRect.height) / 2;
+                this.root.scrollTop = y;
+            }
         }
     }
 
     async makeChange() {
+        if (this.visibleHighlight) {
+            this.visibleHighlight.style.display = 'none';
+        }
+
         this.done = true;
-        let replacesRight = this.replaces.filter(replace => replace.isAccept);
-        if (replacesRight.length === 0) {
-            toast('Ни одна замена не была принята');
+        this.replaces = this.replaces.filter(replace => replace.isAccept);
+        if (this.replaces.length === 0) {
+            toast('Ёфикация завершена\n(ни одна замена не была принята)');
             return;
         }
 
+        if (this.pageMode) {
+            await this.makeChangePageMode();
+            this.afterYofication();
+        } else {
+            this.makeChangeEditMode();
+        }
+    }
+
+    async makeChangePageMode() {
         let wikitext = this.wikitext;
         toast('Делаем правку: \nПрименяем замены...');
         let replaceSomething = false;
-        for (let i = 0; i < replacesRight.length; ++i) {
-            let replace = replacesRight[i];
+        for (let replace of this.replaces) {
             let yoword = replace.yoword;
             // todo
             assert(replace.wordStartIndex !== undefined);
@@ -465,14 +534,7 @@ export default class Yofication {
             wikitext = wikitext.insert(replace.wordStartIndex, yoword, yoword.length);
             replaceSomething = true;
         }
-        assert(wikitext.length === this.wikitext.length);
-        for (let i = 0; i < wikitext.length; ++i) {
-            let charNew = wikitext[i];
-            let charOld = this.wikitext[i];
-            assert(charNew === charOld
-                || charOld === 'е' && charNew === 'ё'
-                || charOld === 'Е' && charNew === 'Ё');
-        }
+        StringHelper.assertNewStringIsYoficatedVersionOfOld(this.wikitext, wikitext);
 
         if (replaceSomething) {
             toast('Делаем правку: \nОтправляем изменения...');
@@ -497,6 +559,18 @@ export default class Yofication {
             }
             toast('Правка выполена');
         }
+    }
+
+    makeChangeEditMode() {
+        toast('Применяем замены...');
+        // https://stackoverflow.com/questions/46628426/are-textarea-properties-childnodes0-nodevalue-and-value-always-equal
+        let textareaText = this.root.value;
+        for (let replace of this.replaces) {
+            textareaText = StringHelper.replaceWordAt(textareaText, replace.highlightInfo.wordStartIndex, replace.yoword);
+        }
+        StringHelper.assertNewStringIsYoficatedVersionOfOld(this.root.value, textareaText);
+        this.root.value = textareaText;
+        toast('Ёфикация завершена');
     }
 
     goToNextPage() {

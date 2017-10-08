@@ -1,11 +1,10 @@
 import WikipediaApi, {currentPageName} from './wikipedia-api';
 import toast from './toast';
 import Backend from './backend';
-import PageYofication from './yofication-page';
-import EditYofication from './yofication-edit';
+import Yofication from './yofication';
+import {sleep} from './base';
 
 const settings = {
-    addPortletLinkAction: true,
     editSummary: 'Ёфикация с помощью [[Участник:Дима74/Скрипт-Ёфикатор|скрипта-ёфикатора]]',
     minReplaceFrequency: 25,
     minimumNumberReplacesForContinuousYofication: 0
@@ -23,20 +22,27 @@ class Main {
             this.performContinuousYofication();
         } else if (window.location.search.includes('yofication')) {
             this.continuousYofication = window.location.search.includes('continuous_yofication');
-            new PageYofication(this.continuousYofication).perform();
+            new Yofication(true).perform();
             if (this.continuousYofication) {
                 this.nextPageNamePromise = this.backend.getRandomPageName();
             }
-        } else if (settings.addPortletLinkAction && this.wikipediaApi.isMainNamespace()) {
+        } else /*if (this.wikipediaApi.isMainNamespace())*/ {
             let portletLink = mw.util.addPortletLink('p-cactions', '/wiki/' + currentPageName + '?yofication', 'Ёфицировать', 'ca-yoficator', ' Ёфицировать страницу');
             $(portletLink).click(function (event) {
                 event.preventDefault();
-                window.history.pushState('', '', window.location.href + '?yofication');
+                let pageMode = !window.location.search.includes('action=edit');
+                if (pageMode) {
+                    window.history.pushState('', '', window.location.href + '?yofication');
+                }
                 $('#ca-yoficator').remove();
-                new PageYofication(false).perform();
+                new Yofication(pageMode).perform();
             });
             this.customizeToolbarYoficateButton();
-            // new EditYofication().perform();
+        }
+
+        if (currentPageName.startsWith('Участник:Дима74/Черновик')) {
+            let pageMode = !window.location.search.includes('action=edit');
+            sleep(500).then(() => new Yofication(pageMode).perform());
         }
     }
 
@@ -44,25 +50,23 @@ class Main {
         function customizeToolbarYoficateButtonCallback() {
             $('#wpTextbox1').wikiEditor('addToToolbar', {
                 'section': 'main',
-                'group': 'insert',
+                'group': 'format',
                 'tools': {
                     'indent': {
-                        filters: ['body.ns-0'],
+                        // filters: ['body.ns-0'],
                         label: 'Ёфицировать',
                         type: 'button',
                         icon: 'http://localhost:7777/yo.png',
                         action: {
                             type: 'callback',
                             execute: function () {
-                                new EditYofication().perform();
+                                new Yofication(false).perform();
                             }
                         }
                     }
                 }
             });
         }
-
-        // new EditYofication().perform();
 
         // https://www.mediawiki.org/wiki/Extension:WikiEditor/Toolbar_customization
         /* Check if view is in edit mode and that the required modules are available. Then, customize the toolbar … */

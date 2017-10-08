@@ -25,3 +25,7 @@ export async function fetchJson(url, settings = {}) {
 export function removeArgumentsFromUrl() {
     window.history.pushState('', '', window.location.href.replace('?yofication', ''));
 }
+
+export function sleep(milliseconds) {
+    return new Promise(resolve => setTimeout(resolve, milliseconds));
+}
