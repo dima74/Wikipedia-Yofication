@@ -1,8 +1,8 @@
 {
-  "name": "new",
+  "name": "web-frontend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "webpack.config.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack",
@@ -12,11 +12,8 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "jquery.scrollto": "^2.1.2"
-  },
   "devDependencies": {
-    "webpack": "^3.6.0",
-    "webpack-dev-server": "^2.8.2"
+    "uglifyjs-webpack-plugin": "^1.0.0-beta.2",
+    "webpack": "^3.6.0"
   }
 }
