@@ -274,7 +274,7 @@ export default class Yofication {
         for (let element = wordNode; element !== this.root; element = element.parentElement) {
             if (element.nodeType === 1) {
                 // цитаты, ссылки
-                const ignoredTags = ['blockquote', 'a'];
+                const ignoredTags = ['blockquote', 'a', 'pre'];
                 for (let ignoredTag of ignoredTags) {
                     if (element.tagName.toLowerCase() === ignoredTag) {
                         console.log(`ignore word "${yoword}" inside <${ignoredTag}>`);
