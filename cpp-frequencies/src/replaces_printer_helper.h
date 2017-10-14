@@ -1,10 +1,10 @@
 #ifndef WIKIPEDIA_EFICATION_REPLACES_PRINTER_HELPER_H
 #define WIKIPEDIA_EFICATION_REPLACES_PRINTER_HELPER_H
 
-#include "replaces_creator.h"
-#include "counter_number_russian_words.h"
 #include "../lib/json.hpp"
 using json = nlohmann::json;
+#include "replaces_creator.h"
+#include "counter_number_russian_words.h"
 
 json convertReplacesToJson(const vector<Replace> &replaces, const Page &page, ReplacesCreator &replacesCreator) {
 	json info;

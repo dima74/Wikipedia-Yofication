@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
+#include "replaces_printer_helper.h"
 #include "txt_reader.h"
 #include "replaces_creator.h"
-#include "replaces_printer_helper.h"
 #include "base.h"
 using namespace std;
 
