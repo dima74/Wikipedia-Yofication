@@ -251,7 +251,7 @@ remote (python): ${this.wikitextLength}`);
                     let root = highlightElement.offsetParent;
                     let rootRect = root.getBoundingClientRect();
 
-                    let padding = this.pageMode ? 0 : 2;
+                    let padding = this.pageMode ? 2 : 2;
                     let left = rect.left - padding - (this.pageMode ? 0 : 1);
                     let top = rect.top - padding - (this.pageMode ? 0 : 1);
                     let width = rect.width + padding * 2;

@@ -15,7 +15,7 @@ const html = `
 <input id="yoficator-minimumReplaceFrequency" type="number" placeholder="${settingsDefault.minimumReplaceFrequency}">
 <p>Минимальное число замен, при которых статья будет рассматриваться при непрерывной ёфикации</p>
 <input id="yoficator-minimumNumberReplacesForContinuousYofication" type="number" placeholder="${settingsDefault.minimumNumberReplacesForContinuousYofication}">
-<p>Текст правки</p>
+<p>Описание правки</p>
 <input id="yoficator-editSummary" type="text" value="${settingsDefault.editSummary}" placeholder="${settingsDefault.editSummary}">
 <p>Параметры сохраняются автоматически.</p>
 `;
