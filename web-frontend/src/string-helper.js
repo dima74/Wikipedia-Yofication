@@ -78,9 +78,10 @@ export default class StringHelper {
 local: '${first.substr(i, 10)}'
 remote: '${second.substr(i, 10)}'
 `);
-                break;
+                return 0;
             }
         }
+        console.error('сравнение строк прошло неуспешно');
     }
 
     static tests() {

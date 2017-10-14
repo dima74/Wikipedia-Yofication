@@ -79,10 +79,11 @@ export default class Yofication {
     async loadReplaces() {
         toast('Загружаем список замен...');
         if (this.pageMode) {
-            let {yowordsToReplaces, revision, timestamp} = await main.backend.getReplacesByPageName(currentPageName);
+            let {yowordsToReplaces, revision, timestamp, wikitextLength} = await main.backend.getReplacesByPageName(currentPageName);
             this.yowordsToReplaces = yowordsToReplaces;
             this.revision = revision;
             this.timestamp = timestamp;
+            this.wikitextLength = wikitextLength;
         } else {
             let wikitext = this.root.value;
             this.yowordsToReplaces = await main.backend.getReplacesByWikitext(wikitext);
@@ -101,6 +102,19 @@ export default class Yofication {
         toast('Загружаем викитекст...');
         this.wikitext = await this.wikitextPromise;
         console.log(`длина викитекста: ${this.wikitext.length}`);
+        if (this.wikitext.length !== this.wikitextLength) {
+            // в javascript строки в utf16
+            // в python строки в utf32
+            // если в викитексте встречается символ, который кодируется двумя символами в utf16,
+            // то всё плохо, потому что результатом ёфикации является изменение викитекста, согласно индексам принятых замен, а индексы берутся из python
+            // при ёфикации в редакторе всё хорошо, потому что в этом случае мы не используем индексы из python, а используем индексы, полученные при локальном сопоставлении
+            // впринципе можно и для page-ёфикации сделать повторное сопоставление по контексту...
+            console.error(`
+длина викитекста не совпадает
+local (javascript): ${this.wikitext.length}
+remote (python): ${this.wikitextLength}`);
+            assert(false, 'К сожалению, скрипт не может обработать эту страницу\nПожалуйста, воспользуйтесь ёфикацией из режима редактирования страницы');
+        }
         for (let yoword of this.yowords) {
             let yowordInfo = this.yowordsToReplaces[yoword];
             assert(yowordInfo.frequency >= main.settings.minimumReplaceFrequency);
