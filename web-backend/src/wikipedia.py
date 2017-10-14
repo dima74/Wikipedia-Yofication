@@ -14,9 +14,25 @@ with open('/home/dima/Wikipedia-Yofication/cpp-frequencies/results/all-pages.txt
         return [number_replaces, page_name]
 
 
+    # в файле хранятся строки --- пары (имя страницы, число замен в ней для минимальной частоты, равной 50%)
     lines = input.readlines()
     all_pages = list(map(parse_page, lines))
-    all_pages = [page for page in all_pages if page[0] >= 5]
+    all_pages.sort(key=lambda page: page[0], reverse=True)
+
+    # для каждого числа k от 0 до 100 найдём число страниц n, у которых больше чем k замен
+    # чтобы в /randomPageName выбирать только из этих n страниц
+    maximum_number_replaces = all_pages[0][0]
+    number_pages_with_number_replaces_more_than = [None] * (maximum_number_replaces + 1)
+    number_replaces = maximum_number_replaces
+    for i, page in enumerate(all_pages):
+        # нашли первую страницу, у которой меньше чем number_replaces замен
+        while number_replaces > page[0]:
+            number_pages_with_number_replaces_more_than[number_replaces] = i + 1
+            number_replaces -= 1
+    while number_replaces >= 0:
+        number_pages_with_number_replaces_more_than[number_replaces] = len(all_pages)
+        number_replaces -= 1
+
     all_pages = [page[1] for page in all_pages]
 
 
@@ -34,10 +50,15 @@ def get(url='/w/api.php', **kwargs):
 
 @wikipedia.route('/wikipedia/randomPageName')
 def random_page_name():
-    return random.choice(all_pages)
+    minimum_number_replaces_for_continuous_yofication = int(request.args.get('minimumNumberReplacesForContinuousYofication', 0))
+    minimum_number_replaces_for_continuous_yofication = max(minimum_number_replaces_for_continuous_yofication, 0)
+    minimum_number_replaces_for_continuous_yofication = min(minimum_number_replaces_for_continuous_yofication, maximum_number_replaces)
+    number_pages_to_choice = number_pages_with_number_replaces_more_than[minimum_number_replaces_for_continuous_yofication]
+    i = random.randrange(0, number_pages_to_choice)
+    return all_pages[i]
 
 
-default_minimum_replace_frequency = 25
+default_minimum_replace_frequency = 50
 
 
 @wikipedia.route('/wikipedia/replacesByTitle/<path:title>')

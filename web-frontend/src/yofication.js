@@ -59,11 +59,11 @@ export default class Yofication {
             return;
         }
 
-        if (this.replaces.length < main.settings.minimumNumberReplacesForContinuousYofication) {
-            toast('assert: this.replaces.length < main.settings.minimumNumberReplacesForContinuousYofication');
-            this.afterYofication();
-            return;
-        }
+        // if (this.replaces.length < main.settings.minimumNumberReplacesForContinuousYofication) {
+        //     toast('assert: this.replaces.length < main.settings.minimumNumberReplacesForContinuousYofication');
+        //     this.afterYofication();
+        //     return;
+        // }
 
         // if (this.wikitext.length > 50000) {
         //     toast('temp: викитекст слишком большой');
@@ -385,7 +385,7 @@ export default class Yofication {
                 }
             } else {
                 console.error(`${yoword}\nНесколько локальных вхождений были сопоставлены одному remote\n${indexesRemote}`);
-                assert(false, 'checkSingleMatching');
+                // assert(false, 'checkSingleMatching');
             }
         }
         const compareTwoElementArrays = (a, b) => (a[0] === b[0] ? a[1] - b[1] : a[0] - b[0]);

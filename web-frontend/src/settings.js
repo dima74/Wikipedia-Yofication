@@ -12,13 +12,12 @@ const settingsDefault = {
 };
 const html = `
 <p>Минимальная частота слов для ёфикации в процентах (0-100). Чем меньше значение, тем больше замен будет предлагаться.
-<input id="yoficator-minimumReplaceFrequency" type="number" placeholder="${settingsDefault.minimumNumberReplacesForContinuousYofication}">
+<input id="yoficator-minimumReplaceFrequency" type="number" placeholder="${settingsDefault.minimumReplaceFrequency}">
 <p>Минимальное число замен, при которых статья будет рассматриваться при непрерывной ёфикации</p>
-<input id="yoficator-minimumNumberReplacesForContinuousYofication" type="number" placeholder="${settingsDefault.minimumReplaceFrequency}">
+<input id="yoficator-minimumNumberReplacesForContinuousYofication" type="number" placeholder="${settingsDefault.minimumNumberReplacesForContinuousYofication}">
 <p>Текст правки</p>
 <input id="yoficator-editSummary" type="text" value="${settingsDefault.editSummary}" placeholder="${settingsDefault.editSummary}">
-
-<p id="yoficator-status"></p>
+<p>Параметры сохраняются автоматически.</p>
 `;
 
 const styles = `

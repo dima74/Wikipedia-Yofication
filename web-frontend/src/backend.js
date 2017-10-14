@@ -4,8 +4,13 @@ import {main} from './main';
 
 export default class Backend {
     async getRandomPageName() {
-        let errorMessage = 'Не удалось получить следующую страницу для ёфикации';
-        return await fetchJson(BACKEND_HOST + '/randomPageName', {errorMessage});
+        let settings = {
+            errorMessage: 'Не удалось получить следующую страницу для ёфикации',
+            data: {
+                'minimumNumberReplacesForContinuousYofication': main.settings.minimumNumberReplacesForContinuousYofication
+            }
+        };
+        return await fetchJson(BACKEND_HOST + '/randomPageName', settings);
     }
 
     async getReplacesByPageName(pageName) {

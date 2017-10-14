@@ -5,7 +5,7 @@
 using namespace std;
 
 struct AllPagesPrinter : public AbstractParser {
-    ReplacesCreator replacesCreator = {0.3};
+    ReplacesCreator replacesCreator = {0.5};
     vector<pair<size_t, string>> pages;
 
     bool parse(Page page) {
