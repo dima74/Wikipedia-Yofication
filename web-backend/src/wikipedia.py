@@ -1,14 +1,10 @@
 import random
-import socket
 import requests
 from flask import Blueprint, request, jsonify, abort
 from src.yofication import get_replaces, deyoficate
 
 wikipedia = Blueprint('wikipedia', __name__)
 WIKIPEDIA_HOST = 'https://ru.wikipedia.org'
-
-# странный flask и его appcontext, который не работает :(
-DEBUG = socket.gethostname() == 'idea'
 
 with open('/home/dima/Wikipedia-Yofication/cpp-frequencies/results/all-pages.txt') as input:
     def parse_page(line):
@@ -19,24 +15,23 @@ with open('/home/dima/Wikipedia-Yofication/cpp-frequencies/results/all-pages.txt
 
 
     # в файле хранятся строки --- пары (имя страницы, число замен в ней для минимальной частоты, равной 50%)
+    # причём эти пары уже отсортированы в обратном порядке по числу замен
     lines = input.readlines()
     all_pages = list(map(parse_page, lines))
-    all_pages.sort(key=lambda page: page[0], reverse=True)
 
-    if not DEBUG:
-        # для каждого числа k от 0 до 100 найдём число страниц n, у которых больше чем k замен
-        # чтобы в /randomPageName выбирать только из этих n страниц
-        maximum_number_replaces = all_pages[0][0]
-        number_pages_with_number_replaces_more_than = [None] * (maximum_number_replaces + 1)
-        number_replaces = maximum_number_replaces
-        for i, page in enumerate(all_pages):
-            # нашли первую страницу, у которой меньше чем number_replaces замен
-            while number_replaces > page[0]:
-                number_pages_with_number_replaces_more_than[number_replaces] = i + 1
-                number_replaces -= 1
-        while number_replaces >= 0:
-            number_pages_with_number_replaces_more_than[number_replaces] = len(all_pages)
+    # для каждого числа k от 0 до 100 найдём число страниц n, у которых больше чем k замен
+    # чтобы в /randomPageName выбирать только из этих n страниц
+    maximum_number_replaces = all_pages[0][0]
+    number_pages_with_number_replaces_more_than = [None] * (maximum_number_replaces + 1)
+    number_replaces = maximum_number_replaces
+    for i, page in enumerate(all_pages):
+        # нашли первую страницу, у которой меньше чем number_replaces замен
+        while number_replaces > page[0]:
+            number_pages_with_number_replaces_more_than[number_replaces] = i + 1
             number_replaces -= 1
+    while number_replaces >= 0:
+        number_pages_with_number_replaces_more_than[number_replaces] = len(all_pages)
+        number_replaces -= 1
 
     all_pages = [page[1] for page in all_pages]
 
@@ -55,15 +50,12 @@ def get(url='/w/api.php', **kwargs):
 
 @wikipedia.route('/wikipedia/randomPageName')
 def random_page_name():
-    if DEBUG:
-        return random.choice(all_pages)
-    else:
-        minimum_number_replaces_for_continuous_yofication = int(request.args.get('minimumNumberReplacesForContinuousYofication', 0))
-        minimum_number_replaces_for_continuous_yofication = max(minimum_number_replaces_for_continuous_yofication, 0)
-        minimum_number_replaces_for_continuous_yofication = min(minimum_number_replaces_for_continuous_yofication, maximum_number_replaces)
-        number_pages_to_choice = number_pages_with_number_replaces_more_than[minimum_number_replaces_for_continuous_yofication]
-        i = random.randrange(0, number_pages_to_choice)
-        return all_pages[i]
+    minimum_number_replaces_for_continuous_yofication = int(request.args.get('minimumNumberReplacesForContinuousYofication', 0))
+    minimum_number_replaces_for_continuous_yofication = max(minimum_number_replaces_for_continuous_yofication, 0)
+    minimum_number_replaces_for_continuous_yofication = min(minimum_number_replaces_for_continuous_yofication, maximum_number_replaces)
+    number_pages_to_choice = number_pages_with_number_replaces_more_than[minimum_number_replaces_for_continuous_yofication]
+    i = random.randrange(0, number_pages_to_choice)
+    return all_pages[i]
 
 
 default_minimum_replace_frequency = 50
