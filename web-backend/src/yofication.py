@@ -115,7 +115,7 @@ def is_dword_inside_tags(dword, text, wordStartIndex):
 
 
 def get_replaces(text, **kwargs):
-    min_replace_frequency = kwargs.get('min_replace_frequency', 60)
+    minimum_replace_frequency = kwargs.get('minimum_replace_frequency', 60)
     yoficate_words_starts_with_upper = kwargs.get('yoficate_words_starts_with_upper', True)
 
     matches = re.finditer('([а-яА-ЯёЁ]+(-[а-яА-ЯёЁ]+)*)', text)
@@ -132,7 +132,7 @@ def get_replaces(text, **kwargs):
                 continue
 
             yoword = words[dword]
-            if yoword.frequency() >= min_replace_frequency and (yoficate_words_starts_with_upper or yoword[0].islower()):
+            if yoword.frequency() >= minimum_replace_frequency and (yoficate_words_starts_with_upper or yoword[0].islower()):
                 replace = {
                     'yoword': yoword,
                     'wordStartIndex': start,

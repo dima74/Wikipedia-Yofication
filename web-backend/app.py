@@ -20,8 +20,8 @@ def yoficate():
         return 'Нет аргумента minFrequency`', 400
 
     text = request.form['text']
-    min_replace_frequency = int(request.form['minFrequency'])
-    text_yoficated, number_replaces = yoficate_text(text, min_replace_frequency=min_replace_frequency)
+    minimum_replace_frequency = int(request.form['minFrequency'])
+    text_yoficated, number_replaces = yoficate_text(text, minimum_replace_frequency=minimum_replace_frequency)
     return jsonify({'text_yoficated': text_yoficated, 'number_replaces': number_replaces})
 
 

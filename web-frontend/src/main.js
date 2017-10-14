@@ -3,24 +3,20 @@ import toast from './toast';
 import Backend from './backend';
 import Yofication from './yofication';
 import {sleep} from './base';
-import {YO_IMAGE_URL} from './settings';
-
-const settings = {
-    editSummary: 'Ёфикация с помощью [[Участник:Дима74/Скрипт-Ёфикатор|скрипта-ёфикатора]]',
-    minReplaceFrequency: 25,
-    minimumNumberReplacesForContinuousYofication: 0
-};
+import {getYoficationSettings, initYoficatorSettings, YO_IMAGE_URL} from './settings';
 
 class Main {
     constructor() {
         this.wikipediaApi = new WikipediaApi();
         this.backend = new Backend();
-        this.settings = settings;
+        this.settings = getYoficationSettings();
     }
 
     start() {
         if (currentPageName === 'Служебная:Ёфикация') {
             this.performContinuousYofication();
+        } else if (currentPageName === 'Участник:Дима74/Скрипт-Ёфикатор/Параметры') {
+            initYoficatorSettings();
         } else if (window.location.search.includes('yofication')) {
             this.continuousYofication = window.location.search.includes('continuous_yofication');
             new Yofication(true).perform();

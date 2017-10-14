@@ -103,7 +103,7 @@ export default class Yofication {
         console.log(`длина викитекста: ${this.wikitext.length}`);
         for (let yoword of this.yowords) {
             let yowordInfo = this.yowordsToReplaces[yoword];
-            assert(yowordInfo.frequency >= main.settings.minReplaceFrequency);
+            assert(yowordInfo.frequency >= main.settings.minimumReplaceFrequency);
             let dwordRemote = StringHelper.deyoficate(yoword);
             for (let replace of yowordInfo.replaces) {
                 let dwordLocal = this.wikitext.substr(replace.wordStartIndex, dwordRemote.length);

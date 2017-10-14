@@ -12,7 +12,7 @@ export default class Backend {
         let settings = {
             errorMessage: 'Произошла ошибка при загрузке списка замен',
             data: {
-                minReplaceFrequency: main.settings.minReplaceFrequency
+                minimumReplaceFrequency: main.settings.minimumReplaceFrequency
             }
         };
         return await fetchJson(BACKEND_HOST + '/replacesByTitle/' + encodeURIComponent(pageName), settings);
@@ -22,7 +22,7 @@ export default class Backend {
         let settings = {
             errorMessage: 'Произошла ошибка при загрузке списка замен',
             data: {
-                minReplaceFrequency: main.settings.minReplaceFrequency,
+                minimumReplaceFrequency: main.settings.minimumReplaceFrequency,
                 wikitext
             },
             method: 'POST'

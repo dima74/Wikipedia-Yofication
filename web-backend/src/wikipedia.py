@@ -37,12 +37,12 @@ def random_page_name():
     return random.choice(all_pages)
 
 
-default_min_replace_frequency = 25
+default_minimum_replace_frequency = 25
 
 
 @wikipedia.route('/wikipedia/replacesByTitle/<path:title>')
 def generateReplacesByTitle(title):
-    min_replace_frequency = int(request.args.get('minReplaceFrequency', default_min_replace_frequency))
+    minimum_replace_frequency = int(request.args.get('minimumReplaceFrequency', default_minimum_replace_frequency))
 
     # todo get занимает большую часть времени метода
     response = get('/w/api.php', params={'action': 'query', 'prop': 'revisions', 'titles': title, 'rvprop': 'ids|content|timestamp'}).json()
@@ -54,21 +54,21 @@ def generateReplacesByTitle(title):
     result = {
         'revision': revision,
         'timestamp': timestamp,
-        'yowordsToReplaces': generateReplaces(wikitext, min_replace_frequency)
+        'yowordsToReplaces': generateReplaces(wikitext, minimum_replace_frequency)
     }
     return jsonify(result)
 
 
 @wikipedia.route('/wikipedia/replacesByWikitext', methods=['POST'])
 def generateReplacesByWikitext():
-    min_replace_frequency = int(request.form.get('minReplaceFrequency', default_min_replace_frequency))
-    if 'minReplaceFrequency' not in request.form:
+    if 'minimumReplaceFrequency' not in request.form:
         abort(400)
+    minimum_replace_frequency = int(request.form.get('minimumReplaceFrequency', default_minimum_replace_frequency))
     wikitext = request.form['wikitext']
-    return jsonify(generateReplaces(wikitext, min_replace_frequency))
+    return jsonify(generateReplaces(wikitext, minimum_replace_frequency))
 
 
-def generateReplaces(wikitext, min_replace_frequency):
+def generateReplaces(wikitext, minimum_replace_frequency):
     """
     result = {
         revision: <number>,
@@ -89,7 +89,7 @@ def generateReplaces(wikitext, min_replace_frequency):
     }
     """
 
-    yofication_info = get_replaces(wikitext, min_replace_frequency=min_replace_frequency)
+    yofication_info = get_replaces(wikitext, minimum_replace_frequency=minimum_replace_frequency)
     replaces = yofication_info['replaces']
     yowordsToReplaces = {}
     for replace in replaces:
