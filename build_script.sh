@@ -1,3 +1,4 @@
+cd cpp-frequencies
 mkdir build
 cd build
 cmake ..
