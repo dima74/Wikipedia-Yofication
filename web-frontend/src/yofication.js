@@ -44,7 +44,7 @@ export default class Yofication {
             this.fakeElement.style.fontFamily = rootStyle.fontFamily;
             this.fakeElement.style.fontSize = rootStyle.fontSize;
             this.fakeElement.style.lineHeight = rootStyle.lineHeight;
-            this.fakeElement.style.border = rootStyle.border;
+            this.fakeElement.style.border = '1px solid transparent';
             this.fakeElement.style.boxSizing = rootStyle.boxSizing;
             this.fakeElement.style.overflowY = rootStyle.overflowY;
             this.fakeElement.style.overflowX = rootStyle.overflowX;
