@@ -23,25 +23,41 @@ export default class Yofication {
             this.root.parentElement.style.position = 'relative';
             this.root.parentElement.style.overflowY = 'hidden';
             // https://ru.wikipedia.org/wiki/Википедия:Форум/Технический#.D0.9F.D0.BE.D0.BB.D0.BE.D1.81.D0.B0_.D0.B2_.D1.80.D0.B5.D0.B4.D0.B0.D0.BA.D1.82.D0.BE.D1.80.D0.B5_.D0.B2.D0.B8.D0.BA.D0.B8.D1.82.D0.B5.D0.BA.D1.81.D1.82.D0.B0_.D0.BC.D0.B5.D0.B6.D0.B4.D1.83_.D0.BF.D0.B0.D0.BD.D0.B5.D0.BB.D1.8C.D1.8E_.D0.B8.D0.BD.D1.81.D1.82.D1.80.D1.83.D0.BC.D0.B5.D0.BD.D1.82.D0.BE.D0.B2_.D0.B8_.D0.BF.D0.BE.D0.BB.D0.B5.D0.BC_.D1.80.D0.B5.D0.B4.D0.B0.D0.BA.D1.82.D0.BE.D1.80.D0.B0
-            this.root.previousElementSibling.style.marginTop = 0;
+            if (this.root.previousElementSibling) {
+                this.root.previousElementSibling.style.marginTop = 0;
+            }
 
             this.highlightsWrapper = document.createElement('div');
             this.highlightsWrapper.style.position = 'absolute';
             this.highlightsWrapper.style.top = 0;
             this.highlightsWrapper.style.left = 0;
             this.root.parentElement.appendChild(this.highlightsWrapper);
-
             this.root.addEventListener('scroll', () => {
                 this.highlightsWrapper.style.top = -this.root.scrollTop + 'px';
             });
 
+            let rootStyle = window.getComputedStyle(this.root);
             this.fakeElement = document.createElement('div');
             this.fakeElement.id = 'fakeElement';
             this.fakeElement.textContent = this.root.value;
-            this.fakeElement.style.cssText = this.root.style.cssText;
-            this.fakeElement.style.fontFamily = 'monospace';
-            this.fakeElement.style.tabSize = 4;
-            this.fakeElement.style.whiteSpace = 'pre-wrap';
+
+            this.fakeElement.style.fontFamily = rootStyle.fontFamily;
+            this.fakeElement.style.fontSize = rootStyle.fontSize;
+            this.fakeElement.style.lineHeight = rootStyle.lineHeight;
+            this.fakeElement.style.border = rootStyle.border;
+            this.fakeElement.style.boxSizing = rootStyle.boxSizing;
+            this.fakeElement.style.overflowY = rootStyle.overflowY;
+            this.fakeElement.style.overflowX = rootStyle.overflowX;
+            this.fakeElement.style.padding = rootStyle.padding;
+            this.fakeElement.style.wordWrap = rootStyle.wordWrap;
+            this.fakeElement.style.tabSize = rootStyle.tabSize;
+            this.fakeElement.style.whiteSpace = rootStyle.whiteSpace;
+
+            this.fakeElement.style.marginTop = '-' + rootStyle.height;
+            this.fakeElement.style.marginBottom = 0;
+            this.fakeElement.style.marginLeft = 0;
+            this.fakeElement.style.marginRight = 0;
+            this.fakeElement.style.height = rootStyle.height;
             this.fakeElement.style.visibility = 'hidden';
             this.root.parentElement.appendChild(this.fakeElement);
         }
@@ -249,9 +265,9 @@ remote (python): ${this.wikitextLength}`);
                 } else {
                     this.highlightsWrapper.appendChild(highlightElement);
                     let wordElement = document.createElement('div');
-                    wordElement.style.fontSize = this.root.style.fontSize;
-                    wordElement.style.lineHeight = this.root.style.lineHeight;
-                    wordElement.style.fontFamily = 'monospace';
+                    wordElement.style.fontFamily = this.fakeElement.style.fontFamily;
+                    wordElement.style.fontSize = this.fakeElement.style.fontSize;
+                    wordElement.style.lineHeight = this.fakeElement.style.lineHeight;
                     wordElement.style.display = 'flex';
                     wordElement.style.alignItems = 'center';
                     wordElement.style.justifyContent = 'center';
