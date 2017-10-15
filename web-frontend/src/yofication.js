@@ -20,11 +20,20 @@ export default class Yofication {
             this.root = document.getElementById('wpTextbox1');
             this.root.blur();
 
-            this.highlightsWrapper = this.root.previousElementSibling;
-            this.highlightsWrapper.style.color = 'initial';
-            this.highlightsWrapper.style.position = 'relative';
-            this.root.style.isolation = 'isolate';
-            this.root.style.zIndex = 1;
+            this.root.parentElement.style.position = 'relative';
+            this.root.parentElement.style.overflowY = 'hidden';
+            // https://ru.wikipedia.org/wiki/Википедия:Форум/Технический#.D0.9F.D0.BE.D0.BB.D0.BE.D1.81.D0.B0_.D0.B2_.D1.80.D0.B5.D0.B4.D0.B0.D0.BA.D1.82.D0.BE.D1.80.D0.B5_.D0.B2.D0.B8.D0.BA.D0.B8.D1.82.D0.B5.D0.BA.D1.81.D1.82.D0.B0_.D0.BC.D0.B5.D0.B6.D0.B4.D1.83_.D0.BF.D0.B0.D0.BD.D0.B5.D0.BB.D1.8C.D1.8E_.D0.B8.D0.BD.D1.81.D1.82.D1.80.D1.83.D0.BC.D0.B5.D0.BD.D1.82.D0.BE.D0.B2_.D0.B8_.D0.BF.D0.BE.D0.BB.D0.B5.D0.BC_.D1.80.D0.B5.D0.B4.D0.B0.D0.BA.D1.82.D0.BE.D1.80.D0.B0
+            this.root.previousElementSibling.style.marginTop = 0;
+
+            this.highlightsWrapper = document.createElement('div');
+            this.highlightsWrapper.style.position = 'absolute';
+            this.highlightsWrapper.style.top = 0;
+            this.highlightsWrapper.style.left = 0;
+            this.root.parentElement.appendChild(this.highlightsWrapper);
+
+            this.root.addEventListener('scroll', () => {
+                this.highlightsWrapper.style.top = -this.root.scrollTop + 'px';
+            });
 
             this.fakeElement = document.createElement('div');
             this.fakeElement.id = 'fakeElement';
@@ -176,9 +185,6 @@ remote (python): ${this.wikitextLength}`);
             left: '0',
             top: `-${progressHeight}px`
         });
-        if (!this.pageMode) {
-            progress.style.zIndex = 2;
-        }
     }
 
     createHighlights() {
@@ -242,23 +248,37 @@ remote (python): ${this.wikitextLength}`);
                     highlightElement.parentElement.style.opacity = 0.99;
                 } else {
                     this.highlightsWrapper.appendChild(highlightElement);
+                    let wordElement = document.createElement('div');
+                    wordElement.style.fontSize = this.root.style.fontSize;
+                    wordElement.style.lineHeight = this.root.style.lineHeight;
+                    wordElement.style.fontFamily = 'monospace';
+                    wordElement.style.display = 'flex';
+                    wordElement.style.alignItems = 'center';
+                    wordElement.style.justifyContent = 'center';
+                    wordElement.innerHTML = StringHelper.deyoficate(yoword);
+                    highlightElement.appendChild(wordElement);
                 }
 
                 this.addProgressToHighlight(highlightElement, this.yowordsToReplaces[yoword].frequency);
 
                 let recalcPosition = () => {
                     let rect = range.getBoundingClientRect();
-                    let root = highlightElement.offsetParent;
+                    let root = this.pageMode ? highlightElement.offsetParent : this.root;
                     let rootRect = root.getBoundingClientRect();
 
                     let padding = this.pageMode ? 2 : 2;
-                    let left = rect.left - padding - (this.pageMode ? 0 : 1);
-                    let top = rect.top - padding - (this.pageMode ? 0 : 1);
+                    let left = rect.left - padding;
+                    let top = rect.top - padding;
                     let width = rect.width + padding * 2;
                     let height = rect.height + padding * 2;
                     left -= rootRect.left;
                     top -= rootRect.top;
                     $(highlightElement).css({left, top, width, height});
+
+                    if (!this.pageMode) {
+                        let wordElement = highlightElement.childNodes[0];
+                        $(wordElement).css({width, height});
+                    }
                 };
 
                 // todo ask on SO is adding functions to HTMLElement instance allowed
@@ -272,6 +292,7 @@ remote (python): ${this.wikitextLength}`);
                 if (this.pageMode) {
                     $(highlightElement).css('zIndex', -1);
                 }
+
                 if (this.checkWordNode(occurrence.wordNode, yoword)) {
                     occurrence.highlightElement = highlightElement;
                     occurrences.push(occurrence);
@@ -521,6 +542,7 @@ remote (python): ${this.wikitextLength}`);
             } else {
                 let y = parseInt(highlight.style.top) - (this.root.clientHeight - highlightRect.height) / 2;
                 this.root.scrollTop = y;
+                this.highlightsWrapper.style.top = -this.root.scrollTop + 'px';
             }
         }
     }
