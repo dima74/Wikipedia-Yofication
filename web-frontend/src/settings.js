@@ -64,7 +64,7 @@ export function initYoficatorSettings() {
     $(styles).appendTo(document.head);
 
     for (let input of $('.mw-parser-output input')) {
-        let key = input.id.substr('yoficator-'.length);
+        let key = input.id;
         let value = localStorage.getItem(key);
         if (value !== null) {
             input.value = value;
@@ -73,7 +73,7 @@ export function initYoficatorSettings() {
 
     $('.mw-parser-output input').on('input', function () {
         let value = this.value;
-        let key = this.id.substr('yoficator-'.length);
+        let key = this.id;
         if (value === '') {
             localStorage.removeItem(key);
         } else {
@@ -85,7 +85,7 @@ export function initYoficatorSettings() {
 export function getYoficationSettings() {
     let settings = Object.assign({}, settingsDefault);
     for (let key of Object.keys(settings)) {
-        let value = localStorage.getItem(key);
+        let value = localStorage.getItem('yoficator-' + key);
         if (value !== null) {
             settings[key] = value;
         }

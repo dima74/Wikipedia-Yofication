@@ -10,7 +10,8 @@ with open('/home/dima/Wikipedia-Yofication/cpp-frequencies/results/all-pages.txt
     def parse_page(line):
         first_space_index = line.index(' ')
         number_replaces = int(line[:first_space_index])
-        page_name = line[first_space_index + 1:]
+        # -1 чтобы убрать \n в конце
+        page_name = line[first_space_index + 1:-1]
         return [number_replaces, page_name]
 
 

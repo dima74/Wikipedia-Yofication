@@ -82,6 +82,7 @@ class Main {
     async performContinuousYofication() {
         toast('Переходим к следующей странице: \nЗагружаем название статьи для ёфикации...');
         let pageName = await (this.continuousYofication ? this.nextPageNamePromise : this.backend.getRandomPageName());
+        toast(`Переходим к странице «${pageName}»`);
         window.location.href = 'https://ru.wikipedia.org/wiki/' + pageName.replace(/ /g, '_') + '?continuous_yofication';
     }
 }
