@@ -23,7 +23,7 @@ class Main {
             if (this.continuousYofication) {
                 this.nextPageNamePromise = this.backend.getRandomPageName();
             }
-        } else /*if (this.wikipediaApi.isMainNamespace())*/ {
+        } else if (this.wikipediaApi.isMainNamespace()) {
             let portletLink = mw.util.addPortletLink('p-cactions', '/wiki/' + currentPageName + '?yofication', 'Ёфицировать', 'ca-yoficator', ' Ёфицировать страницу');
             $(portletLink).click(function (event) {
                 event.preventDefault();
@@ -50,7 +50,7 @@ class Main {
                 'group': 'format',
                 'tools': {
                     'indent': {
-                        // filters: ['body.ns-0'],
+                        filters: ['body.ns-0'],
                         label: 'Ёфицировать',
                         type: 'button',
                         icon: YO_IMAGE_URL,
@@ -83,7 +83,11 @@ class Main {
         toast('Переходим к следующей странице: \nЗагружаем название статьи для ёфикации...');
         let pageName = await (this.continuousYofication ? this.nextPageNamePromise : this.backend.getRandomPageName());
         toast(`Переходим к странице «${pageName}»`);
-        window.location.href = 'https://ru.wikipedia.org/wiki/' + pageName.replace(/ /g, '_') + '?continuous_yofication';
+        let pageNameUrl = pageName.replace(/ /g, '_');
+        for (let char of ['%', '?', '&']) {
+            pageNameUrl = pageNameUrl.split(char).join(encodeURIComponent(char));
+        }
+        window.location.href = 'https://ru.wikipedia.org/wiki/' + pageNameUrl + '?continuous_yofication';
     }
 }
 

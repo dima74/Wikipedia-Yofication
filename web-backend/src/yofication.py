@@ -54,6 +54,9 @@ def check_match(text, match, dword):
     if is_russian_letter_in_word(prev_char) or is_russian_letter_in_word(next_char):
         return False
 
+    if prev_char.isalpha() or next_char.isalpha():
+        return False
+
     if prev_char == ']':
         # слова вида [[воздух]]е
         return False
@@ -125,20 +128,28 @@ def get_replaces(text, **kwargs):
         end = match.end()
         dword = match.group()
         if dword in words:
+            yoword = words[dword]
+            if yoword.frequency() < minimum_replace_frequency:
+                continue
+
             if not check_match(text, match, dword):
                 # print('skip word {}, context: `{}`'.format(dword, text[start - 20:end + 40].replace('\n', r'\n')))
                 # for debug
-                check_match(text, match, dword)
+                # check_match(text, match, dword)
                 continue
 
-            yoword = words[dword]
-            if yoword.frequency() >= minimum_replace_frequency and (yoficate_words_starts_with_upper or yoword[0].islower()):
-                replace = {
-                    'yoword': yoword,
-                    'wordStartIndex': start,
-                    'frequency': yoword.frequency()
-                }
-                replaces.append(replace)
+            if not yoficate_words_starts_with_upper and yoword[0].isupper():
+                continue
+
+            if 'гренадер' in dword:
+                continue
+
+            replace = {
+                'yoword': yoword,
+                'wordStartIndex': start,
+                'frequency': yoword.frequency()
+            }
+            replaces.append(replace)
 
     result = {
         'replaces': replaces,
