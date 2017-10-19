@@ -138,8 +138,13 @@ def get_replaces(text, **kwargs):
                 # check_match(text, match, dword)
                 continue
 
-            if not yoficate_words_starts_with_upper and yoword[0].isupper():
-                continue
+            if yoword[0].isupper():
+                if not yoficate_words_starts_with_upper:
+                    continue
+
+                dword_lower = dword.lower()
+                if dword_lower not in words or words[dword_lower].number_with_yo < 20:
+                    continue
 
             if 'гренадер' in dword:
                 continue
