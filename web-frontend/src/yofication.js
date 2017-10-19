@@ -65,6 +65,7 @@ export default class Yofication {
 
         this.iReplace = -1;
         this.done = false;
+        this.ignoredDwords = new Set();
     }
 
     async perform() {
@@ -465,6 +466,7 @@ remote (python): ${this.wikitextLength}`);
         let actionsArray = [
             [this.acceptReplace, 'j', 'о'],
             [this.rejectReplace, 'f', 'а'],
+            [this.rejectReplaceAndAllSameDwords, 'g', 'п'],
             // ещё раз показать последнюю замену
             [this.showCurrentReplaceAgain, ';', 'ж'],
             // вернуться к предыдущей замене
@@ -525,6 +527,12 @@ remote (python): ${this.wikitextLength}`);
 
         let replace = this.replaces[this.iReplace];
         let yoword = replace.yoword;
+
+        let dword = StringHelper.deyoficate(yoword);
+        if (this.ignoredDwords.has(dword)) {
+            return false;
+        }
+
         let status = `${replace.frequency}%\n${yoword}\nЗамена ${this.iReplace + 1} из ${this.replaces.length}`;
         toast(status);
 
@@ -544,6 +552,13 @@ remote (python): ${this.wikitextLength}`);
 
     rejectReplace() {
         this.goToNextReplace();
+    }
+
+    rejectReplaceAndAllSameDwords() {
+        let replace = this.replaces[this.iReplace];
+        let dword = StringHelper.deyoficate(replace.yoword);
+        this.ignoredDwords.add(dword);
+        this.rejectReplace();
     }
 
     showCurrentReplaceAgain() {

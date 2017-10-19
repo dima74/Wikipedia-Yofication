@@ -142,15 +142,26 @@ def generateReplaces(wikitext, minimum_replace_frequency):
     return yowordsToReplaces
 
 
-@wikipedia.route('/wikipedia/redirectToWiktionary/<yoword>')
-def redirect_to_wiktionary_article(yoword):
+def get_wiktionary_article(yoword):
     params = {
         'format': 'json',
         'action': 'query',
         'list': 'search',
+        'srwhat': 'text',
         'srsearch': yoword
     }
     r = requests.get('https://ru.wiktionary.org/w/api.php', params=params)
-    pageName = r.json()['query']['search'][0]['title']
-    url = 'https://ru.wiktionary.org/wiki/' + pageName
+    article = r.json()['query']['search'][0]['title']
+    return article
+
+
+@wikipedia.route('/wikipedia/redirectToWiktionaryArticle/<yoword>')
+def redirect_to_wiktionary_article(yoword):
+    article = get_wiktionary_article(yoword)
+    url = 'https://ru.wiktionary.org/wiki/' + article
     return redirect(url)
+
+
+@wikipedia.route('/wikipedia/wiktionaryArticle/<yoword>')
+def wiktionary_article(yoword):
+    return get_wiktionary_article(yoword)
