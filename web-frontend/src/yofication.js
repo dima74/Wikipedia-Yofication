@@ -3,6 +3,7 @@ import {assert, fetchJson, removeArgumentsFromUrl} from './base';
 import {main} from './main';
 import {currentPageName} from './wikipedia-api';
 import StringHelper from './string-helper';
+import {WIKTIONARY_URL} from './settings';
 
 String.prototype.insert = function (i, s, numberCharsToReplace) {
     return this.substr(0, i) + s + this.substr(i + numberCharsToReplace);
@@ -469,7 +470,9 @@ remote (python): ${this.wikitextLength}`);
             // вернуться к предыдущей замене
             [this.goToPreviousReplace, 'a', 'ф'],
             // отменить ёфикация текущей страницы
-            [this.abortYofication, 'q', 'й']
+            [this.abortYofication, 'q', 'й'],
+            // открыть страницу со словом в викисловаре
+            [this.openYowordWiktionaryPage, 'w', 'ц']
         ];
 
         let actions = {};
@@ -653,5 +656,10 @@ remote (python): ${this.wikitextLength}`);
             toast('Ёфикация отменена');
         }
         this.afterYofication();
+    }
+
+    openYowordWiktionaryPage() {
+        let url = WIKTIONARY_URL + this.replaces[this.iReplace].yoword;
+        window.open(url);
     }
 }

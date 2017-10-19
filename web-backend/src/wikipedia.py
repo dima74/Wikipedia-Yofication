@@ -1,6 +1,6 @@
 import random
 import requests
-from flask import Blueprint, request, jsonify, abort
+from flask import Blueprint, request, jsonify, abort, redirect
 from src.yofication import get_replaces, deyoficate
 
 wikipedia = Blueprint('wikipedia', __name__)
@@ -140,3 +140,17 @@ def generateReplaces(wikitext, minimum_replace_frequency):
         # print(yoword, '`' + page_text[wordStartIndex - 20:wordStartIndex + 20] + '`')
 
     return yowordsToReplaces
+
+
+@wikipedia.route('/wikipedia/redirectToWiktionary/<yoword>')
+def redirect_to_wiktionary_article(yoword):
+    params = {
+        'format': 'json',
+        'action': 'query',
+        'list': 'search',
+        'srsearch': yoword
+    }
+    r = requests.get('https://ru.wiktionary.org/w/api.php', params=params)
+    pageName = r.json()['query']['search'][0]['title']
+    url = 'https://ru.wiktionary.org/wiki/' + pageName
+    return redirect(url)
