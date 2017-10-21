@@ -409,7 +409,7 @@ remote (python): ${this.wikitextLength}`);
                 // >1, >1, по контексту
                 let numberReplacesLocal = yowordInfo.occurrences.length;
                 let numberReplacesRemote = replaces.length;
-                let singleLocalSingleRemote = numberReplacesLocal === 1 && numberReplacesRemote === 1;
+                let singleLocalSingleRemote = numberReplacesLocal === 1 && numberReplacesRemote === 1 && replaces[0].commonLength >= 10;
                 let multipleLocalSingleRemote = numberReplacesLocal > 1 && numberReplacesRemote === 1 && replaces[0].commonLength >= 20;
                 let multipleRemote = numberReplacesRemote > 1 && replaces[0].commonLength >= 10 && replaces[0].commonLength > replaces[1].commonLength * 1.5;
                 if (singleLocalSingleRemote || multipleLocalSingleRemote || multipleRemote) {
