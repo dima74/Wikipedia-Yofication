@@ -390,7 +390,7 @@ remote (python): ${this.wikitextLength}`);
             let yowordInfo = this.yowordsToReplaces[yoword];
 
             let yowordReplaces = [];
-            const contextLength = 20;
+            const contextLength = 30;
             for (let occurrence of yowordInfo.occurrences) {
                 let wordNodeValue = occurrence.wordNodeValue;
                 let wordNodeStartIndex = occurrence.wordStartIndex;
@@ -674,7 +674,15 @@ remote (python): ${this.wikitextLength}`);
     }
 
     openYowordWiktionaryPage() {
-        let url = WIKTIONARY_URL + this.replaces[this.iReplace].yoword;
+        const wordEndings = ['ая', 'ое', 'ой', 'ою', 'ом', 'ого', 'ому', 'ую', 'ый', 'ым', 'ых', 'ые', 'ыми'];
+        let yoword = this.replaces[this.iReplace].yoword;
+        for (let wordEnding of wordEndings) {
+            if (yoword.endsWith(wordEnding)) {
+                yoword = yoword.substring(0, yoword.length - wordEnding.length) + 'ый';
+                break;
+            }
+        }
+        let url = WIKTIONARY_URL + yoword;
         window.open(url);
     }
 }
