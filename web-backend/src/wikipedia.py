@@ -20,7 +20,7 @@ with open('/home/dima/Wikipedia-Yofication/cpp-frequencies/results/all-pages.txt
     lines = input.readlines()
     all_pages = list(map(parse_page, lines))
 
-    # для каждого числа k от 0 до 100 найдём число страниц n, у которых больше чем k замен
+    # для каждого числа k от 0 до <максимальное число замен в страницах> найдём число страниц n, у которых больше чем k замен
     # чтобы в /randomPageName выбирать только из этих n страниц
     maximum_number_replaces = all_pages[0][0]
     number_pages_with_number_replaces_more_than = [None] * (maximum_number_replaces + 1)
@@ -151,15 +151,21 @@ def get_wiktionary_article(yoword):
         'srsearch': yoword
     }
     r = requests.get('https://ru.wiktionary.org/w/api.php', params=params)
-    article = r.json()['query']['search'][0]['title']
+    results = r.json()['query']['search']
+    if len(results) == 0:
+        return None
+    article = results[0]['title']
     return article
 
 
 @wikipedia.route('/wikipedia/redirectToWiktionaryArticle/<yoword>')
 def redirect_to_wiktionary_article(yoword):
     article = get_wiktionary_article(yoword)
-    url = 'https://ru.wiktionary.org/wiki/' + article
-    return redirect(url)
+    if article is None:
+        return 'ничего не найдено'
+    else:
+        url = 'https://ru.wiktionary.org/wiki/' + article
+        return redirect(url)
 
 
 @wikipedia.route('/wikipedia/wiktionaryArticle/<yoword>')

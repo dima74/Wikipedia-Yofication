@@ -49,7 +49,7 @@ async function redirect() {
     if (!currentArticle.includes('ё')) {
         return;
     }
-    toast('Секунду...');
+    toast('секунду...');
     let articleWithoutYo = deyoficate(currentArticle);
     let data = {
         format: 'json',
@@ -69,7 +69,7 @@ async function redirect() {
             toast('Существует версия страницы без «ё», не являющаяся перенаправлением, переходим к ней');
             window.location.href = 'https://ru.wiktionary.org/wiki/' + articleWithoutYo;
         } else {
-            toast('Перенаправление существует');
+            toast('существует');
         }
     } else {
         let wikitext = `#перенаправление [[${currentArticle}]]`;
@@ -80,12 +80,12 @@ async function redirect() {
             text: wikitext,
             token: mw.user.tokens.get('editToken')
         };
-        toast('Создаём перенаправление...');
+        toast('создаём...');
         let response = await $.post('/w/api.php', data);
         if (!response.edit || response.edit.result !== 'Success') {
             console.log(response);
             toast('Не удалось создать перенаправление: ' + (response.edit ? response.edit.info : 'неизвестная ошибка'));
         }
-        toast('Перенаправление создано');
+        toast('создано');
     }
 }
