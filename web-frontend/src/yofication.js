@@ -15,7 +15,6 @@ export default class Yofication {
         if (this.pageMode) {
             this.root = document.getElementById('mw-content-text');
             this.rootInner = this.root.childNodes[0];
-            assert(this.rootInner.classList.contains('mw-parser-output'));
             this.wikitextPromise = main.wikipediaApi.getWikitext(currentPageName);
         } else {
             this.root = document.getElementById('wpTextbox1');
@@ -144,7 +143,7 @@ remote (python): ${this.wikitextLength}`);
         }
         for (let yoword of this.yowords) {
             let yowordInfo = this.yowordsToReplaces[yoword];
-            assert(yowordInfo.frequency >= main.settings.minimumReplaceFrequency);
+            // assert(yowordInfo.frequency >= main.settings.minimumReplaceFrequency);
             let dwordRemote = StringHelper.deyoficate(yoword);
             for (let replace of yowordInfo.replaces) {
                 let dwordLocal = this.wikitext.substr(replace.wordStartIndex, dwordRemote.length);
@@ -216,7 +215,6 @@ remote (python): ${this.wikitextLength}`);
             for (let yoword of this.yowords) {
                 let dword = StringHelper.deyoficate(yoword);
                 if (nodeValue.includes(dword)) {
-                    assert(nodeValue);
                     let indexes = StringHelper.findIndexesOfWord(dword, nodeValue);
                     let occurrences = indexes.map(wordStartIndex => { return {wordStartIndex, wordNode: node, wordNodeValue: nodeValue, wordOrderIndex: [nodeOrderIndex, wordStartIndex]}; });
                     yowordsInfos[yoword].push(...occurrences);
@@ -422,7 +420,7 @@ remote (python): ${this.wikitextLength}`);
                         highlightInfo: occurrence,
                         isAccept: false
                     };
-                    assert(replace.wordStartIndex !== undefined);
+                    assert(replace.wordStartIndex !== undefined, 'replace.wordStartIndex !== undefined');
 
                     let indexRemote = yowordInfo.replaces.indexOf(replaceRemote.replace);
                     assert(indexRemote !== -1, 'indexRemote === -1');
@@ -495,7 +493,7 @@ remote (python): ${this.wikitextLength}`);
     }
 
     goToNextReplace() {
-        assert(this.iReplace !== this.replaces.length);
+        assert(this.iReplace !== this.replaces.length, 'this.iReplace !== this.replaces.length');
         do {
             ++this.iReplace;
         } while (!this.goToCurrentReplace());
@@ -608,8 +606,8 @@ remote (python): ${this.wikitextLength}`);
         for (let replace of this.replaces) {
             let yoword = replace.yoword;
             // todo
-            assert(replace.wordStartIndex !== undefined);
-            assert(yoword !== undefined);
+            assert(replace.wordStartIndex !== undefined, 'replace.wordStartIndex !== undefined');
+            assert(yoword !== undefined, 'yoword !== undefined');
             wikitext = wikitext.insert(replace.wordStartIndex, yoword, yoword.length);
             replaceSomething = true;
         }

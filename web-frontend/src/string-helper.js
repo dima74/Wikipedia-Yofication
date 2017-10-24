@@ -46,12 +46,12 @@ export default class StringHelper {
     }
 
     static replaceWordAt(string, index, newWord) {
-        assert(0 <= index && index + newWord.length <= string.length);
+        assert(0 <= index && index + newWord.length <= string.length, 'replaceWordAt');
         return string.substr(0, index) + newWord + string.substr(index + newWord.length);
     }
 
     static assertNewStringIsYoficatedVersionOfOld(stringOld, stringNew) {
-        assert(stringOld.length === stringNew.length);
+        assert(stringOld.length === stringNew.length, 'stringOld.length === stringNew.length');
         for (let i = 0; i < stringOld.length; ++i) {
             let charOld = stringOld[i];
             let charNew = stringNew[i];
@@ -62,7 +62,7 @@ export default class StringHelper {
                 StringHelper.compareStringSummary(stringOld, stringNew, 'from assertNewStringIsYoficatedVersionOfOld');
                 console.error(`assertNewStringIsYoficatedVersionOfOld, old: '${charOld}', new: '${charNew}`);
             }
-            assert(ok);
+            assert(ok, 'assertNewStringIsYoficatedVersionOfOld::ok');
         }
     }
 

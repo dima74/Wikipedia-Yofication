@@ -30,7 +30,7 @@ export default function toast(status, error = null) {
     }
     console.log(status);
     let snackbar = $('#yoficator-snackbar');
-    assert(snackbar.length === 1);
+    assert(snackbar.length === 1, 'snackbar.length === 1');
     if (error !== null) {
         status += '\nПожалуйста, попробуйте обновить страницу. \nЕсли это не поможет, свяжитесь с [[Участник:Дима74|автором скрипта]].';
     }
