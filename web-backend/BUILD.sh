@@ -6,6 +6,11 @@ mkdir -p /home/dima/logs
 
 sudo -s <<EOF
 pacman -S --needed gunicorn python-gevent python-flask python-raven cmake
+
+# files from wikipedia dump
+/home/dima/Wikipedia-Yofication/cpp-frequencies/scripts/all.sh
+
+# nginx
 ln -s /home/dima/Wikipedia-Yofication/web-backend/gunicorn-wikipedia-yofication.service /etc/systemd/system/
 systemctl enable gunicorn-wikipedia-yofication.service
 systemctl start gunicorn-wikipedia-yofication.service
