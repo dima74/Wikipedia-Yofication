@@ -30,7 +30,7 @@ words = {dword: yoword for dword, yoword in words.items() if yoword.number_with_
 
 
 def get_sections_start_index(text):
-    sections = ['литература', 'ссылки', 'примечания', 'сочинения', 'источники', 'труды']
+    sections = ['литература', 'ссылки', 'примечания', 'сочинения', 'источники', 'труды', 'источники и литература']
     result = len(text)
     for section in sections:
         match = re.search('==\s*{}\s*=='.format(section), text, re.IGNORECASE)
