@@ -1,8 +1,8 @@
 # Ёфикатор
 
-[![Build Status](https://travis-ci.org/dima74/Wikipedia-Efication.svg?branch=master)](https://travis-ci.org/dima74/Wikipedia-Efication)
+[![Build Status](https://travis-ci.org/dima74/Wikipedia-Yofication.svg?branch=master)](https://travis-ci.org/dima74/Wikipedia-Yofication)
 
-В этом репозитории находятся наработки, позволяющие [ёфицировать](https://ru.wikipedia.org/wiki/Ёфикатор) Википедию в полуавтоматическом режиме. Если вы нашли ошибку в работе ёфикатора, [создайте](https://github.com/dima74/Wikipedia-Efication/issues/new) issue. 
+В этом репозитории находятся наработки, позволяющие [ёфицировать](https://ru.wikipedia.org/wiki/Ёфикатор) Википедию в полуавтоматическом режиме. Если вы нашли ошибку в работе ёфикатора, [создайте](https://github.com/dima74/Wikipedia-Yofication/issues/new) issue. 
 
 # Как начать ёфицировать
 1. [Зарегистрируйтесь](https://ru.wikipedia.org/w/index.php?title=Служебная:Создать_учётную_запись) в Википедии.
@@ -24,19 +24,19 @@
 10. После нажатия `j` или `f` будет найдено следующее слово для ёфикации, и страница будет прокручена до него. Если больше нет слов для ёфикации, будет произведена правка страницы от вашего имени (это может занять некоторое время), затем произойдёт перенаправление на следующую страницу для ёфикации.
 
 # Продвинутое использование
-* Если вы хотите ёфицировать какую-то конкретную статью, просто перейдите на неё и добавьте `?efication=true` в конец URL.
+* Если вы хотите ёфицировать какую-то конкретную статью, просто перейдите на неё и добавьте `?Yofication=true` в конец URL.
 * Вам также доступна горячая клавиша `q`, которая отменяет все принятые замены и переходит к следующий статье.
 
 # Как это работает
 * Был скачен [дамп русской Википедии](https://dumps.wikimedia.org/backup-index.html).
 * Для каждого слова, в котором есть ё, было посчитано число вхождений версии слова с ё и версии слова без ё.
 * Были найдены все слова, чьи версии с ё встречались больше раз чем версии без ё.
-* Во всех статьях Википедии были найдены вхождения версий таких слов без ё и для каждой статьи был создан список замен (находятся по адресу [Wikipedia-Efication-Replaces](https://github.com/dima74/Wikipedia-Efication-Replaces)).
+* Во всех статьях Википедии были найдены вхождения версий таких слов без ё и для каждой статьи был создан список замен (находятся по адресу [Wikipedia-Yofication-Replaces](https://github.com/dima74/Wikipedia-Yofication-Replaces)).
 * На javascript был написан скрипт, который при заходе на страницу `Служебная:Ёфикация` выбирает случайную статью для ёфикации, переходит на неё, показывает замены пользователю и на основе решения пользователя производит правку этой статьи.
 
 # Как собрать проект
-    git clone https://github.com/dima74/Wikipedia-Efication
-    cd Wikipedia-Efication
+    git clone https://github.com/dima74/Wikipedia-Yofication
+    cd Wikipedia-Yofication
     git submodule update --init --recursive
     ./scripts/all.sh
 
