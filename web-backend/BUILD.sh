@@ -1,7 +1,7 @@
 #!/bin/sh -e
 set -x
 
-# cd && git clone git@github.com:dima74/Wikipedia-Yofication.git
+# cd && git clone git@github.com:dima74/Wikipedia-Yofication.git && ./Wikipedia-Yofication/web-backend/BUILD.sh
 mkdir -p /home/dima/logs
 
 sudo pacman -S --needed gunicorn python-gevent python-flask python-raven cmake
