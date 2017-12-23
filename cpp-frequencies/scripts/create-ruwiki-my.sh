@@ -4,4 +4,4 @@ cd `dirname $0`/..
 # ruwiki -> ruwiki-*-pages-articles.xml.bz2
 rm -rf results
 mkdir results
-scripts/download-ruwiki-my.sh >results/ruwiki-my.txt
+scripts/download-ruwiki-my-to-stdout.sh >results/ruwiki-my.txt

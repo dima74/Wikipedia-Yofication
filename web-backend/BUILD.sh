@@ -7,7 +7,7 @@ mkdir -p /home/dima/logs
 sudo pacman -S --needed gunicorn python-gevent python-flask python-raven cmake
 
 # files from wikipedia dump
-/home/dima/Wikipedia-Yofication/cpp-frequencies/scripts/all.sh
+/home/dima/Wikipedia-Yofication/cpp-frequencies/BUILD.sh
 
 # nginx
 sudo ln -s /home/dima/Wikipedia-Yofication/web-backend/gunicorn-wikipedia-yofication.service /etc/systemd/system/
