@@ -24,7 +24,7 @@ def readlines(filename):
         return input.readlines()
 
 
-lines = readlines('all-yowords.txt') + readlines('frequencies.txt')
+lines = readlines('frequencies.txt')
 words = {deyoficate(yoword): YoWord(yoword, number_with_yo, number_all) for (yoword, number_with_yo, number_all) in map(str.split, lines)}
 words = {dword: yoword for dword, yoword in words.items() if yoword.number_with_yo > 5}
 

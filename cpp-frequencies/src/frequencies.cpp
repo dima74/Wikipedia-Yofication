@@ -7,9 +7,7 @@ struct FrequenciesParser : public YowordsParser {
         vector<YowordInfo> bests;
         for (pair<u16string, DwordInfo> p : infos) {
             YowordInfo best = p.second.getBest();
-            if (best.number != best.numberAll) {
-                bests.push_back(best);
-            }
+            bests.push_back(best);
         }
         sort(bests.begin(), bests.end());
         for (YowordInfo best : bests) {

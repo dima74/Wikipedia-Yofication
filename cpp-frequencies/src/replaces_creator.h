@@ -29,8 +29,8 @@ struct ReplacesCreator {
         assert(in);
 
         YowordInfo info;
-        while (in >> info && info.getFrequency() > minReplaceFrequency) {
-            if (isRussianLower(info.yoword[0])) {
+        while (in >> info) {
+            if (isRussianLower(info.yoword[0]) && info.getFrequency() > minReplaceFrequency && info.number != info.numberAll) {
                 dwords[deefication(info.yoword)] = info.yoword;
                 yowords[info.yoword] = info;
             }

@@ -17,7 +17,7 @@ sudo systemctl start gunicorn-wikipedia-yofication.service
 sudo ln -s /home/dima/Wikipedia-Yofication/nginx/remote /etc/nginx/yofication
 sudo ln -s /etc/nginx/yofication/server-without-ssl.conf /etc/nginx/sites-enabled/yofication.conf
 sudo nginx -s reload
-sudo certbot certonly --nginx --email diraria+ssl@yandex.ru -d yofication.diraria.ru
+sudo certbot certonly --nginx --email diraria+ssl@yandex.ru -d yofication.diraria.tk
 
 sudo ln -sf /etc/nginx/yofication/server.conf /etc/nginx/sites-enabled/yofication.conf
 sudo nginx -s reload

@@ -9,7 +9,6 @@ add_subdirectory(fmt)
 
 add_executable(converter src/converter.cpp)
 add_executable(frequencies src/frequencies.cpp)
-add_executable(all_yowords src/all_yowords.cpp)
 add_executable(all_pages src/all_pages.cpp)
 add_executable(replaces_printer src/replaces_printer.cpp)
 add_executable(replaces_printer_for_page src/replaces_printer_for_page.cpp)
