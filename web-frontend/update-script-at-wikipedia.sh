@@ -3,5 +3,5 @@ cd `dirname $0`
 
 npm install
 npm run build-production
-pip3 install requests
-python3 ./update-script-at-wikipedia.py
+sudo pip install requests
+python ./update-script-at-wikipedia.py
