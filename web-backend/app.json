@@ -1,0 +1,7 @@
+{
+  "name": "Wikipedia Yofication",
+  "description": "Backend for Wikipedia Yofication user script",
+  "image": "heroku/python",
+  "repository": "hhttps://github.com/dima74/Wikipedia-Yofication",
+  "keywords": ["wikipedia", "yofication" ]
+}

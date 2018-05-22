@@ -1,23 +1,22 @@
 import random
 import requests
 from flask import Blueprint, request, jsonify, abort, redirect
-from src.yofication import get_replaces, deyoficate
+from src.yofication import get_replaces, deyoficate, get_remote_file_lines
 
 wikipedia = Blueprint('wikipedia', __name__)
 WIKIPEDIA_HOST = 'https://ru.wikipedia.org'
 
-with open('/home/dima/Wikipedia-Yofication/cpp-frequencies/results/all-pages.txt') as input:
+
+def create_all_pages():
     def parse_page(line):
         first_space_index = line.index(' ')
         number_replaces = int(line[:first_space_index])
-        # -1 чтобы убрать \n в конце
-        page_name = line[first_space_index + 1:-1]
+        page_name = line[first_space_index + 1:]
         return [number_replaces, page_name]
-
 
     # в файле хранятся строки --- пары (имя страницы, число замен в ней для минимальной частоты, равной 50%)
     # причём эти пары уже отсортированы в обратном порядке по числу замен
-    lines = input.readlines()
+    lines = get_remote_file_lines('all-pages.txt')
     all_pages = list(map(parse_page, lines))
 
     # для каждого числа k от 0 до <максимальное число замен в страницах> найдём число страниц n, у которых больше чем k замен
@@ -34,7 +33,10 @@ with open('/home/dima/Wikipedia-Yofication/cpp-frequencies/results/all-pages.txt
         number_pages_with_number_replaces_more_than[number_replaces] = len(all_pages)
         number_replaces -= 1
 
-    all_pages = [page[1] for page in all_pages]
+    return [page[1] for page in all_pages]
+
+
+all_pages = create_all_pages()
 
 
 def add_parameter_format_json(kwargs, parameter):
