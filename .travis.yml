@@ -14,8 +14,17 @@ matrix:
 before_install:
     - eval "${MATRIX_EVAL}"
 
+addons:
+  apt:
+    sources:
+    - nodejs
+    - npm
+    - python3
+    - pip3
+
 script:
   - "./cpp-frequencies/build_script.sh"
+  - "./web-frontend/update-script-at-wikipedia.sh"
 
 before_deploy:
   - cd ./web-backend
