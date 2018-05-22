@@ -15,7 +15,7 @@ before_install:
     - eval "${MATRIX_EVAL}"
 
 script:
-  - "./build_script.sh"
+  - "./cpp-frequencies/build_script.sh"
 
 before_deploy:
   - cd ./web-backend
