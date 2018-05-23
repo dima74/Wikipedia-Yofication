@@ -8,6 +8,10 @@ WIKIPEDIA_HOST = 'https://ru.wikipedia.org'
 
 
 def create_all_pages():
+    global all_pages
+    global maximum_number_replaces
+    global number_pages_with_number_replaces_more_than
+
     def parse_page(line):
         first_space_index = line.index(' ')
         number_replaces = int(line[:first_space_index])
@@ -33,10 +37,10 @@ def create_all_pages():
         number_pages_with_number_replaces_more_than[number_replaces] = len(all_pages)
         number_replaces -= 1
 
-    return [page[1] for page in all_pages]
+    all_pages = [page[1] for page in all_pages]
 
 
-all_pages = create_all_pages()
+create_all_pages()
 
 
 def add_parameter_format_json(kwargs, parameter):
