@@ -51,5 +51,5 @@ def editPage(title, text):
 
 # run_npm_build()
 login()
-script_text = open('./dist/yoficator.bundle.min.js').read()
+script_text = open(os.argv[1]).read()
 editPage(yoficator_page_name, script_text)

@@ -1,7 +1,7 @@
-export const BACKEND_HOST = 'https://yofication.diraria.tk/wikipedia';
+export const BACKEND_HOST = 'https://yofication.herokuapp.com/wikipedia';
 // export const BACKEND_HOST = 'http://localhost/wikipedia';
 
-export const YO_IMAGE_URL = 'https://yofication.diraria.tk/yo.png';
+export const YO_IMAGE_URL = 'https://yofication.herokuapp.com/static/yo.png';
 // export const YO_IMAGE_URL = 'http://localhost:7777/yo.png';
 
 export const WIKTIONARY_URL = BACKEND_HOST + '/redirectToWiktionaryArticle/';
