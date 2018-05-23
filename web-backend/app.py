@@ -1,10 +1,12 @@
 from flask import Flask, request, render_template, jsonify
+from flask_cors import CORS
 from src.yofication import yoficate_text
 from src.wikipedia import wikipedia
 
 app = Flask(__name__)
 app.register_blueprint(wikipedia)
 app.config['JSON_AS_ASCII'] = False
+CORS(app)
 
 
 @app.route('/')

@@ -7,6 +7,7 @@ verify_ssl = true
 Flask = "*"
 gunicorn = "*"
 requests = "*"
+flask-cors = "*"
 
 
 [requires]
