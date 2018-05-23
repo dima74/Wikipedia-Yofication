@@ -1,17 +1,34 @@
 language: cpp
-sudo: required
 
-arch:
-  packages:
-    - tree
-    - cmake
+matrix:
+  include:
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-7
+      env:
+        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
+before_install:
+    - eval "${MATRIX_EVAL}"
+
+addons:
+  apt:
+    sources:
     - nodejs
     - npm
-    - python
-    - python-pip
-    - yaourt
-  script:
-    - "./build_script.sh"
 
 script:
-  - "curl -s https://raw.githubusercontent.com/mikkeloscar/arch-travis/master/arch-travis.sh | bash"
+  - "./cpp-frequencies/build_script.sh"
+  - "./web-frontend/create-script-for-wikipedia.sh"
+
+before_deploy:
+  - cd ./web-backend
+
+deploy:
+  provider: heroku
+  app: yofication
+  api_key:
+    secure: WXgEE0kw+8BRN0XMIVuEfP4OJqovbR2AQ9JXuDXZtVUrj755NAjAGmrAQTTCyTb+1vbl/8sD5jc2LWa1ied6FqnQEmHAuE3RSN5DDyEMbvODh0izuLW3MM1qkitPTSvMn7NRHNVjaaW7+eLlLZjiUFn0VZOmOryda4YxEdbwiGuFSI2rxhh/MeLoGXzXFq+vkYQviK7Pd15D9ByRZdArKD2+bl/+taj7+3AKzcLNCUv/kXWQASUc5qIR9xptIfz+rf/nLh2k0+v95fwvUVatHgBFqWkmoOJSOKGTG71f5XbU6PPHJCgwJk1nWlNyHV43L1KYT/YMSfXqn1N/JZEITqd+d/IoUH0IIF213lCF331JLLNK8K6fu3QvEs3sE9qgKDkkiTiSRJNtv2fSmf/8DJV8RlV3p2++3WuDmVjrcu2+B2y/Oclv020qTOxRIi3Hyjv7Zi9L48xdK4bdUSTgmmrDxL8DuqDktiffckbfXQF1HHSTW+8f5WlkgW27xlV/dmRWrDSqE76AAviGabHx8M5c+xyvrD2Fz/9qaxSkj2WWtIC8I7+FeSS6xQd3qSJuKqY36ECrzP0eTEdUK24uBj6ZUXI2JXRonKyh6NrWNCggIW52GJO1AB7JxpiVRNVOP+V+R4cjyD3OB5ZXEWBspWHePd+suvAVqTvbUtBPRpc=
