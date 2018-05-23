@@ -20,10 +20,14 @@ addons:
     - nodejs
     - npm
 
+env:
+  global:
+    secure: DUIx/SHA257at6LNHojTY3361yAhtBjra7fycZUVkAMuY4I9KiQbCY3Lu9NYvfrkrdCODxYB5d+ooeG+zUvM8/yvoWN7lYkpjNrHGfJ3+TTC0JF48xKiLp8TUXwBKM4VwnVtFUezhqgNJZ6C4SZbI9FoG3ACxNoXqszQvSFcRyGN2KprFTTrwA0M9geA8sZV68BXWvJfdQCBNyKyxcYJcIDNFJKRRXuECTEXny69XTaBycds8gi7/X6NNuE8EIWmIo3VcmSuBiJLpiCes+3JPsY/+ZGJxT4QupICefMKFHcvP8VldP6rLnub0WUp+vdsHFvqNaGxcbQMUSeXnKGTehdv0dMW4vHlNfVGWtOFnBbT/ILAKHDk1RmZO9ZmoY5UPp79MGYUU1G6bk1nt4g1ueivGMwnUY4CwSN5JFDcxc5YkpMO+9uclEMpKyCs6IPtlM56ddjcDzJPjH5MkrujaA/8twL5bfPyrQ8FynSeMD1l08pRWjPRszzjnagVMuIcapev++4Pq/5qRDWZoqwUcMD4F/RIeARMfa/K0KUbp2BbqUS9xrNFIAzL/K8yVhRJ/zjGCsEkUgQfJF1rYBcW1VZVbopMLzoHKsjCVclrxqdqNyApnl5L2NEFo4yCeu9Cm0YrvOIJVFJBDT9AwM77nRO7354azj2VdMpZYe3BzEg=
+
 script:
-  - "./cpp-frequencies/build_script.sh"
-# Википедия блокирует подсеть Travis'а... (так как когда-то я в нём запускал автоматическую ёфикацию в знак протеста против их отказа выдавать мне флаг автопатрулируемого) и подсеть Heroku, поэтому сделать онлайн сборка скрипта не получится
-#  - "./web-frontend/update-script-at-wikipedia.sh"
+  # Википедия блокирует подсеть Travis'а... (так как когда-то я в нём запускал автоматическую ёфикацию в знак протеста против их отказа выдавать мне флаг автопатрулируемого) и подсеть Heroku, поэтому сделать онлайн сборку скрипта не получится
+  #  - "./web-frontend/update-script-at-wikipedia.sh"
+  - if [ $TRAVIS_EVENT_TYPE == "cron" ]; then ./cpp-frequencies/update_frequencies_on_github.sh; fi
 
 before_deploy:
   - cd ./web-backend
