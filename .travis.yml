@@ -22,7 +22,8 @@ addons:
 
 script:
   - "./cpp-frequencies/build_script.sh"
-  - "./web-frontend/create-script-for-wikipedia.sh"
+# Википедия блокирует подсеть Travis'а... (так как когда-то я в нём запускал автоматическую ёфикацию в знак протеста против их отказа выдавать мне флаг автопатрулируемого) и подсеть Heroku, поэтому сделать онлайн сборка скрипта не получится
+#  - "./web-frontend/update-script-at-wikipedia.sh"
 
 before_deploy:
   - cd ./web-backend

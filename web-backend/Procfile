@@ -1,2 +1,1 @@
-release: python update-script-at-wikipedia.py
 web: gunicorn app:app
