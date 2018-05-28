@@ -2,7 +2,7 @@ import WikipediaApi, {currentPageName} from './wikipedia-api';
 import toast from './toast';
 import Backend from './backend';
 import Yofication from './yofication';
-import {sleep} from './base';
+import {IS_MOBILE, sleep} from './base';
 import {getYoficationSettings, initYoficatorSettings, YO_IMAGE_URL} from './settings';
 
 class Main {
@@ -23,7 +23,7 @@ class Main {
             if (this.continuousYofication) {
                 this.nextPageNamePromise = this.backend.getRandomPageName();
             }
-        } else if (this.wikipediaApi.isMainNamespace()) {
+        } else if (this.wikipediaApi.isMainNamespace() && !IS_MOBILE) {
             let portletLink = mw.util.addPortletLink('p-cactions', '/wiki/' + currentPageName + '?yofication', 'Ёфицировать', 'ca-yoficator', ' Ёфицировать страницу');
             $(portletLink).click(function (event) {
                 event.preventDefault();

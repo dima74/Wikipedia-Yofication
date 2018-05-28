@@ -1,5 +1,7 @@
 import toast from './toast';
 
+export const IS_MOBILE = window.location.hostname.includes('.m.wikipedia');
+
 export function assert(expression, message = 'Непредвиденная ошибка') {
     if (!expression) {
         toast(message);
@@ -23,7 +25,7 @@ export async function fetchJson(url, settings = {}) {
 }
 
 export function removeArgumentsFromUrl() {
-    window.history.pushState('', '', window.location.href.replace('?yofication', ''));
+    // window.history.pushState('', '', window.location.href.replace('?yofication', ''));
 }
 
 export function sleep(milliseconds) {

@@ -1,5 +1,5 @@
 import toast from './toast';
-import {assert, fetchJson, removeArgumentsFromUrl} from './base';
+import {assert, fetchJson, IS_MOBILE, removeArgumentsFromUrl} from './base';
 import {main} from './main';
 import {currentPageName} from './wikipedia-api';
 import StringHelper from './string-helper';
@@ -72,9 +72,14 @@ export default class Yofication {
         if (this.pageMode) {
             // ёфицировать можно не обязательно статью, это может быть раздел статьи и т.д. (то есть у этого может не быть ревизии)
             this.checkRevisionsMatch();
-            // при ёфикации викитекст не важен, так как результатом работы скрипта будет изменнение содержимого <textarea>
+            // при ёфикации викитекст не важен, так как результатом работы скрипта будет изменение содержимого <textarea>
             await this.checkWikitextMatch();
         }
+
+        if (IS_MOBILE) {
+            await this.openHeadings();
+        }
+
         toast('Обрабатываем замены...');
         this.createHighlights();
         this.createReplaces();
@@ -100,6 +105,34 @@ export default class Yofication {
         this.goToNextReplace();
         $(window).on('resize', () => this.scrollToCurrentVisibleHighlight());
         this.initializeActions();
+    }
+
+    async openHeadings() {
+        async function retry(callback, description, maxAttempts = 10) {
+            const sleep = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
+            let attempt = 0;
+            while (++attempt <= maxAttempts) {
+                const success = callback();
+                if (success) {
+                    console.log(`${description}: успех (попыток: ${attempt})`);
+                    return;
+                }
+                if (attempt === maxAttempts) {
+                    throw `${description}: failed`;
+                }
+                await sleep(100);
+            }
+        }
+
+        const headings = $('h2.section-heading');
+        console.log(`найдено разделов: ${headings.length}`);
+        await retry(() => headings.length === 0 || headings.attr('aria-controls'), 'wait for headings');
+
+        function openHeadings() {
+            headings.click();
+            return headings.not('.open-block').length === 0;
+        }
+        await retry(openHeadings, 'разворачивание разделов');
     }
 
     async loadReplaces() {
@@ -490,6 +523,39 @@ remote (python): ${this.wikitextLength}`);
                 }
             }
         );
+
+        if (IS_MOBILE) {
+            const overlay = this.createMobileOverlay();
+            overlay.click(event => {
+                // в мобильной версии доступны три действия:
+                //     нажатие на верхнюю 1/4 часть экрана --- переход к следующей странице
+                //     нажатие на правую часть экрана ---   принять замену
+                //     нажатие на  левую часть экрана --- отклонить замену
+                if (event.offsetY <= $(window).height() / 4) {
+                    this.abortYofication();
+                } else if (event.offsetX >= $(window).width() / 2) {
+                    this.acceptReplace();
+                } else {
+                    this.rejectReplace();
+                }
+            });
+        }
+    }
+
+    createMobileOverlay() {
+        const OVERLAY_HTML = `
+        <div 
+            id="yoficator-overlay" 
+            style="
+                position: fixed;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                z-index: 2;
+                opacity: 0;"
+        ></div>`;
+        return $('body').append(OVERLAY_HTML);
     }
 
     goToNextReplace() {
