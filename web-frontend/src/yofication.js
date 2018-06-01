@@ -394,11 +394,13 @@ remote (python): ${this.wikitextLength}`);
                 // верхний уровень, проверяем что ближайший заголовок сверху допустимый
                 for (let previousElement = element; previousElement !== null; previousElement = previousElement.previousSibling) {
                     if (previousElement.nodeType === 1 && previousElement.tagName[0] === 'H' && previousElement.childNodes.length > 0) {
-                        const sectionsIgnored = ['литература', 'ссылки', 'примечания', 'сочинения', 'источники', 'труды', 'источники и литература'];
-                        let latestSectionName = previousElement.childNodes[0].id;
-                        if (sectionsIgnored.includes(latestSectionName.toLowerCase())) {
-                            console.log(`ignore word "${yoword}" in section "${latestSectionName}"`);
-                            return false;
+                        const latestSectionName = (previousElement.innerText || '').toLowerCase();
+                        const sectionsIgnored = ['литература', 'ссылки', 'примечания', 'сочинения', 'источники', 'труды'];
+                        for (let section of sectionsIgnored) {
+                            if (latestSectionName.includes(section)) {
+                                console.log(`ignore word "${yoword}" in section "${latestSectionName}"`);
+                                return false;
+                            }
                         }
                         break;
                     }
