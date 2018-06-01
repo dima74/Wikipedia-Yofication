@@ -1,7 +1,7 @@
 import random
 import requests
 from flask import Blueprint, request, jsonify, abort, redirect
-from src.yofication import get_replaces, deyoficate, get_remote_file_lines
+from src.yofication import get_replaces, deyoficate, get_remote_file_lines, words
 
 wikipedia = Blueprint('wikipedia', __name__)
 WIKIPEDIA_HOST = 'https://ru.wikipedia.org'
@@ -177,3 +177,18 @@ def redirect_to_wiktionary_article(yoword):
 @wikipedia.route('/wikipedia/wiktionaryArticle/<yoword>')
 def wiktionary_article(yoword):
     return get_wiktionary_article(yoword)
+
+
+@wikipedia.route('/stat/<word>')
+def get_word_frequency(word):
+    if word not in words:
+        return 'Нет информации о слове'
+    else:
+        yoword = words[deyoficate(word)]
+        return '''\n\n
+частота: {}%
+
+
+общее число вхождений: {}
+число вхождений с ё: {}
+'''.format(yoword.frequency(), yoword.number_all, yoword.number_with_yo).replace('\n', '<br>')
