@@ -14,7 +14,7 @@ export default class Yofication {
         this.pageMode = pageMode;
         if (this.pageMode) {
             this.root = document.getElementById('mw-content-text');
-            this.rootInner = this.root.childNodes[0];
+            this.rootInner = $('.mw-parser-output')[0];
             this.wikitextPromise = main.wikipediaApi.getWikitext(currentPageName);
         } else {
             this.root = document.getElementById('wpTextbox1');
