@@ -27,6 +27,7 @@ env:
 script:
   # Википедия блокирует подсеть Travis'а... (так как когда-то я в нём запускал автоматическую ёфикацию в знак протеста против их отказа выдавать мне флаг автопатрулируемого) и подсеть Heroku, поэтому сделать онлайн сборку скрипта не получится
   #  - "./web-frontend/update-script-at-wikipedia.sh"
+  - "./cpp-frequencies/build_script.sh"
   - if [ $TRAVIS_EVENT_TYPE == "cron" ]; then ./cpp-frequencies/update_frequencies_on_github.sh; fi
 
 before_deploy:
