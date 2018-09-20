@@ -358,7 +358,7 @@ remote (python): ${this.wikitextLength}`);
         for (let element = wordNode; element !== this.root; element = element.parentElement) {
             if (element.nodeType === 1) {
                 // цитаты, ссылки
-                const ignoredTags = ['blockquote', 'a', 'pre'];
+                const ignoredTags = ['blockquote', 'a', 'pre', 'i'];
                 for (let ignoredTag of ignoredTags) {
                     if (element.tagName.toLowerCase() === ignoredTag) {
                         console.log(`ignore word "${yoword}" inside <${ignoredTag}>`);
