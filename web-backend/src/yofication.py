@@ -21,7 +21,7 @@ class YoWord(str):
 
 def get_remote_file_lines(filename):
     import requests
-    response = requests.get('https://rawgit.com/dima74/Wikipedia-Yofication/frequencies/' + filename)
+    response = requests.get('https://github.com/dima74/Wikipedia-Yofication/raw/frequencies/' + filename)
     assert response.status_code == 200
     return [line for line in response.text.split('\n') if line]
 
