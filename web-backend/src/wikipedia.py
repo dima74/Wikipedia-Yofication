@@ -2,6 +2,10 @@ import random
 import requests
 from flask import Blueprint, request, jsonify, abort, redirect
 from src.yofication import get_replaces, deyoficate, get_remote_file_lines, words
+from mixpanel import Mixpanel
+import os
+
+mp = Mixpanel(os.environ['MIXPANEL_TOKEN'])
 
 wikipedia = Blueprint('wikipedia', __name__)
 WIKIPEDIA_HOST = 'https://ru.wikipedia.org'
@@ -71,6 +75,7 @@ default_minimum_replace_frequency = 50
 @wikipedia.route('/wikipedia/replacesByTitle/<path:title>')
 def generateReplacesByTitle(title):
     minimum_replace_frequency = int(request.args.get('minimumReplaceFrequency', default_minimum_replace_frequency))
+    mp.track(str(minimum_replace_frequency), 'generateReplacesByTitle')
 
     # todo get занимает большую часть времени метода
     response = get('/w/api.php', params={'action': 'query', 'prop': 'revisions', 'titles': title, 'rvprop': 'ids|content|timestamp'}).json()

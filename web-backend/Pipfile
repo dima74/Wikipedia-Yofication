@@ -9,6 +9,7 @@ gunicorn = "*"
 requests = "*"
 flask-cors = "*"
 Flask-SSLify = "*"
+mixpanel = "*"
 
 
 [requires]
