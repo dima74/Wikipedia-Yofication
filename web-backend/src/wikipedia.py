@@ -62,6 +62,7 @@ def get(url='/w/api.php', **kwargs):
 @wikipedia.route('/wikipedia/randomPageName')
 def random_page_name():
     minimum_number_replaces_for_continuous_yofication = int(request.args.get('minimumNumberReplacesForContinuousYofication', 0))
+    mp.track(str(minimum_number_replaces_for_continuous_yofication), 'random_page_name')
     minimum_number_replaces_for_continuous_yofication = max(minimum_number_replaces_for_continuous_yofication, 0)
     minimum_number_replaces_for_continuous_yofication = min(minimum_number_replaces_for_continuous_yofication, maximum_number_replaces)
     number_pages_to_choice = number_pages_with_number_replaces_more_than[minimum_number_replaces_for_continuous_yofication]
@@ -75,7 +76,7 @@ default_minimum_replace_frequency = 50
 @wikipedia.route('/wikipedia/replacesByTitle/<path:title>')
 def generateReplacesByTitle(title):
     minimum_replace_frequency = int(request.args.get('minimumReplaceFrequency', default_minimum_replace_frequency))
-    mp.track(str(minimum_replace_frequency), 'generateReplacesByTitle')
+    mp.track(str(minimum_replace_frequency), 'generateReplacesByTitle', {'title': title})
 
     # todo get занимает большую часть времени метода
     response = get('/w/api.php', params={'action': 'query', 'prop': 'revisions', 'titles': title, 'rvprop': 'ids|content|timestamp'}).json()
@@ -98,6 +99,7 @@ def generateReplacesByWikitext():
     if 'minimumReplaceFrequency' not in request.form:
         abort(400)
     minimum_replace_frequency = int(request.form.get('minimumReplaceFrequency', default_minimum_replace_frequency))
+    mp.track(str(minimum_replace_frequency), 'generateReplacesByWikitext')
     wikitext = request.form['wikitext']
     return jsonify(generateReplaces(wikitext, minimum_replace_frequency))
 
