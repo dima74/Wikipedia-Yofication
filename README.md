@@ -1,6 +1,8 @@
 # Ёфикатор
 
 [![Build Status](https://travis-ci.org/dima74/Wikipedia-Yofication.svg?branch=master)](https://travis-ci.org/dima74/Wikipedia-Yofication)
+[![Website yofication.herokuapp.com](https://img.shields.io/website-up-down-green-red/https/yofication.herokuapp.com.svg)](https://yofication.herokuapp.com/)
+[![Heroku](https://heroku-badge.herokuapp.com/?app=yofication&svg=1)](https://yofication.herokuapp.com/)
 
 В этом репозитории находятся наработки, позволяющие [ёфицировать](https://ru.wikipedia.org/wiki/Ёфикатор) Википедию в полуавтоматическом режиме. Если вы нашли ошибку в работе ёфикатора, [создайте](https://github.com/dima74/Wikipedia-Yofication/issues/new) issue. 
 
