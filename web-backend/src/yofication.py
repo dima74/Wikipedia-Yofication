@@ -28,7 +28,7 @@ if 'wikipedia' in DICTS:
         number_with_yo = int(number_with_yo)
         number_all = int(number_all)
         if number_with_yo > 5:
-            # прибавление единицы нужно чтобы frequency == 1.0 была только у слов из словаря safe.txt (hcodes/eyo)
+            # прибавление единицы нужно чтобы frequency == 100 была только у слов из словаря safe.txt (hcodes/eyo)
             words[deyoficate(yoword)] = YoWord(yoword, number_with_yo, number_all + 1)
 if 'hcodes/eyo' in DICTS:
     from src.hcodes_dictionary import get_hcodes_yowords

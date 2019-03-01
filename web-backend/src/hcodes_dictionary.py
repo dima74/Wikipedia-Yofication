@@ -20,7 +20,7 @@ def process_template(word, callback):
     if bracket_index != -1:
         suffixes = word[bracket_index + 1:-1]
         word = word[:bracket_index]
-        for suffix in suffixes:
+        for suffix in suffixes.split('|'):
             process_word(word + suffix, callback)
     else:
         process_word(word, callback)
@@ -35,3 +35,17 @@ def get_hcodes_yowords():
         for line in lines:
             process_template(line, callback)
     return yowords
+
+
+if __name__ == '__main__':
+    ''' проверка нескольких слов на принадлежность множествам safe/non-safe '''
+
+    yowords = get_hcodes_yowords()
+    yowords_safe = [yoword for yoword, is_safe in yowords if is_safe]
+    yowords_non_safe = [yoword for yoword, is_safe in yowords if not is_safe]
+
+    words_to_test = ['её', 'нём', 'зелёный', 'оснащённый']
+    for yoword in words_to_test:
+        status = 'safe' if yoword in yowords_safe else \
+            'non-safe' if yoword in yowords_non_safe else ''
+        print(f'{status:10}', yoword)
