@@ -43,6 +43,9 @@
     git submodule update --init --recursive
     ./scripts/all.sh
 
+# Благодарности
+В проекте используется словарь из библиотеки [hcodes/eyo-kernel](https://github.com/hcodes/eyo-kernel), опубликованной под лицензией MIT.
+
 # Задачи
 - [x] printPagesThatContains --- ignore case
 - [x] Просмотреть страницы, содержащие {{nobots}}
