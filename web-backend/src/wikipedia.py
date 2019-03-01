@@ -1,7 +1,8 @@
 import random
 import requests
 from flask import Blueprint, request, jsonify, abort, redirect
-from src.yofication import get_replaces, deyoficate, get_remote_file_lines, words
+from src.helpers import fetch_lines
+from src.yofication import get_replaces, deyoficate, words
 from mixpanel import Mixpanel
 import os
 
@@ -24,7 +25,7 @@ def create_all_pages():
 
     # в файле хранятся строки --- пары (имя страницы, число замен в ней для минимальной частоты, равной 50%)
     # причём эти пары уже отсортированы в обратном порядке по числу замен
-    lines = get_remote_file_lines('all-pages.txt')
+    lines = fetch_lines(f'https://github.com/dima74/Wikipedia-Yofication/raw/frequencies/all-pages.txt')
     all_pages = list(map(parse_page, lines))
 
     # для каждого числа k от 0 до <максимальное число замен в страницах> найдём число страниц n, у которых больше чем k замен

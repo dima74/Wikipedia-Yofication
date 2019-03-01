@@ -1,5 +1,6 @@
 import ctypes
 import re
+from src.helpers import fetch_lines
 
 
 def deyoficate(string):
@@ -12,23 +13,32 @@ class YoWord(str):
 
     def __init__(self, yoword, number_with_yo, number_all):
         super().__init__()
-        self.number_with_yo = int(number_with_yo)
-        self.number_all = int(number_all)
+        self.number_with_yo = number_with_yo
+        self.number_all = number_all
 
     def frequency(self):
         return self.number_with_yo * 100 // self.number_all
 
 
-def get_remote_file_lines(filename):
-    import requests
-    response = requests.get('https://github.com/dima74/Wikipedia-Yofication/raw/frequencies/' + filename)
-    assert response.status_code == 200
-    return [line for line in response.text.split('\n') if line]
-
-
-lines = get_remote_file_lines('frequencies.txt')
-words = {deyoficate(yoword): YoWord(yoword, number_with_yo, number_all) for (yoword, number_with_yo, number_all) in map(str.split, lines)}
-words = {dword: yoword for dword, yoword in words.items() if yoword.number_with_yo > 5}
+DICTS = ['wikipedia', 'hcodes/eyo']
+words = {}
+if 'wikipedia' in DICTS:
+    lines = fetch_lines(f'https://github.com/dima74/Wikipedia-Yofication/raw/frequencies/frequencies.txt')
+    for yoword, number_with_yo, number_all in map(str.split, lines):
+        number_with_yo = int(number_with_yo)
+        number_all = int(number_all)
+        if number_with_yo > 5:
+            # прибавление единицы нужно чтобы frequency == 1.0 была только у слов из словаря safe.txt (hcodes/eyo)
+            words[deyoficate(yoword)] = YoWord(yoword, number_with_yo, number_all + 1)
+if 'hcodes/eyo' in DICTS:
+    from src.hcodes_dictionary import get_hcodes_yowords
+    yowords = get_hcodes_yowords()
+    for yoword, is_safe in yowords:
+        frequency = 100 if is_safe else 35
+        eword = deyoficate(yoword)
+        # нельзя просто перезаписать словарь, так как некоторые почти наверно safe слова почему-то не safe (например, «нём»)
+        if eword not in words or words[eword].frequency() < frequency:
+            words[eword] = YoWord(yoword, frequency, 100)
 
 
 def get_sections_start_index(text):
@@ -84,6 +94,7 @@ def is_dword_inside_tags(dword, text, wordStartIndex):
         # ('[', ']'),
         # ('{{', '}}'),
         # ('{{начало цитаты', '{{конец цитаты'),
+        # ('{{Врезка', '}}'),
         ('«', '»'),
         ('<!--', '-->'),
         # ('<source', '</source'),
