@@ -4,7 +4,6 @@ module.exports = {
     entry: './src/main.js',
     output: {
         filename: 'yoficator.bundle.js',
-        path: path.resolve(__dirname, 'dist')
+        path: path.resolve(__dirname, 'dist'),
     },
-    devtool: 'inline-source-map'
 };
