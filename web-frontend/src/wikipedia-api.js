@@ -1,4 +1,4 @@
-import {fetchJson} from "./base";
+import { fetchJson } from './base';
 
 export default class WikipediaApi {
     isMainNamespace() {
@@ -11,9 +11,9 @@ export default class WikipediaApi {
             prop: 'revisions',
             titles: title,
             rvprop: 'content',
-            format: 'json'
+            format: 'json',
         };
-        let response = await fetchJson(`/w/api.php`, {data});
+        let response = await fetchJson(`/w/api.php`, { data });
         return Object.values(response.query.pages)[0].revisions[0]['*'];
     }
 

@@ -10,7 +10,7 @@ export const WIKTIONARY_URL = BACKEND_HOST + '/redirectToWiktionaryArticle/';
 const settingsDefault = {
     editSummary: 'Ёфикация с помощью [[Участник:Дима74/Скрипт-Ёфикатор|скрипта-ёфикатора]]',
     minimumReplaceFrequency: 50,
-    minimumNumberReplacesForContinuousYofication: 5
+    minimumNumberReplacesForContinuousYofication: 5,
 };
 const html = `
 <p>Минимальная частота слов для ёфикации в процентах (0-100). Чем меньше значение, тем больше замен будет предлагаться.

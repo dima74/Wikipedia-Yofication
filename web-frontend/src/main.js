@@ -1,9 +1,9 @@
-import WikipediaApi, {currentPageName} from './wikipedia-api';
+import WikipediaApi, { currentPageName } from './wikipedia-api';
 import toast from './toast';
 import Backend from './backend';
 import Yofication from './yofication';
-import {IS_MOBILE, sleep} from './base';
-import {getYoficationSettings, initYoficatorSettings, YO_IMAGE_URL} from './settings';
+import { IS_MOBILE, sleep } from './base';
+import { getYoficationSettings, initYoficatorSettings, YO_IMAGE_URL } from './settings';
 
 class Main {
     constructor() {
@@ -58,10 +58,10 @@ class Main {
                             type: 'callback',
                             execute: function () {
                                 new Yofication(false).perform();
-                            }
-                        }
-                    }
-                }
+                            },
+                        },
+                    },
+                },
             });
         }
 
@@ -72,7 +72,7 @@ class Main {
                 // This can be the string "0" if the user disabled the preference ([[phab:T54542#555387]])
                 if (mw.user.options.get('usebetatoolbar') == 1) {
                     $.when(
-                        mw.loader.using('ext.wikiEditor.toolbar'), $.ready
+                        mw.loader.using('ext.wikiEditor.toolbar'), $.ready,
                     ).then(customizeToolbarYoficateButtonCallback);
                 }
             });

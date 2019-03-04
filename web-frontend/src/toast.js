@@ -1,4 +1,4 @@
-import {assert} from './base';
+import { assert } from './base';
 
 let toastInitialized = false;
 

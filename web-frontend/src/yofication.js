@@ -1,9 +1,9 @@
 import toast from './toast';
-import {assert, fetchJson, IS_MOBILE, removeArgumentsFromUrl} from './base';
-import {main} from './main';
-import {currentPageName} from './wikipedia-api';
+import { assert, fetchJson, IS_MOBILE, removeArgumentsFromUrl } from './base';
+import { main } from './main';
+import { currentPageName } from './wikipedia-api';
 import StringHelper from './string-helper';
-import {WIKTIONARY_URL} from './settings';
+import { WIKTIONARY_URL } from './settings';
 
 String.prototype.insert = function (i, s, numberCharsToReplace) {
     return this.substr(0, i) + s + this.substr(i + numberCharsToReplace);
@@ -138,7 +138,7 @@ export default class Yofication {
     async loadReplaces() {
         toast('Загружаем список замен...');
         if (this.pageMode) {
-            let {yowordsToReplaces, revision, timestamp, wikitextLength} = await main.backend.getReplacesByPageName(currentPageName);
+            let { yowordsToReplaces, revision, timestamp, wikitextLength } = await main.backend.getReplacesByPageName(currentPageName);
             this.yowordsToReplaces = yowordsToReplaces;
             this.revision = revision;
             this.timestamp = timestamp;
@@ -207,7 +207,7 @@ remote (python): ${this.wikitextLength}`);
         const limits = [
             [0.6, 'green'],
             [0.4, 'orange'],
-            [0.0, 'red']
+            [0.0, 'red'],
         ];
         for (let limit of limits) {
             if (value >= limit[0]) {
@@ -233,7 +233,7 @@ remote (python): ${this.wikitextLength}`);
             height: `${progressHeight}px`,
             position: 'absolute',
             left: '0',
-            top: `-${progressHeight}px`
+            top: `-${progressHeight}px`,
         });
     }
 
@@ -249,7 +249,7 @@ remote (python): ${this.wikitextLength}`);
                 let dword = StringHelper.deyoficate(yoword);
                 if (nodeValue.includes(dword)) {
                     let indexes = StringHelper.findIndexesOfWord(dword, nodeValue);
-                    let occurrences = indexes.map(wordStartIndex => { return {wordStartIndex, wordNode: node, wordNodeValue: nodeValue, wordOrderIndex: [nodeOrderIndex, wordStartIndex]}; });
+                    let occurrences = indexes.map(wordStartIndex => ({ wordStartIndex, wordNode: node, wordNodeValue: nodeValue, wordOrderIndex: [nodeOrderIndex, wordStartIndex] }));
                     yowordsInfos[yoword].push(...occurrences);
                 }
             }
@@ -261,7 +261,7 @@ remote (python): ${this.wikitextLength}`);
                 acceptNode: (node) => {
                     let visible = node.offsetParent !== null;
                     return visible ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
-                }
+                },
             };
             let walker = document.createTreeWalker(this.root, NodeFilter.SHOW_ALL, filter);
             while (walker.nextNode()) {
@@ -322,11 +322,11 @@ remote (python): ${this.wikitextLength}`);
                     let height = rect.height + padding * 2;
                     left -= rootRect.left;
                     top -= rootRect.top;
-                    $(highlightElement).css({left, top, width, height});
+                    $(highlightElement).css({ left, top, width, height });
 
                     if (!this.pageMode) {
                         let wordElement = highlightElement.childNodes[0];
-                        $(wordElement).css({width, height});
+                        $(wordElement).css({ width, height });
                     }
                 };
 
@@ -336,7 +336,7 @@ remote (python): ${this.wikitextLength}`);
 
                 $(highlightElement).css({
                     background: 'aquamarine',
-                    display: 'none'
+                    display: 'none',
                 });
                 if (this.pageMode) {
                     $(highlightElement).css('zIndex', -1);
@@ -433,7 +433,7 @@ remote (python): ${this.wikitextLength}`);
                 // перед сортировкой обязательно нужно создать копию массива
                 // сейчас копию создаётся в процессе `map`
                 let replaces = yowordInfo.replaces
-                    .map(replace => { return {replace, commonLength: this.getCommonLength(contextBefore, contextAfter, replace)}; })
+                    .map(replace => ({ replace, commonLength: this.getCommonLength(contextBefore, contextAfter, replace) }))
                     .sort((replace1, replace2) => replace2.commonLength - replace1.commonLength);
                 // найденное число вхождений, ожидаемое число вхождений, результат
                 //  1,  1, сопоставляем
@@ -453,20 +453,20 @@ remote (python): ${this.wikitextLength}`);
                         wordStartIndex: replaceRemote.replace.wordStartIndex,
                         frequency: yowordInfo.frequency,
                         highlightInfo: occurrence,
-                        isAccept: false
+                        isAccept: false,
                     };
                     assert(replace.wordStartIndex !== undefined, 'replace.wordStartIndex !== undefined');
 
                     let indexRemote = yowordInfo.replaces.indexOf(replaceRemote.replace);
                     assert(indexRemote !== -1, 'indexRemote === -1');
-                    yowordReplaces.push({replace, indexRemote});
+                    yowordReplaces.push({ replace, indexRemote });
                 }
             }
 
             let indexesRemote = yowordReplaces.map(replace => replace.indexRemote);
             let checkSingleMatching = (new Set(indexesRemote)).size === indexesRemote.length;
             if (checkSingleMatching) {
-                for (let {replace, indexRemote} of yowordReplaces) {
+                for (let { replace, indexRemote } of yowordReplaces) {
                     replacesLocal.push(replace);
                 }
             } else {
@@ -507,7 +507,7 @@ remote (python): ${this.wikitextLength}`);
             // отменить ёфикация текущей страницы
             [this.abortYofication, 'q', 'й'],
             // открыть страницу со словом в викисловаре
-            [this.openYowordWiktionaryPage, 'w', 'ц']
+            [this.openYowordWiktionaryPage, 'w', 'ц'],
         ];
 
         let actions = {};
@@ -523,7 +523,7 @@ remote (python): ${this.wikitextLength}`);
                 if (!this.done && event.key in actions) {
                     actions[event.key].call(this);
                 }
-            }
+            },
         );
 
         if (IS_MOBILE) {
@@ -694,8 +694,8 @@ remote (python): ${this.wikitextLength}`);
                     text: wikitext,
                     summary: main.settings.editSummary,
                     basetimestamp: this.timestamp,
-                    token: mw.user.tokens.get('editToken')
-                }
+                    token: mw.user.tokens.get('editToken'),
+                },
             });
             if (!response.edit || response.edit.result !== 'Success') {
                 console.log(response);

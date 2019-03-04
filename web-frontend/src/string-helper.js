@@ -1,4 +1,4 @@
-import {assert} from './base';
+import { assert } from './base';
 
 export default class StringHelper {
     static deyoficate(yoword) {
