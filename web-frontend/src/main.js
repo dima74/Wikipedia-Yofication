@@ -1,14 +1,12 @@
-import WikipediaApi, { currentPageName } from './wikipedia-api';
+import wikipediaApi, { currentPageName } from './wikipedia-api';
 import toast from './toast';
-import Backend from './backend';
+import backend from './backend';
 import Yofication from './yofication';
 import { IS_MOBILE, sleep } from './base';
-import { getYoficationSettings, initYoficatorSettings, YO_IMAGE_URL } from './settings';
+import { getYoficationSettings, initYoficatorSettings, YO_IMAGE_URL_20, YO_IMAGE_URL_22 } from './settings';
 
 class Main {
     constructor() {
-        this.wikipediaApi = new WikipediaApi();
-        this.backend = new Backend();
         this.settings = getYoficationSettings();
     }
 
@@ -18,70 +16,59 @@ class Main {
         } else if (currentPageName === 'Участник:Дима74/Скрипт-Ёфикатор/Параметры') {
             initYoficatorSettings();
         } else if (window.location.search.includes('yofication')) {
-            this.continuousYofication = window.location.search.includes('continuous_yofication');
+            this.isContinuousYofication = window.location.search.includes('continuous_yofication');
             new Yofication(true).perform();
-            if (this.continuousYofication) {
-                this.nextPageNamePromise = this.backend.getRandomPageName();
+            if (this.isContinuousYofication) {
+                this.nextPageNamePromise = backend.getRandomPageName();
             }
-        } else if (this.wikipediaApi.isMainNamespace() && !IS_MOBILE) {
-            let portletLink = mw.util.addPortletLink('p-cactions', '/wiki/' + currentPageName + '?yofication', 'Ёфицировать', 'ca-yoficator', ' Ёфицировать страницу');
-            $(portletLink).click(function (event) {
-                event.preventDefault();
-                let pageMode = !window.location.search.includes('action=edit');
-                if (pageMode) {
-                    window.history.pushState('', '', window.location.href + '?yofication');
-                }
-                $('#ca-yoficator').remove();
-                new Yofication(pageMode).perform();
-            });
-            this.customizeToolbarYoficateButton();
+        } else if (wikipediaApi.isMainNamespace() && !IS_MOBILE) {
+            this.addPortletLink();
+            this.addYoficateButtonToToolbar();
         }
 
-        if (currentPageName.startsWith('Участник:Дима74/Черновик')) {
+        if (currentPageName.startsWith('Участник:Дима74/Тест')) {
             let pageMode = !window.location.search.includes('action=edit');
             sleep(500).then(() => new Yofication(pageMode).perform());
         }
     }
 
-    customizeToolbarYoficateButton() {
-        function customizeToolbarYoficateButtonCallback() {
-            $('#wpTextbox1').wikiEditor('addToToolbar', {
-                'section': 'main',
-                'group': 'format',
-                'tools': {
-                    'indent': {
-                        filters: ['body.ns-0'],
-                        label: 'Ёфицировать',
-                        type: 'button',
-                        icon: YO_IMAGE_URL,
-                        action: {
-                            type: 'callback',
-                            execute: function () {
-                                new Yofication(false).perform();
-                            },
-                        },
-                    },
+    addPortletLink() {
+        $.when(mw.loader.using('mediawiki.util'), $.ready).then(() => {
+            const portletLink = mw.util.addPortletLink('p-cactions', '/wiki/' + currentPageName + '?yofication', 'Ёфицировать', 'ca-yoficator', 'Ёфицировать страницу');
+            $(portletLink).click(event => {
+                event.preventDefault();
+                const isWikitextMode = window.location.search.includes('action=edit');
+                if (!isWikitextMode) {
+                    window.history.pushState('', '', window.location.href + '?yofication');
+                }
+                $('#ca-yoficator').remove();
+                new Yofication(!isWikitextMode).perform();
+            });
+        });
+    }
+
+    addYoficateButtonToToolbar() {
+        mw.loader.using('ext.gadget.registerTool').done(() => {
+            registerTool({
+                name: 'yoficator',
+                position: 777,
+                title: 'Ёфицировать',
+                label: 'Ёфицировать',
+                callback: () => new Yofication(false).perform(),
+                classic: {
+                    icon: YO_IMAGE_URL_22,
+                },
+                visual: {
+                    icon: YO_IMAGE_URL_20,
+                    modes: ['source'],
                 },
             });
-        }
-
-        // https://www.mediawiki.org/wiki/Extension:WikiEditor/Toolbar_customization
-        /* Check if view is in edit mode and that the required modules are available. Then, customize the toolbar … */
-        if ($.inArray(mw.config.get('wgAction'), ['edit', 'submit']) !== -1) {
-            mw.loader.using('user.options').then(function () {
-                // This can be the string "0" if the user disabled the preference ([[phab:T54542#555387]])
-                if (mw.user.options.get('usebetatoolbar') == 1) {
-                    $.when(
-                        mw.loader.using('ext.wikiEditor.toolbar'), $.ready,
-                    ).then(customizeToolbarYoficateButtonCallback);
-                }
-            });
-        }
+        });
     }
 
     async performContinuousYofication() {
         toast('Переходим к следующей странице: \nЗагружаем название статьи для ёфикации...');
-        let pageName = await (this.continuousYofication ? this.nextPageNamePromise : this.backend.getRandomPageName());
+        let pageName = await (this.isContinuousYofication ? this.nextPageNamePromise : backend.getRandomPageName());
         toast(`Переходим к странице «${pageName}»`);
         let pageNameUrl = pageName.replace(/ /g, '_');
         for (let char of ['%', '?', '&']) {
@@ -91,5 +78,7 @@ class Main {
     }
 }
 
-export let main = new Main();
+const main = new Main();
+export default main;
+
 main.start();

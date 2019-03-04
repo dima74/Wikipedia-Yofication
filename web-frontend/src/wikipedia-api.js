@@ -1,6 +1,9 @@
 import { fetchJson } from './base';
 
-export default class WikipediaApi {
+// with namespace, with underscores, without spaces
+export const currentPageName = mw.config.get('wgPageName');
+
+class WikipediaApi {
     isMainNamespace() {
         return mw.config.get('wgNamespaceNumber') === 0;
     }
@@ -22,5 +25,5 @@ export default class WikipediaApi {
     }
 }
 
-// with namespace, with underscores, without spaces
-export const currentPageName = mw.config.get('wgPageName');
+const wikipediaApi = new WikipediaApi();
+export default wikipediaApi;

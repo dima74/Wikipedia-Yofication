@@ -1,8 +1,8 @@
 import { fetchJson } from './base';
 import { BACKEND_HOST } from './settings';
-import { main } from './main';
+import main from './main';
 
-export default class Backend {
+class Backend {
     async getRandomPageName() {
         let settings = {
             errorMessage: 'Не удалось получить следующую страницу для ёфикации',
@@ -35,3 +35,6 @@ export default class Backend {
         return await fetchJson(BACKEND_HOST + '/replacesByWikitext', settings);
     }
 }
+
+const backend = new Backend();
+export default backend;

@@ -1,9 +1,10 @@
 import toast from './toast';
 import { assert, fetchJson, IS_MOBILE, removeArgumentsFromUrl } from './base';
-import { main } from './main';
-import { currentPageName } from './wikipedia-api';
+import main from './main';
+import wikipediaApi, { currentPageName } from './wikipedia-api';
 import StringHelper from './string-helper';
 import { WIKTIONARY_URL } from './settings';
+import backend from './backend';
 
 String.prototype.insert = function (i, s, numberCharsToReplace) {
     return this.substr(0, i) + s + this.substr(i + numberCharsToReplace);
@@ -15,7 +16,7 @@ export default class Yofication {
         if (this.pageMode) {
             this.root = document.getElementById('mw-content-text');
             this.rootInner = $('.mw-parser-output')[0];
-            this.wikitextPromise = main.wikipediaApi.getWikitext(currentPageName);
+            this.wikitextPromise = wikipediaApi.getWikitext(currentPageName);
         } else {
             this.root = document.getElementById('wpTextbox1');
             this.root.blur();
@@ -138,14 +139,14 @@ export default class Yofication {
     async loadReplaces() {
         toast('Загружаем список замен...');
         if (this.pageMode) {
-            let { yowordsToReplaces, revision, timestamp, wikitextLength } = await main.backend.getReplacesByPageName(currentPageName);
+            let { yowordsToReplaces, revision, timestamp, wikitextLength } = await backend.getReplacesByPageName(currentPageName);
             this.yowordsToReplaces = yowordsToReplaces;
             this.revision = revision;
             this.timestamp = timestamp;
             this.wikitextLength = wikitextLength;
         } else {
             let wikitext = this.root.value;
-            this.yowordsToReplaces = await main.backend.getReplacesByWikitext(wikitext);
+            this.yowordsToReplaces = await backend.getReplacesByWikitext(wikitext);
         }
         this.yowords = Object.keys(this.yowordsToReplaces);
     }
@@ -181,7 +182,7 @@ remote (python): ${this.wikitextLength}`);
             for (let replace of yowordInfo.replaces) {
                 let dwordLocal = this.wikitext.substr(replace.wordStartIndex, dwordRemote.length);
                 if (dwordLocal !== dwordRemote) {
-                    let wikitextRemote = await main.wikipediaApi.getWikitext(currentPageName);
+                    let wikitextRemote = await wikipediaApi.getWikitext(currentPageName);
                     StringHelper.compareStringSummary(this.wikitext, wikitextRemote, 'викитекст');
                     throw `викитекст страницы "${currentPageName}" не совпадает в индексе ${replace.wordStartIndex}`
                     + `\nожидается: ${dwordRemote}"`
@@ -726,14 +727,14 @@ remote (python): ${this.wikitextLength}`);
         if (!this.pageMode) {
             return;
         }
-        if (main.continuousYofication)
+        if (main.isContinuousYofication)
             this.goToNextPage();
         else
             removeArgumentsFromUrl();
     }
 
     abortYofication() {
-        if (!main.continuousYofication) {
+        if (!main.isContinuousYofication) {
             toast('Ёфикация отменена');
         }
         this.afterYofication();
