@@ -1,12 +1,19 @@
+import os
 import random
 import requests
-from flask import Blueprint, request, jsonify, abort, redirect
+from flask import Blueprint, request, jsonify, abort, redirect, make_response
+from mixpanel import Mixpanel
+
 from src.helpers import fetch_lines
 from src.yofication import get_replaces, deyoficate, words
-from mixpanel import Mixpanel
-import os
 
-mp = Mixpanel(os.environ['MIXPANEL_TOKEN'])
+
+def track(*args, **kwargs):
+    if mp and not is_marked():
+        mp.track(*args, **kwargs)
+
+
+mp = Mixpanel(os.environ['MIXPANEL_TOKEN']) if 'MIXPANEL_TOKEN' in os.environ else None
 
 wikipedia = Blueprint('wikipedia', __name__)
 WIKIPEDIA_HOST = 'https://ru.wikipedia.org'
@@ -63,7 +70,7 @@ def get(url='/w/api.php', **kwargs):
 @wikipedia.route('/wikipedia/randomPageName')
 def random_page_name():
     minimum_number_replaces_for_continuous_yofication = int(request.args.get('minimumNumberReplacesForContinuousYofication', 0))
-    mp.track(str(minimum_number_replaces_for_continuous_yofication), 'random_page_name')
+    track(str(minimum_number_replaces_for_continuous_yofication), 'random_page_name')
     minimum_number_replaces_for_continuous_yofication = max(minimum_number_replaces_for_continuous_yofication, 0)
     minimum_number_replaces_for_continuous_yofication = min(minimum_number_replaces_for_continuous_yofication, maximum_number_replaces)
     number_pages_to_choice = number_pages_with_number_replaces_more_than[minimum_number_replaces_for_continuous_yofication]
@@ -77,7 +84,7 @@ default_minimum_replace_frequency = 50
 @wikipedia.route('/wikipedia/replacesByTitle/<path:title>')
 def generateReplacesByTitle(title):
     minimum_replace_frequency = int(request.args.get('minimumReplaceFrequency', default_minimum_replace_frequency))
-    mp.track(str(minimum_replace_frequency), 'generateReplacesByTitle', {'title': title})
+    track(str(minimum_replace_frequency), 'replaces_by_title', {'title': title})
 
     # todo get занимает большую часть времени метода
     response = get('/w/api.php', params={'action': 'query', 'prop': 'revisions', 'titles': title, 'rvprop': 'ids|content|timestamp'}).json()
@@ -100,7 +107,7 @@ def generateReplacesByWikitext():
     if 'minimumReplaceFrequency' not in request.form:
         abort(400)
     minimum_replace_frequency = int(request.form.get('minimumReplaceFrequency', default_minimum_replace_frequency))
-    mp.track(str(minimum_replace_frequency), 'generateReplacesByWikitext')
+    track(str(minimum_replace_frequency), 'replaces_by_wikitext', {'title': request.form.get('currentPageName', 'unknown')})
     wikitext = request.form['wikitext']
     return jsonify(generateReplaces(wikitext, minimum_replace_frequency))
 
@@ -200,3 +207,19 @@ def get_word_frequency(word):
 общее число вхождений: {}
 число вхождений с ё: {}
 '''.format(yoword.frequency(), yoword.number_all, yoword.number_with_yo).replace('\n', '<br>')
+
+
+def is_marked():
+    return 'yofication_mark' in request.cookies
+
+
+@wikipedia.route('/wikipedia/mark')
+def mark():
+    response = make_response('Successfully marked')
+    response.set_cookie('yofication_mark')
+    return response
+
+
+@wikipedia.route('/wikipedia/is_marked')
+def check_is_marked():
+    return str(is_marked())

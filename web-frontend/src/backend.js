@@ -1,6 +1,7 @@
 import { fetchJson } from './base';
 import { BACKEND_HOST } from './settings';
 import main from './main';
+import { currentPageName } from './wikipedia-api';
 
 class Backend {
     async getRandomPageName() {
@@ -29,6 +30,7 @@ class Backend {
             data: {
                 minimumReplaceFrequency: main.settings.minimumReplaceFrequency,
                 wikitext,
+                currentPageName,
             },
             method: 'POST',
         };
