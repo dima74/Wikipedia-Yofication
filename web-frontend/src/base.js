@@ -2,7 +2,8 @@ import toast from './toast';
 
 export const IS_MOBILE = window.location.hostname.includes('.m.wikipedia');
 
-export function assert(expression, message = 'Непредвиденная ошибка') {
+// todo проверить все использования assert без message на применимость message
+export function assert(expression, message = 'Непредвиденная ошибка. Пожалуйста, сообщите название текущей страницы [[Участник:Дима74|автору скрипта]].') {
     if (!expression) {
         toast(message);
         throw new Error(message);
@@ -25,7 +26,7 @@ export async function fetchJson(url, settings = {}) {
 }
 
 export function removeArgumentsFromUrl() {
-    // window.history.pushState('', '', window.location.href.replace('?yofication', ''));
+    window.history.pushState('', '', window.location.href.replace('?yofication', ''));
 }
 
 export function sleep(milliseconds) {

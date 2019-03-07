@@ -96,7 +96,7 @@ def generateReplacesByTitle(title):
     result = {
         'revision': revision,
         'timestamp': timestamp,
-        'yowordsToReplaces': generateReplaces(wikitext, minimum_replace_frequency),
+        'replaces': generateReplaces(wikitext, minimum_replace_frequency),
         'wikitextLength': len(wikitext)
     }
     return jsonify(result)
@@ -109,58 +109,28 @@ def generateReplacesByWikitext():
     minimum_replace_frequency = int(request.form.get('minimumReplaceFrequency', default_minimum_replace_frequency))
     track(str(minimum_replace_frequency), 'replaces_by_wikitext', {'title': request.form.get('currentPageName', 'unknown')})
     wikitext = request.form['wikitext']
-    return jsonify(generateReplaces(wikitext, minimum_replace_frequency))
+    result = {
+        'replaces': generateReplaces(wikitext, minimum_replace_frequency),
+        'wikitextLength': len(wikitext)
+    }
+    return jsonify(result)
 
 
 def generateReplaces(wikitext, minimum_replace_frequency):
     """
-    result = {
-        revision: <number>,
-        yowordsToReplaces: {
-            <yoword>: {
-                frequency: <number>,
-                replaces: [
-                    {
-                        wordStartIndex: <number>,
-                        contextBefore: <string>,
-                        contextAfter: <string>
-                    },
-                    ...
-                ]
-            },
-            ...
-        }
-    }
+    result = [
+        {
+            yoword: <str>,
+            frequency: <number>,
+            wordStartIndex: <number>,
+        },
+        ...
+    ]
     """
 
     yofication_info = get_replaces(wikitext, minimum_replace_frequency=minimum_replace_frequency)
     replaces = yofication_info['replaces']
-    yowordsToReplaces = {}
-    for replace in replaces:
-        yoword = replace['yoword']
-        dword = deyoficate(yoword)
-
-        if yoword not in yowordsToReplaces:
-            yowordsToReplaces[yoword] = {
-                'frequency': replace['frequency'],
-                'replaces': []
-            }
-
-        wordStartIndex = replace['wordStartIndex']
-        wordEndIndex = wordStartIndex + len(yoword)
-        contextLength = 30
-        replace = {
-            'wordStartIndex': wordStartIndex,
-            'contextBefore': wikitext[max(wordStartIndex - contextLength, 0):wordStartIndex],
-            'contextAfter': wikitext[wordEndIndex:min(wordEndIndex + contextLength, len(wikitext))]
-        }
-
-        replaces = yowordsToReplaces[yoword]['replaces']
-        replaces.append(replace)
-
-        # print(yoword, '`' + page_text[wordStartIndex - 20:wordStartIndex + 20] + '`')
-
-    return yowordsToReplaces
+    return replaces
 
 
 def get_wiktionary_article(yoword):

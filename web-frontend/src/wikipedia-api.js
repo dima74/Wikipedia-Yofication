@@ -9,19 +9,15 @@ class WikipediaApi {
     }
 
     async getWikitext(title) {
-        let data = {
+        const data = {
             action: 'query',
             prop: 'revisions',
             titles: title,
             rvprop: 'content',
             format: 'json',
         };
-        let response = await fetchJson(`/w/api.php`, { data });
+        const response = await fetchJson(`/w/api.php`, { data });
         return Object.values(response.query.pages)[0].revisions[0]['*'];
-    }
-
-    getEditToken() {
-        return mw.user.tokens.get('editToken');
     }
 }
 

@@ -5,7 +5,7 @@ export const YO_IMAGE_URL_22 = 'https://yofication.herokuapp.com/static/yo_22.pn
 export const YO_IMAGE_URL_20 = 'https://yofication.herokuapp.com/static/yo.png';
 // export const YO_IMAGE_URL = 'http://localhost:7777/yo.png';
 
-export const WIKTIONARY_URL = BACKEND_HOST + '/redirectToWiktionaryArticle/';
+export const WIKTIONARY_REDIRECT_URL = BACKEND_HOST + '/redirectToWiktionaryArticle/';
 
 
 const settingsDefault = {
@@ -26,38 +26,28 @@ const html = `
 const styles = `
 <style>
 .mw-parser-output p {
-    font-size: 15px; 
-    color: black;
+	font-size: 15px; 
+	color: black;
 }
 
 .mw-parser-output input {
-    background-color: transparent;
-    border: none;
-    border-bottom: 1px solid #9e9e9e;
-    border-radius: 0;
-    outline: none;
-    height: 3rem;
-    width: 100%;
-    font-size: 1rem;
-    margin: 0 0 20px 0;
-    padding: 0;
-    box-shadow: none;
-    box-sizing: content-box;
-    transition: all 0.3s;
+	background-color: transparent;
+	border: none;
+	border-bottom: 1px solid #9e9e9e;
+	border-radius: 0;
+	outline: none;
+	height: 3rem;
+	width: 100%;
+	font-size: 1rem;
+	margin: 0 0 20px 0;
+	padding: 0;
+	box-shadow: none;
+	box-sizing: content-box;
+	transition: all .3s;
 }
 
-::-webkit-input-placeholder { /* WebKit, Blink, Edge */
-    color:    #555;
-}
-::-moz-placeholder { /* Mozilla Firefox 19+ */
-   color:    #555;
-   opacity:  1;
-}
-:-ms-input-placeholder { /* Internet Explorer 10-11 */
-   color:    #555;
-}
-::-ms-input-placeholder { /* Microsoft Edge */
-   color:    #555;
+::placeholder {
+	color: #555;
 }
 </style>
 `;

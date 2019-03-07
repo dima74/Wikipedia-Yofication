@@ -1,23 +1,33 @@
 import wikipediaApi, { currentPageName } from './wikipedia-api';
 import toast from './toast';
 import backend from './backend';
-import Yofication from './yofication';
-import { IS_MOBILE, sleep } from './base';
+import { startYofication } from './yoficators';
 import { getYoficationSettings, initYoficatorSettings, YO_IMAGE_URL_20, YO_IMAGE_URL_22 } from './settings';
+
+// todo переименовать wordStartIndex в startIndex
 
 class Main {
     constructor() {
+        // todo сделать settings синглтоном
         this.settings = getYoficationSettings();
     }
 
     start() {
+        const continuousYoficationNextPage = sessionStorage.getItem('yoficator:continuous-yofication-next-page');
+        sessionStorage.removeItem('yoficator:continuous-yofication-next-page');
+        // после page reload после нажатия на кнопку «Сохранить» при непрерываной ёфикации
+        if (continuousYoficationNextPage) {
+            this.redirectContinuousYofication(continuousYoficationNextPage);
+            return;
+        }
+
         if (currentPageName === 'Служебная:Ёфикация') {
             this.performContinuousYofication();
         } else if (currentPageName === 'Участник:Дима74/Скрипт-Ёфикатор/Параметры') {
             initYoficatorSettings();
         } else if (window.location.search.includes('yofication')) {
             this.isContinuousYofication = window.location.search.includes('continuous_yofication');
-            new Yofication(true).perform();
+            startYofication();
             if (this.isContinuousYofication) {
                 this.nextPageNamePromise = backend.getRandomPageName();
             }
@@ -27,8 +37,7 @@ class Main {
         }
 
         if (currentPageName.startsWith('Участник:Дима74/Тест')) {
-            let pageMode = !window.location.search.includes('action=edit');
-            sleep(500).then(() => new Yofication(pageMode).perform());
+            startYofication();
         }
     }
 
@@ -42,7 +51,7 @@ class Main {
                     window.history.pushState('', '', window.location.href + '?yofication');
                 }
                 $('#ca-yoficator').remove();
-                new Yofication(!isWikitextMode).perform();
+                startYofication();
             });
         });
     }
@@ -54,7 +63,7 @@ class Main {
                 position: 777,
                 title: 'Ёфицировать',
                 label: 'Ёфицировать',
-                callback: () => new Yofication(false).perform(),
+                callback: startYofication,
                 classic: {
                     icon: YO_IMAGE_URL_22,
                 },
@@ -68,13 +77,14 @@ class Main {
 
     async performContinuousYofication() {
         toast('Переходим к следующей странице: \nЗагружаем название статьи для ёфикации...');
-        let pageName = await (this.isContinuousYofication ? this.nextPageNamePromise : backend.getRandomPageName());
+        const pageName = await (this.isContinuousYofication ? this.nextPageNamePromise : backend.getRandomPageName());
         toast(`Переходим к странице «${pageName}»`);
-        let pageNameUrl = pageName.replace(/ /g, '_');
-        for (let char of ['%', '?', '&']) {
-            pageNameUrl = pageNameUrl.split(char).join(encodeURIComponent(char));
-        }
-        window.location.href = 'https://ru.wikipedia.org/wiki/' + pageNameUrl + '?continuous_yofication';
+        this.redirectContinuousYofication(pageName);
+    }
+
+    redirectContinuousYofication(pageName) {
+        const pageNameEncoded = encodeURIComponent(pageName.replace(/ /g, '_'));
+        window.location.href = `https://ru.wikipedia.org/w/index.php?title=${pageNameEncoded}&action=edit&continuous_yofication`;
     }
 }
 
