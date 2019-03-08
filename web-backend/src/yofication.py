@@ -108,6 +108,7 @@ def is_dword_inside_tags(dword, text, wordStartIndex):
         # ('Файл:', '.png')
     ]
 
+    text = text.lower()
     for tag in tags:
         start = text.rfind(tag[0], 0, wordStartIndex)
         if start == -1:
