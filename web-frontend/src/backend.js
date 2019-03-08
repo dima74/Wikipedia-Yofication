@@ -1,40 +1,40 @@
 import { fetchJson } from './base';
-import { BACKEND_HOST } from './settings';
-import main from './main';
+import settings from './settings';
+import { BACKEND_HOST } from './constants';
 import { currentPageName } from './wikipedia-api';
 
 class Backend {
     async getRandomPageName() {
-        let settings = {
+        const options = {
             errorMessage: 'Не удалось получить следующую страницу для ёфикации',
             data: {
-                'minimumNumberReplacesForContinuousYofication': main.settings.minimumNumberReplacesForContinuousYofication,
+                'minimumNumberReplacesForContinuousYofication': settings.minimumNumberReplacesForContinuousYofication,
             },
         };
-        return await fetchJson(BACKEND_HOST + '/randomPageName', settings);
+        return await fetchJson(BACKEND_HOST + '/randomPageName', options);
     }
 
     async getReplacesByPageName(pageName) {
-        let settings = {
+        const options = {
             errorMessage: 'Произошла ошибка при загрузке списка замен',
             data: {
-                minimumReplaceFrequency: main.settings.minimumReplaceFrequency,
+                minimumReplaceFrequency: settings.minimumReplaceFrequency,
             },
         };
-        return await fetchJson(BACKEND_HOST + '/replacesByTitle/' + encodeURIComponent(pageName), settings);
+        return await fetchJson(BACKEND_HOST + '/replacesByTitle/' + encodeURIComponent(pageName), options);
     }
 
     async getReplacesByWikitext(wikitext) {
-        let settings = {
+        const options = {
             errorMessage: 'Произошла ошибка при загрузке списка замен',
             data: {
-                minimumReplaceFrequency: main.settings.minimumReplaceFrequency,
+                minimumReplaceFrequency: settings.minimumReplaceFrequency,
                 wikitext,
                 currentPageName,
             },
             method: 'POST',
         };
-        return await fetchJson(BACKEND_HOST + '/replacesByWikitext', settings);
+        return await fetchJson(BACKEND_HOST + '/replacesByWikitext', options);
     }
 }
 

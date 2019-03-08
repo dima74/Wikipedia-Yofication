@@ -10,12 +10,12 @@ export function assert(expression, message = 'Непредвиденная ош�
     }
 }
 
-export async function fetchJson(url, settings = {}) {
-    let errorMessage = settings.errorMessage || 'todo';
-    delete settings.errorMessage;
+export async function fetchJson(url, options = {}) {
+    const errorMessage = options.errorMessage || 'todo';
+    delete options.errorMessage;
 
     try {
-        let text = await $.ajax(url, settings);
+        const text = await $.ajax(url, options);
         console.log(url);
         // console.log(url, text);
         return text;

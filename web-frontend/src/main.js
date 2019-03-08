@@ -1,18 +1,16 @@
 import wikipediaApi, { currentPageName } from './wikipedia-api';
 import toast from './toast';
 import backend from './backend';
+import settings from './settings';
 import { startYofication } from './yoficators';
-import { getYoficationSettings, initYoficatorSettings, YO_IMAGE_URL_20, YO_IMAGE_URL_22 } from './settings';
+import { YO_IMAGE_URL_20, YO_IMAGE_URL_22 } from './constants';
+import { IS_MOBILE } from './base';
 
 // todo переименовать wordStartIndex в startIndex
 // todo оптимизации переходов между заменами
+// todo поддержка utf32 текстов
 
 class Main {
-    constructor() {
-        // todo сделать settings синглтоном
-        this.settings = getYoficationSettings();
-    }
-
     start() {
         const continuousYoficationNextPage = sessionStorage.getItem('yoficator:continuous-yofication-next-page');
         sessionStorage.removeItem('yoficator:continuous-yofication-next-page');
@@ -25,7 +23,7 @@ class Main {
         if (currentPageName === 'Служебная:Ёфикация') {
             this.performContinuousYofication();
         } else if (currentPageName === 'Участник:Дима74/Скрипт-Ёфикатор/Параметры') {
-            initYoficatorSettings();
+            settings.initEditing();
         } else if (window.location.search.includes('yofication')) {
             this.isContinuousYofication = window.location.search.includes('continuous_yofication');
             startYofication();

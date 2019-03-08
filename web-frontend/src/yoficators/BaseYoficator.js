@@ -2,7 +2,8 @@ import { assert, sleep } from '../base';
 import StringHelper from '../string-helper';
 import toast from '../toast';
 import main from '../main';
-import { WIKTIONARY_REDIRECT_URL } from '../settings';
+import settings from '../settings';
+import { WIKTIONARY_REDIRECT_URL } from '../constants';
 
 const createStyles = (padding, frequencyHintHeight) => `
 .yoficator-replace-active {
@@ -245,7 +246,7 @@ export default class BaseYoficator {
         // предполагается, что ContinuousYofication будет использоваться только в классическом редакторе викитекста
 
         toast('Производим правку...');
-        $('#wpSummary').val(main.settings.editSummary);
+        $('#wpSummary').val(settings.editSummary);
         $('#wpMinoredit').prop('checked', true);
 
         sessionStorage.setItem('yoficator:continuous-yofication-next-page', await main.nextPageNamePromise);

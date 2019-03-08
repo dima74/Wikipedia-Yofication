@@ -1,13 +1,3 @@
-export const BACKEND_HOST = 'https://yofication.herokuapp.com/wikipedia';
-// export const BACKEND_HOST = 'http://localhost/wikipedia';
-
-export const YO_IMAGE_URL_22 = 'https://yofication.herokuapp.com/static/yo_22.png';
-export const YO_IMAGE_URL_20 = 'https://yofication.herokuapp.com/static/yo.png';
-// export const YO_IMAGE_URL = 'http://localhost:7777/yo.png';
-
-export const WIKTIONARY_REDIRECT_URL = BACKEND_HOST + '/redirectToWiktionaryArticle/';
-
-
 const settingsDefault = {
     editSummary: 'Ёфикация с помощью [[Участник:Дима74/Скрипт-Ёфикатор|скрипта-ёфикатора]]',
     minimumReplaceFrequency: 50,
@@ -42,46 +32,48 @@ const styles = `
 	margin: 0 0 20px 0;
 	padding: 0;
 	box-shadow: none;
-	box-sizing: content-box;
+	box-sizing: border-box;
 	transition: all .3s;
 }
 
 ::placeholder {
 	color: #555;
+	opacity: 1;
 }
 </style>
 `;
 
-export function initYoficatorSettings() {
-    $('.mw-parser-output').html(html);
-    $(styles).appendTo(document.head);
-
-    for (let input of $('.mw-parser-output input')) {
-        let key = input.id;
-        let value = localStorage.getItem(key);
-        if (value !== null) {
-            input.value = value;
+class Settings {
+    constructor() {
+        for (const [key, valueDefault] of Object.entries(settingsDefault)) {
+            const value = localStorage.getItem('yoficator-' + key);
+            this[key] = value !== null ? value : valueDefault;
         }
     }
 
-    $('.mw-parser-output input').on('input', function () {
-        let value = this.value;
-        let key = this.id;
-        if (value === '') {
-            localStorage.removeItem(key);
-        } else {
-            localStorage.setItem(key, value);
+    initEditing() {
+        $('.mw-parser-output').html(html);
+        $(styles).appendTo(document.head);
+
+        for (const input of $('.mw-parser-output input')) {
+            const key = input.id;
+            const value = localStorage.getItem(key);
+            if (value !== null) {
+                input.value = value;
+            }
         }
-    });
+
+        $('.mw-parser-output input').on('input', function () {
+            const value = this.value;
+            const key = this.id;
+            if (value === '') {
+                localStorage.removeItem(key);
+            } else {
+                localStorage.setItem(key, value);
+            }
+        });
+    }
 }
 
-export function getYoficationSettings() {
-    let settings = Object.assign({}, settingsDefault);
-    for (let key of Object.keys(settings)) {
-        let value = localStorage.getItem('yoficator-' + key);
-        if (value !== null) {
-            settings[key] = value;
-        }
-    }
-    return settings;
-}
+const settings = new Settings();
+export default settings;
