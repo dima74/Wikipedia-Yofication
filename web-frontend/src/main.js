@@ -31,11 +31,11 @@ class Main {
                 this.nextPageNamePromise = backend.getRandomPageName();
             }
         } else if (wikipediaApi.isMainNamespace() && !IS_MOBILE) {
-            this.addPortletLink();
+            if (wikipediaApi.isUsualPageView()) {
+                this.addPortletLink();
+            }
             this.addYoficateButtonToToolbar();
-        }
-
-        if (currentPageName.startsWith('Участник:Дима74/Тест')) {
+        } else if (currentPageName.startsWith('Участник:Дима74/Тест')) {
             startYofication();
         }
     }
