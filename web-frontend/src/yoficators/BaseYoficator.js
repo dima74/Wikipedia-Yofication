@@ -179,7 +179,8 @@ export default class BaseYoficator {
             return false;
         }
 
-        const status = `${replace.frequency}%\n${yoword}\nЗамена ${this.currentReplaceIndex + 1} из ${this.replaces.length}`;
+        const statusFrequency = `${replace.frequency}%` + (replace.isSafe ? ' (safe)' : '');
+        const status = `${statusFrequency}\n${yoword}\nЗамена ${this.currentReplaceIndex + 1} из ${this.replaces.length}`;
         toast(status);
 
         if (this.previousHighlightedReplace !== null) {

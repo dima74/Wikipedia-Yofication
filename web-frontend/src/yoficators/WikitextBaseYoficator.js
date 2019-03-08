@@ -19,7 +19,8 @@ export default class WikitextBaseYoficator extends BaseYoficator {
     createReplaceElement(replace) {
         const element = document.createElement('span');
         element.classList.add('yoficator-replace');
-        element.style.setProperty('--frequency-hint-width', replace.frequency + '%');
+        const frequencyHintWidth = replace.isSafe ? 100 : replace.frequency;
+        element.style.setProperty('--frequency-hint-width', frequencyHintWidth + '%');
         element.style.setProperty('--frequency-hint-color', getReplaceHintColor(replace.frequency));
         element.textContent = replace.originalWord;
         return element;

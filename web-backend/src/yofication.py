@@ -9,13 +9,14 @@ def deyoficate(string):
 
 
 class YoWord(str):
-    def __new__(cls, yoword, number_with_yo, number_all):
+    def __new__(cls, yoword, number_with_yo, number_all, is_safe):
         return str.__new__(cls, yoword)
 
-    def __init__(self, yoword, number_with_yo, number_all):
+    def __init__(self, yoword, number_with_yo, number_all, is_safe):
         super().__init__()
         self.number_with_yo = number_with_yo
         self.number_all = number_all
+        self.is_safe = is_safe
 
     def frequency(self):
         return self.number_with_yo * 100 // self.number_all
@@ -28,18 +29,19 @@ if 'wikipedia' in DICTS:
     for yoword, number_with_yo, number_all in map(str.split, lines):
         number_with_yo = int(number_with_yo)
         number_all = int(number_all)
-        if number_with_yo > 5:
+        if number_all > 5:
             # прибавление единицы нужно чтобы frequency == 100 была только у слов из словаря safe.txt (hcodes/eyo)
-            words[deyoficate(yoword)] = YoWord(yoword, number_with_yo, number_all + 1)
+            words[deyoficate(yoword)] = YoWord(yoword, number_with_yo, number_all + 1, None)
 if 'hcodes/eyo' in DICTS:
     from src.hcodes_dictionary import get_hcodes_yowords
     yowords = get_hcodes_yowords()
     for yoword, is_safe in yowords:
         eword = deyoficate(yoword)
-        eword_frequency = words[eword].frequency() if eword in words else 0
-        frequency = 100 if is_safe else (eword_frequency + 10 if eword_frequency < 30 else eword_frequency)
-        # нельзя просто перезаписать словарь, так как некоторые почти наверно safe слова почему-то не safe (например, «нём»)
-        words[eword] = YoWord(yoword, frequency, 100)
+        if eword in words:
+            words[eword].is_safe = is_safe
+        else:
+            frequency = 100 if is_safe else 30
+            words[eword] = YoWord(yoword, frequency, 100, is_safe)
 
 
 def get_sections_start_index(text):
@@ -166,7 +168,8 @@ def get_replaces(text, **kwargs):
             replace = {
                 'yoword': yoword,
                 'wordStartIndex': start,
-                'frequency': yoword.frequency()
+                'frequency': yoword.frequency(),
+                'isSafe': yoword.is_safe
             }
             replaces.append(replace)
 

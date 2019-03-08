@@ -184,13 +184,14 @@ def get_word_frequency(word):
         return 'Нет информации о слове'
     else:
         yoword = words[word]
-        return '''\n\n
-частота: {}%
+        return f'''\n\n
+частота: {yoword.frequency()}%
+is_safe: {'yes' if yoword.is_safe else ('no' if yoword.is_safe == False else 'unknown')}
 
 
-общее число вхождений: {}
-число вхождений с ё: {}
-'''.format(yoword.frequency(), yoword.number_all, yoword.number_with_yo).replace('\n', '<br>')
+общее число вхождений: {yoword.number_all}
+число вхождений с ё: {yoword.number_with_yo}
+'''.replace('\n', '<br>')
 
 
 def is_marked():
