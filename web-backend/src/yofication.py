@@ -1,5 +1,6 @@
 import ctypes
 import re
+
 from src.helpers import fetch_lines
 
 
@@ -34,11 +35,11 @@ if 'hcodes/eyo' in DICTS:
     from src.hcodes_dictionary import get_hcodes_yowords
     yowords = get_hcodes_yowords()
     for yoword, is_safe in yowords:
-        frequency = 100 if is_safe else 35
         eword = deyoficate(yoword)
+        eword_frequency = words[eword].frequency() if eword in words else 0
+        frequency = 100 if is_safe else (eword_frequency + 10 if eword_frequency < 30 else eword_frequency)
         # нельзя просто перезаписать словарь, так как некоторые почти наверно safe слова почему-то не safe (например, «нём»)
-        if eword not in words or words[eword].frequency() < frequency:
-            words[eword] = YoWord(yoword, frequency, 100)
+        words[eword] = YoWord(yoword, frequency, 100)
 
 
 def get_sections_start_index(text):
