@@ -210,6 +210,7 @@ export default class BaseYoficator {
     }
 
     showCurrentReplaceAgain() {
+        if (this.currentReplaceIndex === -1) return;
         this.toggleReplaceVisible(this.currentReplace, true);
     }
 

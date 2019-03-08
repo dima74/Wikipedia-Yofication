@@ -18,7 +18,7 @@ async function identifyYoficator() {
         return PageYoficator;
     }
     if (veaction === 'edit') {
-        assert(false, 'Визуальный редактор не поддерживается. Пожалуйста, перейдите в режим викитекста или запустите ёфикатор из самой страницы.');
+        assert(false, 'Визуальный редактор не поддерживается. Пожалуйста, переключитесь в режим викитекста.');
     }
     if (veaction === 'editsource') {
         return WikiText2017Yoficator;

@@ -50,7 +50,7 @@ export default class WikiText2017Yoficator extends WikitextBaseYoficator {
             // но вообще там обрабатывается случай когда range описывается несколькими boundingBox-ами:
             //   https://github.com/wikimedia/VisualEditor/blob/e2a8e4f0df38ee2cdc30174638d8b06947069816/src/ui/dialogs/ve.ui.FindAndReplaceDialog.js#L472
             const range = new ve.Range(replace.wordStartIndex, replace.wordEndIndex);
-            replace.fragment = this.surfaceModel.getLinearFragment(range);
+            replace.fragment = this.surfaceModel.getLinearFragment(range, true);
             replace.element = super.createReplaceElement(replace);
             replace.element.style.position = 'absolute';
 
@@ -79,6 +79,7 @@ export default class WikiText2017Yoficator extends WikitextBaseYoficator {
             let { left, top, width, height } = replace.rect;
             $(replace.element).css({ left, top, width, height });
         }
+        this.showCurrentReplaceAgain();
     }
 
     toggleReplaceVisible(replace, isVisible) {
@@ -108,7 +109,6 @@ export default class WikiText2017Yoficator extends WikitextBaseYoficator {
         const textNew = isAccept ? replace.yoword : replace.originalWord;
         if (textNew !== textOld) {
             this.preventUpdateHighlightsPositions = true;
-            replace.fragment.setAutoSelect(false);  // чтобы текст не выделялся
             replace.fragment.insertContent(textNew);  // insertContent очень медленный (~300ms)
             this.preventUpdateHighlightsPositions = false;
         }
