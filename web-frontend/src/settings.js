@@ -1,7 +1,7 @@
 const settingsDefault = {
     editSummary: 'Ёфикация с помощью [[Участник:Дима74/Скрипт-Ёфикатор|скрипта-ёфикатора]]',
-    minimumReplaceFrequency: 50,
-    minimumNumberReplacesForContinuousYofication: 5,
+    minimumReplaceFrequency: 35,
+    minimumNumberReplacesForContinuousYofication: 10,
 };
 const html = `
 <p>Минимальная частота слов для ёфикации в процентах (0-100). Чем меньше значение, тем больше замен будет предлагаться.
