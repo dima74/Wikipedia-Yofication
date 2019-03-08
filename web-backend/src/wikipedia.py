@@ -166,10 +166,11 @@ def wiktionary_article(yoword):
 
 @wikipedia.route('/stat/<word>')
 def get_word_frequency(word):
+    word = deyoficate(word)
     if word not in words:
         return 'Нет информации о слове'
     else:
-        yoword = words[deyoficate(word)]
+        yoword = words[word]
         return '''\n\n
 частота: {}%
 
