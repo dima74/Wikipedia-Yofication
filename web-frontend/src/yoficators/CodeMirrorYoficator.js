@@ -1,10 +1,12 @@
 import toast from '../toast';
 import { assert, sleep } from '../base';
 import WikitextBaseYoficator from './WikitextBaseYoficator';
+import main from '../main';
 
 export default class CodeMirrorYoficator extends WikitextBaseYoficator {
     async init() {
         if ($('.CodeMirror').length === 0) {
+            toast('Ожидаем завершения загрузки редактора...');
             await new Promise(resolve => $('#wpTextbox1').on('wikiEditor-toolbar-doneInitialSections', resolve));
         }
 
@@ -23,6 +25,13 @@ export default class CodeMirrorYoficator extends WikitextBaseYoficator {
             const markTextOptions = { atomic: true, replacedWith: replace.element, inclusiveLeft: false, inclusiveRight: false };
             replace.cmMarker = this.cm.markText(wordStartPos, wordEndPos, markTextOptions);
         }
+
+        const editor = this.cm.getScrollerElement();
+        this.editorHeight = editor.clientHeight;
+        if (main.isContinuousYofication) {
+            const editorRect = editor.getBoundingClientRect();
+            window.scrollBy(0, (editorRect.top + editorRect.bottom) / 2 - window.innerHeight / 2);
+        }
     }
 
     getWikitext() {
@@ -37,8 +46,7 @@ export default class CodeMirrorYoficator extends WikitextBaseYoficator {
         const wordStartPos = this.cm.posFromIndex(replace.wordStartIndex);
         const wordEndPos = this.cm.posFromIndex(replace.wordEndIndex - 1);
         const wordX = (this.cm.charCoords(wordStartPos, 'local').top + this.cm.charCoords(wordEndPos, 'local').bottom) / 2;
-        const editorHeight = this.cm.getScrollerElement().clientHeight;
-        this.cm.scrollTo(null, wordX - editorHeight / 2);
+        this.cm.scrollTo(null, wordX - this.editorHeight / 2);
 
         // move cursor
         this.cm.focus();
