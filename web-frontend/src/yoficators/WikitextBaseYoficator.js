@@ -2,7 +2,7 @@ import BaseYoficator, { getReplaceHintColor } from './BaseYoficator';
 import toast from '../toast';
 import backend from '../backend';
 import { assert } from '../base';
-import { checkReplacesMatchWikitext, isNewWikitextYoficatedVersionOfOld } from './utility';
+import { addConvientPropertiesToReplaces, checkReplacesMatchWikitext, isNewWikitextYoficatedVersionOfOld } from './utility';
 
 export default class WikitextBaseYoficator extends BaseYoficator {
     async fetchReplaces() {
@@ -12,11 +12,7 @@ export default class WikitextBaseYoficator extends BaseYoficator {
         const { replaces, wikitextLength } = await backend.getReplacesByWikitext(this.wikitext);
         assert(this.wikitext.length === wikitextLength);
         checkReplacesMatchWikitext(this.wikitext, replaces);
-        for (const replace of replaces) {
-            const { wordStartIndex, yoword } = replace;
-            replace.wordEndIndex = wordStartIndex + yoword.length;
-            replace.originalWord = this.wikitext.substr(wordStartIndex, yoword.length);
-        }
+        addConvientPropertiesToReplaces(this.wikitext, replaces);
         return replaces;
     }
 

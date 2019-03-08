@@ -1,6 +1,7 @@
 import { assert } from './base';
 
 export default class StringHelper {
+    // todo вынести в utility
     static deyoficate(yoword) {
         return yoword.replace(/ё/g, 'е').replace(/Ё/g, 'Е');
     }
@@ -10,14 +11,14 @@ export default class StringHelper {
     };
 
     static checkWord(word, text, wordStartIndex) {
-        let wordEndIndex = wordStartIndex + word.length;
-        let prevCharacterOk = wordStartIndex === 0 || !StringHelper.isRussianLetterInWord(text[wordStartIndex - 1]);
-        let nextCharacterOk = wordEndIndex === text.length || !StringHelper.isRussianLetterInWord(text[wordEndIndex]);
+        const wordEndIndex = wordStartIndex + word.length;
+        const prevCharacterOk = wordStartIndex === 0 || !StringHelper.isRussianLetterInWord(text[wordStartIndex - 1]);
+        const nextCharacterOk = wordEndIndex === text.length || !StringHelper.isRussianLetterInWord(text[wordEndIndex]);
         return prevCharacterOk && nextCharacterOk;
     }
 
     static findIndexesOfWord(word, text) {
-        let indexes = [];
+        const indexes = [];
         let start = 0;
         let wordStartIndex;
         while ((wordStartIndex = text.indexOf(word, start)) !== -1) {

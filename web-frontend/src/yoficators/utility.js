@@ -10,6 +10,14 @@ export function checkReplacesMatchWikitext(wikitext, replaces) {
     }
 }
 
+export function addConvientPropertiesToReplaces(wikitext, replaces) {
+    for (const replace of replaces) {
+        const { wordStartIndex, yoword } = replace;
+        replace.wordEndIndex = wordStartIndex + yoword.length;
+        replace.originalWord = wikitext.substr(wordStartIndex, yoword.length);
+    }
+}
+
 export function isNewWikitextYoficatedVersionOfOld(wikitextOld, wikitextNew) {
     if (wikitextOld.length !== wikitextNew.length) return false;
     for (let i = 0; i < wikitextOld.length; ++i) {

@@ -8,4 +8,5 @@ module.exports = merge(common, {
         hot: false,
         inline: false,
     },
+    // devtool: 'inline-source-map',
 });

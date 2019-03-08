@@ -215,8 +215,7 @@ export default class BaseYoficator {
 
     abortYofication() {
         if (!main.isContinuousYofication) {
-            // todo 'Ёфикация отменена' в page mode и 'Ёфикация прервана' иначе
-            toast('Ёфикация прервана', 7000);
+            toast(this.isPageMode ? 'Ёфикация отменена' : 'Ёфикация прервана', 7000);
         }
         this.cleanUp();
         this.tryContinueContinuousYofication(false);

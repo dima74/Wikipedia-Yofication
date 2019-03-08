@@ -2,6 +2,7 @@ import { assert } from '../base';
 import CodeMirrorYoficator from './CodeMirrorYoficator';
 import WikiText2017Yoficator from './WikiText2017Yoficator';
 import TextAreaYoficator from './TextAreaYoficator';
+import PageYoficator from './PageYoficator';
 
 export async function startYofication() {
     const Yoficator = await identifyYoficator();
@@ -14,7 +15,7 @@ async function identifyYoficator() {
     const veaction = urlParams.get('veaction');
 
     if (!action && !veaction) {
-        // return PageYoficator;
+        return PageYoficator;
     }
     if (veaction === 'edit') {
         assert(false, 'Визуальный редактор не поддерживается. Пожалуйста, перейдите в режим викитекста или запустите ёфикатор из самой страницы.');
