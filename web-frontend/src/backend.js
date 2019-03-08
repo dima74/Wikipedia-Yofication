@@ -11,7 +11,7 @@ class Backend {
                 'minimumNumberReplacesForContinuousYofication': settings.minimumNumberReplacesForContinuousYofication,
             },
         };
-        return await fetchJson(BACKEND_HOST + '/randomPageName', options);
+        return await fetchJson(BACKEND_HOST + '/wikipedia/randomPageName', options);
     }
 
     async getReplacesByPageName(pageName) {
@@ -21,7 +21,7 @@ class Backend {
                 minimumReplaceFrequency: settings.minimumReplaceFrequency,
             },
         };
-        return await fetchJson(BACKEND_HOST + '/replacesByTitle/' + encodeURIComponent(pageName), options);
+        return await fetchJson(BACKEND_HOST + '/wikipedia/replacesByTitle/' + encodeURIComponent(pageName), options);
     }
 
     async getReplacesByWikitext(wikitext) {
@@ -34,7 +34,7 @@ class Backend {
             },
             method: 'POST',
         };
-        return await fetchJson(BACKEND_HOST + '/replacesByWikitext', options);
+        return await fetchJson(BACKEND_HOST + '/wikipedia/replacesByWikitext', options);
     }
 }
 

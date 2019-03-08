@@ -3,7 +3,8 @@ import StringHelper from '../string-helper';
 import toast from '../toast';
 import main from '../main';
 import settings from '../settings';
-import { WIKTIONARY_REDIRECT_URL } from '../constants';
+import { BACKEND_HOST } from '../constants';
+import { currentPageName } from '../wikipedia-api';
 
 const createStyles = (padding, frequencyHintHeight) => `
 .yoficator-replace-active {
@@ -103,6 +104,10 @@ export default class BaseYoficator {
             'KeyQ': this.abortYofication,
             // открыть страницу со словом в викисловаре
             'KeyW': this.openYowordWiktionaryPage,
+            // открыть страницу с дополнительной статистикой о слове (общее число слов и число слов с «ё» в Википедии
+            'KeyS': this.openYowordStatPage,
+            // открыть статья в новой вкладке
+            'KeyN': this.openArticlePage,
         };
 
         this.onKeydown = event => {
@@ -264,14 +269,16 @@ export default class BaseYoficator {
     }
 
     openYowordWiktionaryPage() {
-        const wordEndings = ['ая', 'ое', 'ой', 'ою', 'ом', 'ого', 'ому', 'ую', 'ый', 'ым', 'ых', 'ые', 'ыми'];
-        let yoword = this.currentReplace.yoword;
-        for (const wordEnding of wordEndings) {
-            if (yoword.endsWith(wordEnding)) {
-                yoword = yoword.substring(0, yoword.length - wordEnding.length) + 'ый';
-                break;
-            }
-        }
-        window.open(WIKTIONARY_REDIRECT_URL + yoword);
+        const yoword = this.currentReplace.yoword;
+        window.open(BACKEND_HOST + '/wikipedia/redirectToWiktionaryArticle/' + yoword);
+    }
+
+    openYowordStatPage() {
+        const yoword = this.currentReplace.yoword;
+        window.open(BACKEND_HOST + '/stat/' + yoword);
+    }
+
+    openArticlePage() {
+        window.open('/wiki/' + currentPageName);
     }
 }
