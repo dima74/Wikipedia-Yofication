@@ -118,12 +118,12 @@ export default class WikiText2017Yoficator extends WikitextBaseYoficator {
         }
     }
 
-    async onYoficationEnd(forceNoEdit) {
+    async cleanUp() {
+        await super.cleanUp();
+
         window.removeEventListener('resize', this.updateHighlightsPositions);
         await Promise.all(this.applyReplacePromises);
 
         this.highlightsWrapper.remove();
-
-        await super.onYoficationEnd(forceNoEdit);
     }
 }

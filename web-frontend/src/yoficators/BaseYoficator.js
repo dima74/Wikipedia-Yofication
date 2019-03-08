@@ -41,11 +41,16 @@ export function getReplaceHintColor(frequency) {
 }
 
 export default class BaseYoficator {
+    // виртуальные методы:
     init() {}
 
     toggleReplaceVisible(replace, isVisible) {}
 
     toggleReplaceAccept(replace, isAccept) {}
+
+    async onYoficationEnd() {}
+
+    //
 
     constructor() {
         this.currentReplaceIndex = -1;
@@ -161,13 +166,10 @@ export default class BaseYoficator {
 
     goToCurrentReplace() {
         if (this.currentReplaceIndex === this.replaces.length) {
-            toast('Завершаем ёфикацию...');
-            sleep(0).then(() => this.onYoficationEnd(false));
+            this.onYoficationEndBase();
             return true;
         }
-        if (this.currentReplaceIndex > this.replaces.length) {
-            throw 'goToCurrentReplace: currentReplace > replaces.length';
-        }
+        assert(this.currentReplaceIndex < this.replaces.length);
 
         const replace = this.currentReplace;
         const yoword = replace.yoword;
@@ -216,19 +218,26 @@ export default class BaseYoficator {
             // todo 'Ёфикация отменена' в page mode и 'Ёфикация прервана' иначе
             toast('Ёфикация прервана', 7000);
         }
-        this.onYoficationEnd(true);
+        this.cleanUp();
+        this.tryContinueContinuousYofication(false);
     }
 
-    onYoficationEnd(forceNoEdit) {
+    async cleanUp() {
         document.removeEventListener('keydown', this.onKeydown);
-
-        // todo only in page mode
-        // removeArgumentsFromUrl();
-
-        const hasAcceptedReplaces = !forceNoEdit && this.replaces.some(replace => replace.isAccept);
-        if (!forceNoEdit) {
-            toast(hasAcceptedReplaces ? 'Ёфикация завершена' : 'Ёфикация завершена\n(ни одна замена не была принята)', hasAcceptedReplaces ? 4000 : 7000);
+        if (this.previousHighlightedReplace !== null) {
+            this.toggleReplaceVisible(this.previousHighlightedReplace, false);
         }
+    }
+
+    async onYoficationEndBase() {
+        toast('Завершаем ёфикацию...');
+        await sleep(0);
+
+        await this.cleanUp();
+        await this.onYoficationEnd();
+
+        const hasAcceptedReplaces = this.replaces.some(replace => replace.isAccept);
+        toast(hasAcceptedReplaces ? 'Ёфикация завершена' : 'Ёфикация завершена\n(ни одна замена не была принята)', hasAcceptedReplaces ? 4000 : 7000);
         this.tryContinueContinuousYofication(hasAcceptedReplaces);
     }
 

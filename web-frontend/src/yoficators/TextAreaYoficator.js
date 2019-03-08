@@ -61,11 +61,10 @@ export default class TextAreaYoficator extends WikitextBaseYoficator {
         replace.element.textContent = isAccept ? replace.yoword : replace.originalWord;
     }
 
-    async onYoficationEnd(forceNoEdit) {
+    async cleanUp() {
+        await super.cleanUp();
         this.textarea.value = this.editor.textContent;
         this.editor.remove();
         this.textarea.style.display = null;
-
-        await super.onYoficationEnd(forceNoEdit);
     }
 }

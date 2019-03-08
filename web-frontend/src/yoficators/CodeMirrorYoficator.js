@@ -57,13 +57,12 @@ export default class CodeMirrorYoficator extends WikitextBaseYoficator {
         replace.element.textContent = isAccept ? replace.yoword : replace.originalWord;
     }
 
-    async onYoficationEnd(forceNoEdit) {
+    async cleanUp() {
+        await super.cleanUp();
         for (const replace of this.replaces) {
             const { from, to } = replace.cmMarker.find();
             this.cm.replaceRange(replace.element.textContent, from, to);
             replace.cmMarker.clear();
         }
-
-        await super.onYoficationEnd(forceNoEdit);
     }
 }
