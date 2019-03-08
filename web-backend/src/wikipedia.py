@@ -1,5 +1,6 @@
 import os
 import random
+
 import requests
 from flask import Blueprint, request, jsonify, abort, redirect, make_response
 from mixpanel import Mixpanel
@@ -133,20 +134,32 @@ def generateReplaces(wikitext, minimum_replace_frequency):
     return replaces
 
 
-def get_wiktionary_article(yoword):
+def get_wiktionary_article_by_prefix(prefix):
     params = {
         'format': 'json',
         'action': 'query',
-        'list': 'search',
-        'srwhat': 'text',
-        'srsearch': yoword
+        'generator': 'allpages',
+        'gapprefix': prefix
     }
-    r = requests.get('https://ru.wiktionary.org/w/api.php', params=params)
-    results = r.json()['query']['search']
+    response = requests.get('https://ru.wiktionary.org/w/api.php', params=params).json()
+    if 'query' not in response or 'pages' not in response['query']:
+        return None
+
+    results = response['query']['pages']
     if len(results) == 0:
         return None
-    article = results[0]['title']
-    return article
+
+    result = next(iter(results.values()))
+    return result['title']
+
+
+def get_wiktionary_article(yoword):
+    while len(yoword) > 0:
+        article = get_wiktionary_article_by_prefix(yoword)
+        if article:
+            return article
+        yoword = yoword[:-1]
+    return None
 
 
 @wikipedia.route('/wikipedia/redirectToWiktionaryArticle/<yoword>')
