@@ -1,6 +1,7 @@
 import { assert } from '../base';
 import CodeMirrorYoficator from './CodeMirrorYoficator';
 import WikiText2017Yoficator from './WikiText2017Yoficator';
+import TextAreaYoficator from './TextAreaYoficator';
 
 export async function startYofication() {
     const Yoficator = await identifyYoficator();
@@ -22,11 +23,8 @@ async function identifyYoficator() {
         return WikiText2017Yoficator;
     }
     if (action === 'edit') {
-        // await $.when(mw.loader.using(['ext.wikiEditor']), $.ready);
-        // await new Promise(resolve => $.when(mw.loader.using(['ext.wikiEditor']), $.ready).then(resolve));
         const useCodeMirror = mw.user.options.get('usecodemirror') > 0;
-        // return useCodeMirror ? CodeMirrorYoficator : TextAreaYoficator;
-        if (useCodeMirror) return CodeMirrorYoficator;
+        return useCodeMirror ? CodeMirrorYoficator : TextAreaYoficator;
     }
 
     assert(false);

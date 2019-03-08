@@ -1,8 +1,28 @@
-import { assert } from '../base';
+import { assert, sleep } from '../base';
 import StringHelper from '../string-helper';
 import toast from '../toast';
 import main from '../main';
 import { WIKTIONARY_REDIRECT_URL } from '../settings';
+
+const createStyles = (padding, frequencyHintHeight) => `
+.yoficator-replace-active {
+	background-color: aquamarine;
+	position: relative;
+	display: inline-flex;
+	margin: -${padding - 1}px -${padding}px;
+	padding: ${padding - 1}px ${padding}px;
+}
+
+.yoficator-replace-active::before {
+	width: var(--frequency-hint-width);
+	background-color: var(--frequency-hint-color);
+	content: '';
+	height: ${frequencyHintHeight}px;
+	position: absolute;
+	left: 0;
+	top: -${frequencyHintHeight}px;
+}
+`;
 
 export function getReplaceHintColor(frequency) {
     frequency /= 100;
@@ -32,6 +52,18 @@ export default class BaseYoficator {
         this.ignoredEwords = new Set();
         // можно приостановить ёфикация, с целью немного изменить соседний текст (флаг нужен, чтобы нажатия клавиш не вызывали actions)
         this.isPaused = false;
+    }
+
+    get padding() {
+        return 2;
+    }
+
+    get frequencyHintHeight() {
+        return 3;
+    }
+
+    get styles() {
+        return createStyles(this.padding, this.frequencyHintHeight);
     }
 
     get currentReplace() {
@@ -128,7 +160,8 @@ export default class BaseYoficator {
 
     goToCurrentReplace() {
         if (this.currentReplaceIndex === this.replaces.length) {
-            this.onYoficationEnd(false);
+            toast('Завершаем ёфикацию...');
+            sleep(0).then(() => this.onYoficationEnd(false));
             return true;
         }
         if (this.currentReplaceIndex > this.replaces.length) {

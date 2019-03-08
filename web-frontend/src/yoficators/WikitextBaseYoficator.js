@@ -4,28 +4,7 @@ import backend from '../backend';
 import { assert } from '../base';
 import { checkReplacesMatchWikitext, isNewWikitextYoficatedVersionOfOld } from './utility';
 
-const styles = `
-.yoficator-replace-active {
-	background-color: aquamarine;
-	position: relative;
-}
-
-.yoficator-replace-active::before {
-	width: var(--frequency-hint-width);
-	background-color: var(--frequency-hint-color);
-	content: '';
-	height: 3px;
-	position: absolute;
-	left: 0;
-	top: -3px;
-}
-`;
-
 export default class WikitextBaseYoficator extends BaseYoficator {
-    get styles() {
-        return styles;
-    }
-
     async fetchReplaces() {
         this.wikitext = this.getWikitext();
 

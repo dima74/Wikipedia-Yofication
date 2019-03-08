@@ -5,6 +5,7 @@ import { startYofication } from './yoficators';
 import { getYoficationSettings, initYoficatorSettings, YO_IMAGE_URL_20, YO_IMAGE_URL_22 } from './settings';
 
 // todo переименовать wordStartIndex в startIndex
+// todo оптимизации переходов между заменами
 
 class Main {
     constructor() {

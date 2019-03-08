@@ -5,9 +5,10 @@ import { copyFontCssProperties } from './utility';
 
 const styles = `
 .yoficator-replace {
-	display: flex;
 	align-items: center;
 	justify-content: center;
+	margin-left: -3px;
+	padding-left: 3px;
 }
 
 .yoficator-replace:not(.yoficator-replace-active) {
@@ -16,6 +17,10 @@ const styles = `
 `;
 
 export default class WikiText2017Yoficator extends WikitextBaseYoficator {
+    get padding() {
+        return 4;
+    }
+
     get styles() {
         return super.styles + styles;
     }
@@ -29,7 +34,9 @@ export default class WikiText2017Yoficator extends WikitextBaseYoficator {
 
     async init() {
         await this.initEditor();
-        this.replaces = await super.fetchReplaces(this.wikitext);
+        this.replaces = await super.fetchReplaces();
+        if (this.replaces.length === 0) return;
+
         this.preventUpdateHighlightsPositions = false;  // updateHighlightsPositions возможно медленный, не нужно его вызывать, если текст изменяет наш скрипт (а не пользователь)
         this.applyReplacePromises = [];
 
@@ -54,9 +61,11 @@ export default class WikiText2017Yoficator extends WikitextBaseYoficator {
             this.highlightsWrapper.appendChild(replace.element);
         }
 
+        this.updateHighlightsPositions = this.updateHighlightsPositions.bind(this);
         this.updateHighlightsPositions();
         // https://github.com/wikimedia/VisualEditor/blob/e2a8e4f0df38ee2cdc30174638d8b06947069816/src/ui/dialogs/ve.ui.FindAndReplaceDialog.js#L219
         this.surfaceModel.connect(this, { documentUpdate: this.updateHighlightsPositions });
+        window.addEventListener('resize', this.updateHighlightsPositions);
     }
 
     getWikitext() {
@@ -65,20 +74,16 @@ export default class WikiText2017Yoficator extends WikitextBaseYoficator {
 
     updateHighlightsPositions() {
         if (this.preventUpdateHighlightsPositions) return;
-        const padding = 2;
         for (const replace of this.replaces) {
             replace.rect = this.surfaceView.getSelection(replace.fragment.getSelection()).getSelectionBoundingRect();
             let { left, top, width, height } = replace.rect;
-            left -= padding;
-            top -= padding;
-            width += padding * 2;
-            height += padding * 2;
             $(replace.element).css({ left, top, width, height });
         }
     }
 
     toggleReplaceVisible(replace, isVisible) {
         replace.element.classList.toggle('yoficator-replace-active', isVisible);
+        if (!isVisible) return;
 
         // scroll into view
         // https://github.com/wikimedia/VisualEditor/blob/e2a8e4f0df38ee2cdc30174638d8b06947069816/src/ui/dialogs/ve.ui.FindAndReplaceDialog.js#L530-L540
@@ -114,10 +119,9 @@ export default class WikiText2017Yoficator extends WikitextBaseYoficator {
     }
 
     async onYoficationEnd(forceNoEdit) {
+        window.removeEventListener('resize', this.updateHighlightsPositions);
         await Promise.all(this.applyReplacePromises);
 
-        if (!forceNoEdit) toast('Завершаем ёфикацию...');
-        await sleep(0);
         this.highlightsWrapper.remove();
 
         await super.onYoficationEnd(forceNoEdit);

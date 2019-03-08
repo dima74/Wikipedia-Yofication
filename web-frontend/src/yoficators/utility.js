@@ -23,10 +23,14 @@ export function isNewWikitextYoficatedVersionOfOld(wikitextOld, wikitextNew) {
     return true;
 }
 
-export function copyFontCssProperties(highlightElement, referenceElement) {
-    const properties = ['fontFamily', 'fontSize', 'fontWeight', 'lineHeight', 'letterSpacing'];
+export function copyCssProperties(targetElement, referenceElement, properties) {
     const styles = window.getComputedStyle(referenceElement);
     for (const property of properties) {
-        highlightElement.style[property] = styles[property];
+        targetElement.style[property] = styles[property];
     }
+}
+
+export function copyFontCssProperties(targetElement, referenceElement) {
+    const fontProperties = ['font-family', 'font-size', 'font-weight', 'line-height', 'letter-spacing'];
+    copyCssProperties(targetElement, referenceElement, fontProperties);
 }

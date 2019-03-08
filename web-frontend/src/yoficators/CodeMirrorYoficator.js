@@ -2,20 +2,7 @@ import toast from '../toast';
 import { assert, sleep } from '../base';
 import WikitextBaseYoficator from './WikitextBaseYoficator';
 
-/* 2px = padding */
-const styles = `
-.yoficator-replace {
-	display: inline-block;
-	margin: -2px;
-	padding: 2px;
-}
-`;
-
 export default class CodeMirrorYoficator extends WikitextBaseYoficator {
-    get styles() {
-        return super.styles + styles;
-    }
-
     async init() {
         if ($('.CodeMirror').length === 0) {
             await new Promise(resolve => $('#wpTextbox1').on('wikiEditor-toolbar-doneInitialSections', resolve));
@@ -23,7 +10,8 @@ export default class CodeMirrorYoficator extends WikitextBaseYoficator {
 
         assert($('.CodeMirror').length > 0);
         this.cm = $('.CodeMirror')[0].CodeMirror;
-        this.replaces = await super.fetchReplaces(this.wikitext);
+        this.replaces = await super.fetchReplaces();
+        if (this.replaces.length === 0) return;
 
         toast('Обрабатываем замены...');
         await sleep(0);
@@ -43,6 +31,7 @@ export default class CodeMirrorYoficator extends WikitextBaseYoficator {
 
     toggleReplaceVisible(replace, isVisible) {
         replace.element.classList.toggle('yoficator-replace-active', isVisible);
+        if (!isVisible) return;
 
         // scroll into view
         const wordStartPos = this.cm.posFromIndex(replace.wordStartIndex);
@@ -52,10 +41,8 @@ export default class CodeMirrorYoficator extends WikitextBaseYoficator {
         this.cm.scrollTo(null, wordX - editorHeight / 2);
 
         // move cursor
-        if (isVisible) {
-            this.cm.focus();
-            this.cm.setCursor(wordEndPos, { bias: +1 });
-        }
+        this.cm.focus();
+        this.cm.setCursor(wordEndPos, { bias: +1 });
     }
 
     toggleReplaceAccept(replace, isAccept) {
@@ -63,8 +50,6 @@ export default class CodeMirrorYoficator extends WikitextBaseYoficator {
     }
 
     async onYoficationEnd(forceNoEdit) {
-        if (!forceNoEdit) toast('Завершаем ёфикацию...');
-        await sleep(0);
         for (const replace of this.replaces) {
             const { from, to } = replace.cmMarker.find();
             this.cm.replaceRange(replace.element.textContent, from, to);
