@@ -30,8 +30,6 @@ export default class WikitextBaseYoficator extends BaseYoficator {
         const wikitextNew = this.getWikitext();
         if (!isNewWikitextYoficatedVersionOfOld(this.wikitext, wikitextNew)) {
             console.warn('Итоговый викитекст отличается от исходного не только из-за ёфикации. Это ошибка если во время ёфикации викитекст не редактировался.');
-            // todo remove alert
-            alert('!isNewWikitextYoficatedVersionOfOld');
         }
     }
 }

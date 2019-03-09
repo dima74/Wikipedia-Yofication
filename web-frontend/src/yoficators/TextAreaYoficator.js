@@ -20,6 +20,7 @@ export default class TextAreaYoficator extends WikitextBaseYoficator {
         copyCssProperties(this.editor, this.textarea, ['height', 'color', 'padding-left', 'padding-right', 'padding-top', 'padding-bottom', 'tab-size']);
 
         const rootNode = this.editor.firstChild;
+        // проверка что замены с сервера приходят отсортированные по индексу
         assert(this.replaces.every((replace, i) => i === 0 || this.replaces[i - 1].wordStartIndex < this.replaces[i].wordStartIndex));
         for (const replace of [...this.replaces].reverse()) {
             const wordNode = rootNode.splitText(replace.wordStartIndex);

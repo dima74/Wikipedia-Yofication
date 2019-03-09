@@ -9,6 +9,7 @@ class WikipediaApi {
     }
 
     async getWikitext(title) {
+        const errorMessage = 'Произошла ошибка при загрузки викитекста страницы';
         const data = {
             action: 'query',
             prop: 'revisions',
@@ -16,7 +17,7 @@ class WikipediaApi {
             rvprop: 'content',
             format: 'json',
         };
-        const response = await fetchJson(`/w/api.php`, { data });
+        const response = await fetchJson(`/w/api.php`, { errorMessage, data });
         return Object.values(response.query.pages)[0].revisions[0]['*'];
     }
 

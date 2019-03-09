@@ -135,7 +135,7 @@ export default class BaseYoficator {
     }
 
     goToNextReplace() {
-        assert(this.currentReplaceIndex !== this.replaces.length, 'this.currentReplaceIndex !== this.replaces.length');
+        assert(this.currentReplaceIndex !== this.replaces.length);
         do {
             ++this.currentReplaceIndex;
         } while (!this.goToCurrentReplace());
