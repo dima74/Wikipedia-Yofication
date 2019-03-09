@@ -2,7 +2,7 @@ import os
 import random
 
 import requests
-from flask import Blueprint, request, jsonify, abort, redirect, make_response
+from flask import Blueprint, request, jsonify, abort, redirect
 from mixpanel import Mixpanel
 
 from src.helpers import fetch_lines
@@ -195,14 +195,7 @@ is_safe: {'yes' if yoword.is_safe else ('no' if yoword.is_safe == False else 'un
 
 
 def is_marked():
-    return 'yofication_mark' in request.cookies
-
-
-@wikipedia.route('/wikipedia/mark')
-def mark():
-    response = make_response('Successfully marked')
-    response.set_cookie('yofication_mark')
-    return response
+    return 'flag' in request.args or 'flag' in request.form
 
 
 @wikipedia.route('/wikipedia/is_marked')

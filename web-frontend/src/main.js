@@ -21,6 +21,8 @@ class Main {
 
         if (currentPageName === 'Служебная:Ёфикация') {
             this.performContinuousYofication();
+        } else if (currentPageName === 'Служебная:Ёфикация/M') {
+            localStorage.setItem('yoficator-m', 'true');
         } else if (currentPageName === 'Участник:Дима74/Скрипт-Ёфикатор/Параметры') {
             settings.initEditing();
         } else if (window.location.search.includes('yofication')) {
