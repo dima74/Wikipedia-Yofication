@@ -1,10 +1,13 @@
-import StringHelper from '../string-helper';
 import { assert } from '../base';
+
+export function deyoficate(yoword) {
+    return yoword.replace(/ё/g, 'е').replace(/Ё/g, 'Е');
+}
 
 export function checkReplacesMatchWikitext(wikitext, replaces) {
     for (const replace of replaces) {
         const yoword = replace.yoword;
-        const ewordRemote = StringHelper.deyoficate(yoword);
+        const ewordRemote = deyoficate(yoword);
         const ewordLocal = wikitext.substr(replace.wordStartIndex, yoword.length);
         assert(ewordLocal === ewordRemote);
     }

@@ -1,10 +1,10 @@
 import { assert, sleep } from '../base';
-import StringHelper from '../string-helper';
 import toast from '../toast';
 import main from '../main';
 import settings from '../settings';
 import { BACKEND_HOST } from '../constants';
 import { currentPageName } from '../wikipedia-api';
+import { deyoficate } from './utility';
 
 const createStyles = (padding, frequencyHintHeight) => `
 .yoficator-replace-active {
@@ -168,7 +168,7 @@ export default class BaseYoficator {
         const replace = this.currentReplace;
         const yoword = replace.yoword;
 
-        const eword = StringHelper.deyoficate(yoword);
+        const eword = deyoficate(yoword);
         if (this.ignoredEwords.has(eword)) {
             return false;
         }
@@ -200,7 +200,7 @@ export default class BaseYoficator {
 
     rejectReplaceAndAllSameEwords() {
         const replace = this.currentReplace;
-        const eword = StringHelper.deyoficate(replace.yoword);
+        const eword = deyoficate(replace.yoword);
         this.ignoredEwords.add(eword);
         this.rejectReplace();
     }

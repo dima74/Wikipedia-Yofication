@@ -3,10 +3,52 @@ import wikipediaApi, { currentPageName } from '../wikipedia-api';
 import toast from '../toast';
 import backend from '../backend';
 import { assert, fetchJson, sleep } from '../base';
-import { addConvientPropertiesToReplaces, checkReplacesMatchWikitext, isNewWikitextYoficatedVersionOfOld } from './utility';
-import StringHelper from '../string-helper';
+import { addConvientPropertiesToReplaces, checkReplacesMatchWikitext, deyoficate, isNewWikitextYoficatedVersionOfOld } from './utility';
 import settings from '../settings';
 
+class StringHelper {
+    static isRussianLetterInWord(letter) {
+        return letter.length === 1 && letter.match(/[а-яА-ЯёЁ\-\u00AD\u0301]/);
+    };
+
+    static checkWord(word, text, wordStartIndex) {
+        const wordEndIndex = wordStartIndex + word.length;
+        const prevCharacterOk = wordStartIndex === 0 || !StringHelper.isRussianLetterInWord(text[wordStartIndex - 1]);
+        const nextCharacterOk = wordEndIndex === text.length || !StringHelper.isRussianLetterInWord(text[wordEndIndex]);
+        return prevCharacterOk && nextCharacterOk;
+    }
+
+    static findIndexesOfWord(word, text) {
+        const indexes = [];
+        let start = 0;
+        let wordStartIndex;
+        while ((wordStartIndex = text.indexOf(word, start)) !== -1) {
+            if (StringHelper.checkWord(word, text, wordStartIndex)) {
+                indexes.push(wordStartIndex);
+            }
+            start = wordStartIndex + word.length;
+        }
+        return indexes;
+    }
+
+    static longestPrefix(a, b) {
+        let result = 0;
+        while (result < a.length && result < b.length && a[result] === b[result]) {
+            ++result;
+        }
+        return result;
+    }
+
+    static longestSuffix(a, b) {
+        let result = 0;
+        while (result < a.length && result < b.length && a[a.length - result - 1] === b[b.length - result - 1]) {
+            ++result;
+        }
+        return result;
+    }
+}
+
+// todo deprecate and remove
 export default class PageYoficator extends BaseYoficator {
     async init() {
         this.isPageMode = true;
@@ -65,7 +107,7 @@ export default class PageYoficator extends BaseYoficator {
         let nodeOrderIndex = 0;
         const processTextNode = (node, nodeValue) => {
             for (const yoword of this.yowords) {
-                const eword = StringHelper.deyoficate(yoword);
+                const eword = deyoficate(yoword);
                 if (nodeValue.includes(eword)) {
                     const indexes = StringHelper.findIndexesOfWord(eword, nodeValue);
                     const occurrences = indexes.map(wordStartIndex => ({ wordStartIndex, wordNode: node, wordNodeValue: nodeValue, wordOrderIndex: [nodeOrderIndex, wordStartIndex] }));
