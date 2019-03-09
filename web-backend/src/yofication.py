@@ -148,7 +148,7 @@ def get_replaces(text, **kwargs):
         dword = match.group()
         if dword in words:
             yoword = words[dword]
-            if yoword.frequency() < minimum_replace_frequency:
+            if yoword.frequency() < minimum_replace_frequency and not (yoword == 'Всё' and minimum_replace_frequency < 40):
                 continue
 
             if not check_match(text, match, dword):
