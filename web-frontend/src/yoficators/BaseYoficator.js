@@ -127,6 +127,7 @@ export default class BaseYoficator {
 
             if (this.isPaused) return;
             if (event.code in actions) {
+                if (event.code === 'KeyN' && !main.isContinuousYofication) return;
                 event.preventDefault();
                 actions[event.code].call(this);
             }
