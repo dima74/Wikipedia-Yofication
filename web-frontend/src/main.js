@@ -4,7 +4,7 @@ import backend from './backend';
 import settings from './settings';
 import { startYofication } from './yoficators';
 import { YO_IMAGE_URL_20, YO_IMAGE_URL_22 } from './constants';
-import { IS_MOBILE } from './base';
+import { IS_MOBILE_DEVICE, IS_MOBILE_SITE } from './base';
 
 // todo переименовать wordStartIndex в startIndex
 // todo оптимизации переходов между заменами
@@ -26,11 +26,12 @@ class Main {
             settings.initEditing();
         } else if (window.location.search.includes('yofication')) {
             this.isContinuousYofication = window.location.search.includes('continuous_yofication');
+            this.isMobile = this.isContinuousYofication && IS_MOBILE_DEVICE;  // по сути флаг означающий нужно ли добавлять overlay (и делать сопутствующие действия)
             startYofication();
             if (this.isContinuousYofication) {
                 this.nextPageNamePromise = backend.getRandomPageName();
             }
-        } else if (wikipediaApi.isMainNamespace() && !IS_MOBILE) {
+        } else if (wikipediaApi.isMainNamespace() && !IS_MOBILE_SITE) {
             if (wikipediaApi.isUsualPageView()) {
                 this.addPortletLink();
             }
@@ -75,6 +76,11 @@ class Main {
     }
 
     async performContinuousYofication() {
+        if (IS_MOBILE_SITE && IS_MOBILE_DEVICE) {
+            $('#mw-mf-display-toggle')[0].click();
+            return;
+        }
+
         toast('Переходим к следующей странице: \nЗагружаем название статьи для ёфикации...');
         const pageName = await (this.isContinuousYofication ? this.nextPageNamePromise : backend.getRandomPageName());
         toast(`Переходим к странице «${pageName}»`);
@@ -90,4 +96,4 @@ class Main {
 const main = new Main();
 export default main;
 
-main.start();
+$(() => main.start());

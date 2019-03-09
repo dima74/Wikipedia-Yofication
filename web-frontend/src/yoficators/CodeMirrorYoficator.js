@@ -2,9 +2,22 @@ import toast from '../toast';
 import { assert, sleep } from '../base';
 import WikitextBaseYoficator from './WikitextBaseYoficator';
 import main from '../main';
+import createOverlay from './mobileOverlay';
 
 export default class CodeMirrorYoficator extends WikitextBaseYoficator {
     async init() {
+        if (main.isMobile) {
+            $('#mw-panel, #mw-head, #mw-page-base').remove();
+            $('#content').css({ margin: 0 });
+            $('<meta name="viewport" content="user-scalable=no, width=device-width, height=device-height, initial-scale=1" />').appendTo(document.head);
+
+            this.removeOverlay = createOverlay(
+                this.abortYofication.bind(this),
+                this.acceptReplace.bind(this),
+                this.rejectReplace.bind(this),
+            );
+        }
+
         if ($('.CodeMirror').length === 0) {
             toast('Ожидаем завершения загрузки редактора...');
             await new Promise(resolve => $('#wpTextbox1').on('wikiEditor-toolbar-doneInitialSections', resolve));
@@ -30,7 +43,8 @@ export default class CodeMirrorYoficator extends WikitextBaseYoficator {
         this.editorHeight = editor.clientHeight;
         if (main.isContinuousYofication) {
             const editorRect = editor.getBoundingClientRect();
-            window.scrollBy(0, (editorRect.top + editorRect.bottom) / 2 - window.innerHeight / 2);
+            const y = main.isMobile ? (editorRect.top - 3) : (editorRect.top + editorRect.bottom) / 2 - window.innerHeight / 2;
+            window.scrollBy(0, y);
         }
     }
 
@@ -50,8 +64,10 @@ export default class CodeMirrorYoficator extends WikitextBaseYoficator {
         this.cm.scrollTo(null, wordX - this.editorHeight / 2);
 
         // move cursor
-        this.cm.focus();
-        this.cm.setCursor(wordEndPos, { bias: +1 });
+        if (!main.isMobile) {
+            this.cm.focus();
+            this.cm.setCursor(wordEndPos, { bias: +1 });
+        }
     }
 
     toggleReplaceAccept(replace, isAccept) {
@@ -60,6 +76,9 @@ export default class CodeMirrorYoficator extends WikitextBaseYoficator {
 
     async cleanUp() {
         await super.cleanUp();
+        if (main.isMobile) {
+            this.removeOverlay();
+        }
         for (const replace of this.replaces) {
             const { from, to } = replace.cmMarker.find();
             this.cm.replaceRange(replace.element.textContent, from, to);

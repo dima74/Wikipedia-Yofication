@@ -132,24 +132,6 @@ export default class BaseYoficator {
             }
         };
         document.addEventListener('keydown', this.onKeydown);
-
-        // todo
-        // if (IS_MOBILE) {
-        //     const overlay = this.createMobileOverlay();
-        //     overlay.click(event => {
-        //         // в мобильной версии доступны три действия:
-        //         //     нажатие на верхнюю 1/4 часть экрана --- переход к следующей странице
-        //         //     нажатие на правую часть экрана ---   принять замену
-        //         //     нажатие на  левую часть экрана --- отклонить замену
-        //         if (event.offsetY <= $(window).height() / 4) {
-        //             this.abortYofication();
-        //         } else if (event.offsetX >= $(window).width() / 2) {
-        //             this.acceptReplace();
-        //         } else {
-        //             this.rejectReplace();
-        //         }
-        //     });
-        // }
     }
 
     goToNextReplace() {

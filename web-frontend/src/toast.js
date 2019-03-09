@@ -1,4 +1,5 @@
 import { sleep } from './base';
+import main from './main';
 
 const SNACKBAR_CSS = `
 min-width: 250px;
@@ -20,7 +21,12 @@ let toastElement = null;
 let toastTimerId = null;
 
 function initToast() {
-    toastElement = $(SNACKBAR_HTML).appendTo('body')[0];
+    const $toast = $(SNACKBAR_HTML).appendTo('body');
+    toastElement = $toast[0];
+
+    if (main.isMobile) {
+        $toast.css({ bottom: 7, padding: 8 });
+    }
 }
 
 export default async function toast(status, duration = 0) {
