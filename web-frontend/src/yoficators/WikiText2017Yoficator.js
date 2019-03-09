@@ -9,6 +9,7 @@ const styles = `
 	justify-content: center;
 	margin-left: -3px;
 	padding-left: 3px;
+	white-space: nowrap;
 }
 
 .yoficator-replace:not(.yoficator-replace-active) {
@@ -61,11 +62,9 @@ export default class WikiText2017Yoficator extends WikitextBaseYoficator {
             this.highlightsWrapper.appendChild(replace.element);
         }
 
-        this.updateHighlightsPositions = this.updateHighlightsPositions.bind(this);
         this.updateHighlightsPositions();
         // https://github.com/wikimedia/VisualEditor/blob/e2a8e4f0df38ee2cdc30174638d8b06947069816/src/ui/dialogs/ve.ui.FindAndReplaceDialog.js#L219
         this.surfaceModel.connect(this, { documentUpdate: this.updateHighlightsPositions });
-        window.addEventListener('resize', this.updateHighlightsPositions);
     }
 
     getWikitext() {
@@ -79,13 +78,13 @@ export default class WikiText2017Yoficator extends WikitextBaseYoficator {
             let { left, top, width, height } = replace.rect;
             $(replace.element).css({ left, top, width, height });
         }
-        this.showCurrentReplaceAgain();
     }
 
     toggleReplaceVisible(replace, isVisible) {
         replace.element.classList.toggle('yoficator-replace-active', isVisible);
-        if (!isVisible) return;
+    }
 
+    focusOnReplace(replace) {
         // scroll into view
         // https://github.com/wikimedia/VisualEditor/blob/e2a8e4f0df38ee2cdc30174638d8b06947069816/src/ui/dialogs/ve.ui.FindAndReplaceDialog.js#L530-L540
         const offset = replace.rect.top + this.surfaceView.$element.offset().top;
@@ -118,10 +117,13 @@ export default class WikiText2017Yoficator extends WikitextBaseYoficator {
         }
     }
 
+    onWindowResize() {
+        this.updateHighlightsPositions();
+    }
+
     async cleanUp() {
         await super.cleanUp();
 
-        window.removeEventListener('resize', this.updateHighlightsPositions);
         await Promise.all(this.applyReplacePromises);
 
         this.highlightsWrapper.remove();

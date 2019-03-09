@@ -40,8 +40,9 @@ export default class CodeMirrorYoficator extends WikitextBaseYoficator {
 
     toggleReplaceVisible(replace, isVisible) {
         replace.element.classList.toggle('yoficator-replace-active', isVisible);
-        if (!isVisible) return;
+    }
 
+    focusOnReplace(replace) {
         // scroll into view
         const wordStartPos = this.cm.posFromIndex(replace.wordStartIndex);
         const wordEndPos = this.cm.posFromIndex(replace.wordEndIndex - 1);

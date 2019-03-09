@@ -47,7 +47,11 @@ export default class BaseYoficator {
 
     toggleReplaceVisible(replace, isVisible) {}
 
+    focusOnReplace(replace) {}
+
     toggleReplaceAccept(replace, isAccept) {}
+
+    onWindowResize() {}
 
     async onYoficationEnd() {}
 
@@ -89,6 +93,9 @@ export default class BaseYoficator {
 
         this.goToNextReplace();
         this.initializeActions();
+
+        this.onWindowResizeBaseBinded = this.onWindowBaseResize.bind(this);
+        window.addEventListener('resize', this.onWindowResizeBaseBinded);
     }
 
     initializeActions() {
@@ -192,6 +199,7 @@ export default class BaseYoficator {
             this.toggleReplaceVisible(this.previousHighlightedReplace, false);
         }
         this.toggleReplaceVisible(this.currentReplace, true);
+        this.focusOnReplace(this.currentReplace);
         this.previousHighlightedReplace = replace;
         return true;
     }
@@ -216,8 +224,16 @@ export default class BaseYoficator {
     }
 
     showCurrentReplaceAgain() {
-        if (this.currentReplaceIndex === -1) return;
-        this.toggleReplaceVisible(this.currentReplace, true);
+        if (this.currentReplace) {
+            this.focusOnReplace(this.currentReplace);
+        }
+    }
+
+    onWindowBaseResize() {
+        this.onWindowResize();
+        if (this.currentReplace) {
+            this.focusOnReplace(this.currentReplace);
+        }
     }
 
     abortYofication() {
@@ -230,6 +246,7 @@ export default class BaseYoficator {
 
     async cleanUp() {
         document.removeEventListener('keydown', this.onKeydown);
+        window.removeEventListener('resize', this.onWindowResizeBaseBinded);
         if (this.previousHighlightedReplace !== null) {
             this.toggleReplaceVisible(this.previousHighlightedReplace, false);
         }
@@ -269,7 +286,7 @@ export default class BaseYoficator {
     }
 
     openYowordWiktionaryPage() {
-        const yoword = this.currentReplace.yoword;
+        const yoword = this.currentReplace.yoword.toLowerCase();
         window.open(BACKEND_HOST + '/wikipedia/redirectToWiktionaryArticle/' + yoword);
     }
 

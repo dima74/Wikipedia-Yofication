@@ -298,8 +298,9 @@ export default class PageYoficator extends BaseYoficator {
 
     toggleReplaceVisible(replace, isVisible) {
         replace.highlightElement.style.display = isVisible ? 'block' : 'none';
-        if (!isVisible) return;
+    }
 
+    focusOnReplace(replace) {
         const highlight = replace.highlightElement;
         highlight.recalcPosition();
         const highlightRect = highlight.getBoundingClientRect();
