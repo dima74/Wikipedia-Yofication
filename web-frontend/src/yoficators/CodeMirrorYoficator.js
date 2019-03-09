@@ -66,7 +66,8 @@ export default class CodeMirrorYoficator extends WikitextBaseYoficator {
         // move cursor
         if (!main.isMobile) {
             this.cm.focus();
-            this.cm.setCursor(wordEndPos, { bias: +1 });
+            const replacePosition = replace.cmMarker.find();
+            this.cm.setCursor(replacePosition.to, { bias: +1 });
         }
     }
 
