@@ -1,5 +1,6 @@
-import requests
 import os
+
+import requests
 
 API = 'https://ru.wikipedia.org/w/api.php'
 username = 'Дима74'
@@ -36,6 +37,7 @@ def editPage(title, text):
     data = {
         'format': 'json',
         'action': 'edit',
+        # 'summary': '',
         'title': title,
         'text': text,
         'token': csrftoken
@@ -44,12 +46,6 @@ def editPage(title, text):
     print(r.status_code, r.json())
 
 
-# def run_npm_build():
-#     p = subprocess.Popen(['yarn', 'run', 'build-production'], cwd='/home/dima/Wikipedia-Yofication/web-frontend')
-#     p.wait()
-
-
-# run_npm_build()
 login()
-script_text = open('dist/yoficator.bundle.min.js').read()
+script_text = open('dist/yoficator.bundle.js').read()
 editPage(yoficator_page_name, script_text)
