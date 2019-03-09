@@ -40,7 +40,7 @@ if 'hcodes/eyo' in DICTS:
         if eword in words:
             words[eword].is_safe = is_safe
         else:
-            frequency = 100 if is_safe else 30
+            frequency = 100 if is_safe else 20
             words[eword] = YoWord(yoword, frequency, 100, is_safe)
 
 
