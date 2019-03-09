@@ -1,25 +1,18 @@
 import ctypes
 import re
+from collections import namedtuple
 
 from src.helpers import fetch_lines
+
+YoWord = namedtuple('YoWord', ['yoword', 'number_with_yo', 'number_all', 'is_safe'])
 
 
 def deyoficate(string):
     return string.replace('ё', 'е').replace('Ё', 'Е')
 
 
-class YoWord(str):
-    def __new__(cls, yoword, number_with_yo, number_all, is_safe):
-        return str.__new__(cls, yoword)
-
-    def __init__(self, yoword, number_with_yo, number_all, is_safe):
-        super().__init__()
-        self.number_with_yo = number_with_yo
-        self.number_all = number_all
-        self.is_safe = is_safe
-
-    def frequency(self):
-        return self.number_with_yo * 100 // self.number_all
+def get_yoword_frequency(yoword):
+    return yoword.number_with_yo * 100 // yoword.number_all
 
 
 DICTS = ['wikipedia', 'hcodes/eyo']
@@ -38,7 +31,7 @@ if 'hcodes/eyo' in DICTS:
     for yoword, is_safe in yowords:
         eword = deyoficate(yoword)
         if eword in words:
-            words[eword].is_safe = is_safe
+            words[eword] = words[eword]._replace(is_safe=is_safe)
         else:
             frequency = 100 if is_safe else 20
             words[eword] = YoWord(yoword, frequency, 100, is_safe)
@@ -148,7 +141,7 @@ def get_replaces(text, **kwargs):
         dword = match.group()
         if dword in words:
             yoword = words[dword]
-            if yoword.frequency() < minimum_replace_frequency and not (yoword == 'Всё' and minimum_replace_frequency < 40):
+            if get_yoword_frequency(yoword) < minimum_replace_frequency and not (yoword == 'Всё' and minimum_replace_frequency < 40):
                 continue
 
             if not check_match(text, match, dword):
@@ -169,9 +162,9 @@ def get_replaces(text, **kwargs):
                 continue
 
             replace = {
-                'yoword': yoword,
+                'yoword': yoword.yoword,
                 'wordStartIndex': start,
-                'frequency': yoword.frequency(),
+                'frequency': get_yoword_frequency(yoword),
                 'isSafe': yoword.is_safe
             }
             replaces.append(replace)

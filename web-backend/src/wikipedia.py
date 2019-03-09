@@ -6,7 +6,7 @@ from flask import Blueprint, request, jsonify, abort, redirect, make_response
 from mixpanel import Mixpanel
 
 from src.helpers import fetch_lines
-from src.yofication import get_replaces, deyoficate, words
+from src.yofication import get_replaces, deyoficate, words, get_yoword_frequency
 
 
 def track(*args, **kwargs):
@@ -185,7 +185,7 @@ def get_word_frequency(word):
     else:
         yoword = words[word]
         return f'''\n\n
-частота: {yoword.frequency()}%
+частота: {get_yoword_frequency(yoword)}%
 is_safe: {'yes' if yoword.is_safe else ('no' if yoword.is_safe == False else 'unknown')}
 
 
