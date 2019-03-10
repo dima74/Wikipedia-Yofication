@@ -23,6 +23,7 @@ class Main {
             this.performContinuousYofication();
         } else if (currentPageName === 'Служебная:Ёфикация/M') {
             localStorage.setItem('yoficator-m', 'true');
+            this.performContinuousYofication();
         } else if (currentPageName === 'Участник:Дима74/Скрипт-Ёфикатор/Параметры') {
             settings.initEditing();
         } else if (window.location.search.includes('yofication')) {
@@ -90,7 +91,7 @@ class Main {
 
     redirectContinuousYofication(pageName) {
         const pageNameEncoded = encodeURIComponent(pageName.replace(/ /g, '_'));
-        window.location.href = `https://ru.wikipedia.org/w/index.php?title=${pageNameEncoded}&action=edit&continuous_yofication`;
+        window.location.href = `//ru.wikipedia.org/w/index.php?title=${pageNameEncoded}&action=edit&continuous_yofication`;
     }
 }
 
