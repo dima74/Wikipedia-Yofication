@@ -9,10 +9,8 @@ module.exports = merge(common, {
         inline: false,
 
         // for debugging on mobile
+        // proxy: { '/wikipedia': 'http://127.0.0.1:5000' },
         // host: '0.0.0.0',
-        // proxy: {
-        //     '/wikipedia': 'http://127.0.0.1:5000'
-        // },
         // https: true,
     },
     // devtool: 'inline-source-map',

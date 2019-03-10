@@ -33,7 +33,8 @@ if 'hcodes/eyo' in DICTS:
         if eword in words:
             words[eword] = words[eword]._replace(is_safe=is_safe)
         else:
-            frequency = 100 if is_safe else 20
+            # маленькая частота для safe замен, потому что это очень подозрительно, если safe слово ни разу не встречалось в Википедии
+            frequency = 39 if is_safe else 20
             words[eword] = YoWord(yoword, frequency, 100, is_safe)
 
 
@@ -96,6 +97,7 @@ def is_dword_inside_tags(dword, text, wordStartIndex):
         ('«', '»'),
         # ('<!--', '-->'),
         # ('<source', '</source'),
+        ('<poem', '</poem'),
         ('<ref', '</ref'),
         ('<blockquote', '</blockquote'),
         # ('{{начало скрытого блока', '{{конец скрытого блока'),
@@ -141,7 +143,7 @@ def get_replaces(text, **kwargs):
         dword = match.group()
         if dword in words:
             yoword = words[dword]
-            if get_yoword_frequency(yoword) < minimum_replace_frequency and not (yoword == 'Всё' and minimum_replace_frequency < 40):
+            if get_yoword_frequency(yoword) < minimum_replace_frequency and not (yoword == 'Всё' and minimum_replace_frequency < 30):
                 continue
 
             if not check_match(text, match, dword):
