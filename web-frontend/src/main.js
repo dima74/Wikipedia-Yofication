@@ -33,12 +33,14 @@ class Main {
             if (this.isContinuousYofication) {
                 this.nextPageNamePromise = backend.getRandomPageName();
             }
-        } else if (wikipediaApi.isMainNamespace() && !IS_MOBILE_SITE) {
+        } else if (process.env.NODE_ENV === 'development' || wikipediaApi.isMainNamespace() && !IS_MOBILE_SITE) {
             if (wikipediaApi.isUsualPageView()) {
                 this.addPortletLink();
             }
             this.addYoficateButtonToToolbar();
-        } else if (currentPageName.startsWith('Участник:Дима74/Тест')) {
+        }
+
+        if (currentPageName.startsWith('Участник:Дима74/Тест')) {
             startYofication();
         }
     }

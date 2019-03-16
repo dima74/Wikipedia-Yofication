@@ -1,12 +1,15 @@
 import BaseYoficator, { getReplaceHintColor } from './BaseYoficator';
 import toast from '../toast';
 import backend from '../backend';
+import main from '../main';
 import { assert } from '../base';
 import { addConvientPropertiesToReplaces, checkReplacesMatchWikitext, isNewWikitextYoficatedVersionOfOld } from './utility';
 
 export default class WikitextBaseYoficator extends BaseYoficator {
     async fetchReplaces() {
         this.wikitext = this.getWikitext();
+
+        if (main.isContinuousYofication && this.isPageEditingByAnotherUser()) return [];
 
         toast('Загружаем список замен...');
         const { replaces, wikitextLength } = await backend.getReplacesByWikitext(this.wikitext);
@@ -31,5 +34,11 @@ export default class WikitextBaseYoficator extends BaseYoficator {
         if (!isNewWikitextYoficatedVersionOfOld(this.wikitext, wikitextNew)) {
             console.warn('Итоговый викитекст отличается от исходного не только из-за ёфикации. Это ошибка если во время ёфикации викитекст не редактировался.');
         }
+    }
+
+    isPageEditingByAnotherUser() {
+        const wikitext = this.wikitext.toLowerCase();
+        const templateNames = ['редактирую', 'редактирую раздел', 'пишу', 'правлю', 'перерабатываю', 'перевожу', 'статья редактируется', 'викифицирую', 'inuse', 'inuse-by', 'processing'];
+        return templateNames.some(name => wikitext.includes(`{{${name}`));
     }
 }
