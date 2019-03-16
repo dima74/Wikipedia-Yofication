@@ -390,7 +390,13 @@ export default class PageYoficator extends BaseYoficator {
         });
         if (!response.edit || response.edit.result !== 'Success') {
             console.log(response);
-            assert(false, 'Не удалось произвести правку: ' + (response.edit ? response.edit.info : 'неизвестная ошибка'));
+
+            const errorMessage = response.error
+                ? response.error.info
+                : (response.edit
+                    ? response.edit.info
+                    : 'неизвестная ошибка');
+            assert(false, 'Не удалось произвести правку: ' + errorMessage);
         }
     }
 }
