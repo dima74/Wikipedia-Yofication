@@ -1,0 +1,57 @@
+version: 2
+
+jobs:
+  frequencies:
+    working_directory: ~/project/frequencies
+    docker:
+      - image: circleci/rust
+    steps:
+      - checkout:
+          path: ~/project
+      - run:
+          name: Version information
+          command: rustc --version; cargo --version; rustup --version
+      - run:
+          name: Calculate dependencies
+          command: cargo generate-lockfile
+      - restore_cache:
+          keys:
+            - v4-cargo-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
+      - run:
+          name: Build all targets
+          command: cargo build --release --all --all-targets
+      - save_cache:
+          paths:
+            - /usr/local/cargo/registry
+          key: v4-cargo-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
+      - run:
+          name: Run
+          command: |
+            mkdir results
+            cargo run --release
+          no_output_timeout: 60m
+      - run:
+          name: Update frequencies on github
+          command: ./update_frequencies_on_github.sh
+#  deploy:
+#    docker:
+#      - image: circleci/<language>:<version TAG>
+#    steps:
+#      - checkout
+#      - run: <command>
+
+workflows:
+  version: 2
+#  commit:
+#    jobs:
+#      - deploy
+  frequencies:
+    triggers:
+      - schedule:
+          cron: "0 0 7 * *"
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - frequencies

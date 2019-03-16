@@ -1,0 +1,13 @@
+[package]
+name = "frequencies"
+version = "0.1.0"
+authors = ["Dmitry Murzin <diraria@yandex.ru>"]
+edition = "2018"
+
+[profile.release]
+codegen-units = 1
+
+[dependencies]
+bzip2 = "*"
+reqwest = "*"
+itertools = "*"
