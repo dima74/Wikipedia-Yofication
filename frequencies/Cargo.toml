@@ -1,6 +1,6 @@
 [package]
 name = "frequencies"
-version = "0.1.0"
+version = "2.3.0"
 authors = ["Dmitry Murzin <diraria@yandex.ru>"]
 edition = "2018"
 
@@ -8,6 +8,6 @@ edition = "2018"
 codegen-units = 1
 
 [dependencies]
-bzip2 = "*"
-reqwest = "*"
-itertools = "*"
+bzip2 = "0.3.3"
+reqwest = "0.9.11"
+itertools = "0.8.0"

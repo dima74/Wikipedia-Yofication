@@ -5,15 +5,14 @@ use crate::pages_generator::PagesGenerator;
 use crate::string_utils::find_words;
 use crate::yoword_info::YowordInfo;
 
-pub mod wikipedia_dump;
-pub mod yoword_info;
-pub mod string_utils;
-pub mod frequencies_generator;
-pub mod pages_generator;
+mod wikipedia_dump;
+mod yoword_info;
+mod string_utils;
+mod frequencies_generator;
+mod pages_generator;
 
 fn get_old_yoword_infos() -> Result<Vec<YowordInfo>, Box<dyn Error>> {
     const FREQUENCIES_URL: &str = "https://raw.githubusercontent.com/dima74/Wikipedia-Yofication/frequencies/frequencies.txt";
-
     let response = reqwest::get(FREQUENCIES_URL)?.text()?;
 
     let mut yowords = Vec::new();

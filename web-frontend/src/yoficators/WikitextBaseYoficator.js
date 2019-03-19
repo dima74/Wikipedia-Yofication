@@ -2,7 +2,6 @@ import BaseYoficator, { getReplaceHintColor } from './BaseYoficator';
 import toast from '../toast';
 import backend from '../backend';
 import main from '../main';
-import { assert } from '../base';
 import { addConvientPropertiesToReplaces, checkReplacesMatchWikitext, isNewWikitextYoficatedVersionOfOld } from './utility';
 
 export default class WikitextBaseYoficator extends BaseYoficator {
@@ -12,19 +11,36 @@ export default class WikitextBaseYoficator extends BaseYoficator {
         if (main.isContinuousYofication && this.isPageEditingByAnotherUser()) return [];
 
         toast('Загружаем список замен...');
-        const { replaces, wikitextLength } = await backend.getReplacesByWikitext(this.wikitext);
-        assert(this.wikitext.length === wikitextLength);
+        const replaces = await backend.getReplacesByWikitext(this.wikitext);
         checkReplacesMatchWikitext(this.wikitext, replaces);
         addConvientPropertiesToReplaces(this.wikitext, replaces);
+        this.markReplacesInsideQuotes(this.wikitext, replaces);
         return replaces;
+    }
+
+    markReplacesInsideQuotes(wikitext, replaces) {
+        const QUOTES_LENGTH_THRESHOLD = 20;
+
+        for (const replace of replaces) {
+            const quoteOpenIndex = wikitext.lastIndexOf('«', replace.wordStartIndex);
+            if (quoteOpenIndex === -1) continue;
+
+            const quoteCloseIndex = wikitext.indexOf('»', quoteOpenIndex);
+            if (quoteCloseIndex === -1) continue;
+
+            const quotesLength = quoteCloseIndex - quoteOpenIndex;
+            if (replace.wordStartIndex < quoteCloseIndex && quotesLength >= QUOTES_LENGTH_THRESHOLD) {
+                replace.isInsideQuotes = true;
+            }
+        }
     }
 
     createReplaceElement(replace) {
         const element = document.createElement('span');
         element.classList.add('yoficator-replace');
-        const frequencyHintWidth = replace.isSafe ? 100 : replace.frequency;
-        element.style.setProperty('--frequency-hint-width', frequencyHintWidth + '%');
-        element.style.setProperty('--frequency-hint-color', getReplaceHintColor(replace.frequency));
+        if (replace.isInsideQuotes) element.classList.add('yoficator-replace-inside-quotes');
+        element.style.setProperty('--frequency-hint-width', replace.frequency + '%');
+        element.style.setProperty('--frequency-hint-color', getReplaceHintColor(replace.frequencyWikipedia));
         element.textContent = replace.originalWord;
         return element;
     }

@@ -13,5 +13,5 @@ module.exports = merge(common, {
         // host: '0.0.0.0',
         // https: true,
     },
-    // devtool: 'inline-source-map',
+    devtool: 'inline-source-map',
 });

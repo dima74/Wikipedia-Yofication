@@ -8,20 +8,21 @@ class Backend {
         const options = {
             errorMessage: 'Не удалось получить следующую страницу для ёфикации',
             data: {
-                'minimumNumberReplacesForContinuousYofication': settings.minimumNumberReplacesForContinuousYofication,
+                minimum_number_replaces_for_continuous_yofication: settings.minimumNumberReplacesForContinuousYofication,
             },
         };
         return await fetchJson(BACKEND_HOST + '/wikipedia/randomPageName', options);
     }
 
-    async getReplacesByPageName(pageName) {
+    async getReplacesByPageName(title) {
         const options = {
             errorMessage: 'Произошла ошибка при загрузке списка замен',
             data: {
                 minimumReplaceFrequency: settings.minimumReplaceFrequency,
+                title
             },
         };
-        return await fetchJson(BACKEND_HOST + '/wikipedia/replacesByTitle/' + encodeURIComponent(pageName), options);
+        return await fetchJson(BACKEND_HOST + '/wikipedia/replacesByTitle', options);
     }
 
     async getReplacesByWikitext(wikitext) {

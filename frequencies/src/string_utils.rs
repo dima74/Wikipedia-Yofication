@@ -9,28 +9,20 @@ pub fn deyoficate(s: &str) -> String {
 }
 
 pub fn is_russian_lower(c: char) -> bool {
-    return ('а' <= c && c <= 'я') || c == 'ё';
+    ('а' <= c && c <= 'я') || c == 'ё'
 }
 
 pub fn is_russian_upper(c: char) -> bool {
-    return ('А' <= c && c <= 'Я') || c == 'Ё';
+    ('А' <= c && c <= 'Я') || c == 'Ё'
 }
 
 pub fn is_russian(c: char) -> bool {
-    return is_russian_lower(c) || is_russian_upper(c);
+    is_russian_lower(c) || is_russian_upper(c)
 }
 
-//pub fn is_russian_delimiter(c: char) -> bool {
-//    return c == '-';           // обычный дефис
-//
-////    return c == '\u{0301}'    // ударение
-////        || c == '-'           // обычный дефис
-////        || c == '\u{00AD}';   // мягкий перенос
-//}
-
 pub fn is_russian_in_text(prev: char, curr: char, next: char) -> bool {
-    return is_russian(curr)
-        || curr == '-' && is_russian(prev) && is_russian(next);
+    is_russian(curr)
+        || curr == '-' && is_russian(prev) && is_russian(next)
 }
 
 pub fn find_words(text: String) -> Vec<String> /* todo Vec<&str> */ {

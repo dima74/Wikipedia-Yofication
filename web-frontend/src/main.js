@@ -7,7 +7,6 @@ import { YO_IMAGE_URL_20, YO_IMAGE_URL_22 } from './constants';
 import { IS_MOBILE_DEVICE, IS_MOBILE_SITE } from './base';
 
 // todo оптимизации переходов между заменами
-// todo поддержка utf32 текстов
 
 class Main {
     start() {

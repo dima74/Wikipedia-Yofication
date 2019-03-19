@@ -22,6 +22,7 @@ pub struct FrequenciesGenerator {
 }
 
 impl FrequenciesGenerator {
+    // todo также использовать safe & non_safe слова словаря hcodes чтобы по всем ним статистика тоже собиралась
     pub fn new(old_yoword_infos: &Vec<YowordInfo>) -> FrequenciesGenerator {
         let eword_infos = old_yoword_infos.iter()
             .map(|yoword| (yoword.yoword.clone(), EwordInfo { number_all: 0, yoword_counts: HashMap::new() }))

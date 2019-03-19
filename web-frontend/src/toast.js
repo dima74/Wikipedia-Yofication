@@ -1,31 +1,40 @@
 import { sleep } from './base';
 import main from './main';
 
+const SNACKBAR_WRAPPER_CSS = `
+position: fixed;
+bottom: 30px;
+left: 0;
+right: 0;
+display: flex;
+z-index: 1;
+pointer-events: none;
+`;
 const SNACKBAR_CSS = `
+margin: auto;
 min-width: 250px;
-transform: translateX(-50%);
 background-color: #333;
 color: #fff;
 text-align: center;
 border-radius: 2px;
 padding: 16px;
-position: fixed;
-z-index: 1;
-left: 50%;
-bottom: 30px;
 transition: opacity 1s;
 `;
-const SNACKBAR_HTML = `<div id="yoficator-snackbar" style="${SNACKBAR_CSS}">Спасибо, что используете скрипт-ёфикатор!</div>`;
+const SNACKBAR_HTML =
+    `<div style="${SNACKBAR_WRAPPER_CSS}">`
+    + `<div id="yoficator-snackbar" style="${SNACKBAR_CSS}">Спасибо, что используете скрипт-ёфикатор!</div>` +
+    `</div>`;
 
 let toastElement = null;
 let toastTimerId = null;
 
 function initToast() {
     const $toast = $(SNACKBAR_HTML).appendTo('body');
-    toastElement = $toast[0];
+    toastElement = document.getElementById('yoficator-snackbar');
 
     if (main.isMobile) {
-        $toast.css({ bottom: 7, padding: 8 });
+        $toast.css({ bottom: 7 });
+        $(toastElement).css({ padding: 8 });
     }
 }
 

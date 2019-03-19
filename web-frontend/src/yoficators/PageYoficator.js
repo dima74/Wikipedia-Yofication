@@ -65,7 +65,7 @@ export default class PageYoficator extends BaseYoficator {
         const wikitextPromise = wikipediaApi.getWikitext(currentPageName);
 
         toast('Загружаем список замен...');
-        const { replaces, revision, timestamp, wikitextLength } = await backend.getReplacesByPageName(currentPageName);
+        const { replaces, revision, timestamp } = await backend.getReplacesByPageName(currentPageName);
         this.replaces = replaces;
         this.timestamp = timestamp;
         if (replaces.length === 0) return;
@@ -74,7 +74,6 @@ export default class PageYoficator extends BaseYoficator {
         this.wikitext = await wikitextPromise;
 
         assert(revision === mw.config.get('wgCurRevisionId'));
-        assert(this.wikitext.length === wikitextLength);
         checkReplacesMatchWikitext(this.wikitext, replaces);
         addConvientPropertiesToReplaces(this.wikitext, replaces);
     }
@@ -292,9 +291,7 @@ export default class PageYoficator extends BaseYoficator {
                     const replaceRemote = replaces[0];
 
                     const replace = {
-                        yoword,
-                        wordStartIndex: replaceRemote.replace.wordStartIndex,
-                        frequency: yowordInfo.frequency,
+                        ...replaceRemote.replace,
                         highlightInfo: occurrence,
                         isAccept: false,
                     };

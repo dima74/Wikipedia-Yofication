@@ -15,6 +15,10 @@ const createStyles = (padding, frequencyHintHeight) => `
 	padding: ${padding - 1}px ${padding}px;
 }
 
+.yoficator-replace-active.yoficator-replace-inside-quotes {
+	background-color: #ef9a9a;
+}
+
 .yoficator-replace-active::before {
 	width: var(--frequency-hint-width);
 	background-color: var(--frequency-hint-color);
@@ -27,11 +31,11 @@ const createStyles = (padding, frequencyHintHeight) => `
 `;
 
 export function getReplaceHintColor(frequency) {
-    frequency /= 100;
+    if (frequency === null) frequency = 0;
     const limits = [
-        [0.6, 'green'],
-        [0.4, 'orange'],
-        [0.0, 'red'],
+        [60, 'green'],
+        [40, 'orange'],
+        [0, 'red'],
     ];
     for (const [limit, color] of limits) {
         if (frequency >= limit) {
@@ -174,7 +178,7 @@ export default class BaseYoficator {
             return false;
         }
 
-        const statusFrequency = `${replace.frequency}%` + (replace.isSafe ? ' (safe)' : '');
+        const statusFrequency = (replace.frequencyWikipedia === null ? '?' : `${replace.frequencyWikipedia}%`) + (replace.isSafe ? ' (safe)' : '');
         const status = `${statusFrequency}\n${yoword}\nЗамена ${this.currentReplaceIndex + 1} из ${this.replaces.length}`;
         toast(status);
 
@@ -269,12 +273,12 @@ export default class BaseYoficator {
     }
 
     openYowordWiktionaryPage() {
-        const yoword = this.currentReplace.yoword.toLowerCase();
-        window.open(BACKEND_HOST + '/wikipedia/redirectToWiktionaryArticle/' + yoword);
+        const yoword = this.currentReplace.yowordNormalized.toLowerCase();
+        window.open(BACKEND_HOST + '/redirectToWiktionaryArticle/' + yoword);
     }
 
     openYowordStatPage() {
-        const yoword = this.currentReplace.yoword;
+        const yoword = this.currentReplace.yowordNormalized;
         window.open(BACKEND_HOST + '/stat/' + yoword);
     }
 

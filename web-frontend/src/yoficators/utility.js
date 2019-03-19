@@ -8,7 +8,9 @@ export function checkReplacesMatchWikitext(wikitext, replaces) {
     for (const replace of replaces) {
         const yoword = replace.yoword;
         const ewordRemote = deyoficate(yoword);
-        const ewordLocal = wikitext.substr(replace.wordStartIndex, yoword.length);
+        const wordLocal = wikitext.substr(replace.wordStartIndex, yoword.length);
+        // deyoficate нужен для поддержки ёфикации слов, содержащих ё
+        const ewordLocal = deyoficate(wordLocal);
         assert(ewordLocal === ewordRemote);
     }
 }

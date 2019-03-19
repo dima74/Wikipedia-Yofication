@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ёфикация</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400|Material+Icons" rel="stylesheet">
+    <link href="https://unpkg.com/vuetify/dist/vuetify.min.css" rel="stylesheet">
+    <link rel="shortcut icon" href="/static/yo_22.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+
+    <style>
+        #app[v-cloak] {
+            display: none;
+        }
+
+        .v-card {
+            margin: auto;
+            width: 100%;
+        }
+
+
+        @media (min-width: 960px) {
+            .v-card {
+                max-width: 70vw;
+            }
+        }
+
+        .text .v-text-field__slot {
+            /* https://github.com/vuetifyjs/vuetify/issues/6733 */
+            height: 100%;
+        }
+
+        ::placeholder {
+            color: #616161 !important;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+<div id="app" v-cloak>
+    <v-app>
+        <v-content>
+            <v-container fill-height>
+
+                <v-card>
+                    <v-form id="form" class="px-4 py-3" @submit="onSubmit">
+                        <v-card-title class="headline font-weight-light px-0">Автоматическая ёфикация текста</v-card-title>
+
+                        <v-textarea
+                            v-model="text"
+                            height="50vh"
+                            class="text"
+                            autofocus
+                            hide-details
+                            placeholder="Введите текст для ёфикации"
+                            @paste="onPaste"
+                        ></v-textarea>
+                        <v-text-field
+                            v-model="minimumReplaceFrequency"
+                            hide-details
+                            class="mt-3"
+                            type="number"
+                            min="0"
+                            max="100"
+                            placeholder="Минимальная частота для ёфикации (0-100, по умолчанию 60)"
+                        ></v-text-field>
+
+                        <v-card-actions class="px-0 mt-3">
+                            <v-btn
+                                type="submit"
+                                color="primary"
+                                :loading="isLoading"
+                            >
+                                Ёфицировать
+                            </v-btn>
+                        </v-card-actions>
+                    </v-form>
+                </v-card>
+
+            </v-container>
+        </v-content>
+
+        <v-snackbar
+            v-model="snackbarModel"
+            bottom
+            right
+        >
+            {{ snackbar }}
+        </v-snackbar>
+    </v-app>
+</div>
+
+<script src="https://unpkg.com/vue/dist/vue.min.js"></script>
+<script src="https://unpkg.com/vuetify/dist/vuetify.min.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script>
+    new Vue({
+        el: '#app',
+        data: () => ({
+            snackbarModel: false,
+            snackbar: null,
+            text: '',
+            minimumReplaceFrequency: null,
+
+            isLoading: false,
+        }),
+        methods: {
+            toast(message) {
+                this.snackbar = message;
+                this.snackbarModel = true;
+            },
+            async onPaste() {
+                if (this.text.length > 0) return;
+
+                const sleep = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
+                await sleep(0);
+                this.yoficate();
+            },
+            onSubmit(event) {
+                event.preventDefault();
+                this.yoficate();
+            },
+            async yoficate() {
+                const text = this.text;
+                const minimumReplaceFrequency = this.minimumReplaceFrequency || 60;
+                const data = { text, minimumReplaceFrequency };
+
+                this.isLoading = true;
+                try {
+                    const { textYoficated, numberReplaces } = (await axios.post('/yoficate', data)).data;
+                    if (numberReplaces === 0) {
+                        this.toast('Замен не найдено');
+                        return;
+                    }
+
+                    this.toast(`Текст успешно ёфицирован! Найдено замен: ${numberReplaces}`);
+                    this.text = textYoficated;
+                    await navigator.clipboard.writeText(textYoficated);
+                } catch (e) {
+                    const errorMessage = e.response ? e.response.statusText : 'Неизвестная ошибка';
+                    this.toast('Ошибка: ' + errorMessage);
+                } finally {
+                    this.isLoading = false;
+                }
+            },
+        },
+    });
+</script>
+
+</body>
+</html>
