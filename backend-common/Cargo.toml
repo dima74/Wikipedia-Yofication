@@ -1,10 +1,9 @@
 [package]
-name = "frequencies"
+name = "backend-common"
 version = "0.1.0"
 authors = ["Dmitry Murzin <diraria@yandex.ru>"]
 edition = "2018"
 
 [dependencies]
-bzip2 = "0.3.3"
+regex = "1.1.2"
 reqwest = "0.9.11"
-itertools = "0.8.0"

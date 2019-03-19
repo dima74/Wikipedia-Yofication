@@ -6,7 +6,7 @@ use std::error::Error;
 use crate::string_utils;
 
 pub mod wikipedia;
-pub mod hcodes;
+use backend_common::hcodes;
 
 #[derive(Debug)]
 pub struct YowordInfo {

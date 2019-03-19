@@ -1,0 +1,9 @@
+[workspace]
+members = [
+    "backend",
+    "frequencies",
+    "backend-common",
+]
+
+[profile.release]
+codegen-units = 1
