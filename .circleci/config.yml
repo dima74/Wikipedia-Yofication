@@ -19,22 +19,6 @@ jobs:
       - checkout:
           path: ~/project
       - run:
-          name: Version information
-          command: rustc --version; cargo --version; rustup --version
-      - run:
-          name: Calculate dependencies
-          command: cargo generate-lockfile
-      - restore_cache:
-          keys:
-            - v4-cargo-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
-      - run:
-          name: Build all targets
-          command: cargo build --release --all --all-targets
-      - save_cache:
-          paths:
-            - /usr/local/cargo/registry
-          key: v4-cargo-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
-      - run:
           name: Generate frequencies and all-pages
           command: |
             mkdir results

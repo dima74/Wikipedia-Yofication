@@ -14,9 +14,12 @@ impl YowordInfo {
 }
 
 impl YowordInfo {
+    /// лексикографически, сначала начинающиеся с маленькой буквы
     pub fn cmp(&self, other: &Self) -> Ordering {
-        let self_tuple = (self.frequency(), self.number_all);
-        let other_tuple = (other.frequency(), other.number_all);
-        self_tuple.partial_cmp(&other_tuple).unwrap()
+        fn get_sort_tuple(yoword: &YowordInfo) -> (bool, &str) {
+            (yoword.yoword.chars().next().unwrap().is_uppercase(), &yoword.yoword)
+        }
+
+        get_sort_tuple(self).partial_cmp(&get_sort_tuple(other)).unwrap()
     }
 }

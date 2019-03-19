@@ -25,7 +25,7 @@ impl FrequenciesGenerator {
     // todo также использовать safe & non_safe слова словаря hcodes чтобы по всем ним статистика тоже собиралась
     pub fn new(old_yoword_infos: &Vec<YowordInfo>) -> FrequenciesGenerator {
         let eword_infos = old_yoword_infos.iter()
-            .map(|yoword| (yoword.yoword.clone(), EwordInfo { number_all: 0, yoword_counts: HashMap::new() }))
+            .map(|yoword| (deyoficate(&yoword.yoword), EwordInfo { number_all: 0, yoword_counts: HashMap::new() }))
             .collect();
 
         FrequenciesGenerator { eword_infos }
@@ -52,7 +52,7 @@ impl FrequenciesGenerator {
         let mut yowords: Vec<_> = self.eword_infos.into_iter()
             .filter(|entry| !entry.1.yoword_counts.is_empty())
             .map(|entry| entry.1.get_best_yword_info()).collect();
-        yowords.sort_by(|yoword1, yoword2| yoword2.cmp(yoword1));
+        yowords.sort_by(|yoword1, yoword2| yoword1.cmp(&yoword2));
 
         let file = File::create(file_name).unwrap();
         let mut file = LineWriter::new(file);
