@@ -19,7 +19,7 @@ export default class WikitextBaseYoficator extends BaseYoficator {
     }
 
     markReplacesInsideQuotes(wikitext, replaces) {
-        const QUOTES_LENGTH_THRESHOLD = 20;
+        const QUOTES_DISTANCE_THRESHOLD = 7;
 
         for (const replace of replaces) {
             const quoteOpenIndex = wikitext.lastIndexOf('«', replace.wordStartIndex);
@@ -28,9 +28,10 @@ export default class WikitextBaseYoficator extends BaseYoficator {
             const quoteCloseIndex = wikitext.indexOf('»', quoteOpenIndex);
             if (quoteCloseIndex === -1) continue;
 
-            const quotesLength = quoteCloseIndex - quoteOpenIndex;
-            if (replace.wordStartIndex < quoteCloseIndex && quotesLength >= QUOTES_LENGTH_THRESHOLD) {
-                replace.isInsideQuotes = true;
+            if (replace.wordStartIndex < quoteCloseIndex) {
+                const distanceLeft = replace.wordStartIndex - quoteOpenIndex;
+                const distanceRight = quoteCloseIndex - replace.wordEndIndex + 1;
+                replace.isInsideQuotes = distanceLeft > QUOTES_DISTANCE_THRESHOLD && distanceRight > QUOTES_DISTANCE_THRESHOLD;
             }
         }
     }
