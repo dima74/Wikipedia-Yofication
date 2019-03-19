@@ -41,6 +41,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     crate::wikipedia_dump::iterate_articles(consumer, number_articles)?;
 
     frequencies_generator.save_result("./results/frequencies.txt");
-    pages_generator.save_result("./results/all-titles.txt");
+    pages_generator.save_result("./results/all-pages.txt");
     Ok(())
 }
