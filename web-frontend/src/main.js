@@ -9,9 +9,6 @@ import { IS_MOBILE_DEVICE, IS_MOBILE_SITE } from './base';
 // todo оптимизации переходов между заменами
 // todo горячая клавиша для unwrap замены (если в этом слове ошибка/опечатка)
 
-// todo в слове «Кое-где» скрипт предлагает заменить «Кое» на «Коё»
-//  мб стоит считать замены для всех слов содержащих дефисы. Или вообще для всех слов.
-
 class Main {
     start() {
         const continuousYoficationNextPage = sessionStorage.getItem('yoficator:continuous-yofication-next-page');

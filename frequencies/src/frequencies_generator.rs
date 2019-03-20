@@ -48,12 +48,16 @@ impl FrequenciesGenerator {
             if contains_yo {
                 let eword = deyoficate(word);
                 let mut eword_info = self.eword_infos.entry(eword)
-                    .or_insert_with(|| EwordInfo { number_all: 0, yoword_counts: HashMap::new() });
+                    .or_insert_with(EwordInfo::new);
                 *eword_info.yoword_counts.entry(word.clone()).or_insert(0) += 1;
                 eword_info.number_all += 1;
             } else {
                 if let Some(eword_info) = self.eword_infos.get_mut(word) {
                     eword_info.number_all += 1;
+                } else if word.contains('-') {
+                    let mut eword_info = EwordInfo::new();
+                    eword_info.number_all += 1;
+                    self.eword_infos.insert(word.to_owned(), eword_info);
                 }
             }
         }

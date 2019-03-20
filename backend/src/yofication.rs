@@ -136,8 +136,10 @@ impl Yofication {
             let yoword: Vec<_> = yoword_info.yoword.encode_utf16().collect();
             if yoword == word { return false; }
 
-            if yoword_info.frequency() < minimum_replace_frequency
-                && !(yoword_info.yoword == "Всё" && minimum_replace_frequency < 30) { return contains_hyphen; }
+            let force_yoficate = yoword_info.yoword == "Всё" && minimum_replace_frequency < 30;
+            if yoword_info.frequency() < minimum_replace_frequency && !force_yoficate {
+                return yoword_info.frequency() >= 1 && yoword_info.number_all < 1000 && contains_hyphen;
+            }
 
             if !Yofication::check_match(&text_lowercase, &eword, range.clone()) { return false; }
 
