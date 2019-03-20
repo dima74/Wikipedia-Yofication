@@ -33,7 +33,8 @@ jobs:
       - run:
           name: Deploy Master to Heroku
           command: |
-            git push https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_NAME.git master
+            git push --force https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_NAME.git master
+
 workflows:
   version: 2
   commit:
@@ -42,7 +43,9 @@ workflows:
       - deploy:
           requires:
             - test
-  frequencies:
+  frequencies_cron:
+    jobs:
+      - frequencies
     triggers:
       - schedule:
           cron: "0 0 7 * *"
@@ -50,5 +53,15 @@ workflows:
             branches:
               only:
                 - master
+  frequencies:
+#    чтобы инициировать подсчёт частот нужно добавить тег frequencies_trigger к коммиту:
+#        git tag frequencies_trigger && git push origin frequencies_trigger
+#    затем его можно удалить
+#        git tag -d frequencies_trigger && git push origin :frequencies_trigger
     jobs:
-      - frequencies
+      - frequencies:
+          filters:
+            tags:
+              only: frequencies_trigger
+            branches:
+              ignore: /.*/
