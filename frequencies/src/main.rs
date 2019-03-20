@@ -29,7 +29,7 @@ fn get_old_yoword_infos() -> Result<Vec<YowordInfo>, Box<dyn Error>> {
 fn main() -> Result<(), Box<dyn Error>> {
     let old_yoword_infos = get_old_yoword_infos()?;
 
-    let mut frequencies_generator = FrequenciesGenerator::new(&old_yoword_infos);
+    let mut frequencies_generator = FrequenciesGenerator::new(&old_yoword_infos)?;
     let mut pages_generator = PagesGenerator::new(&old_yoword_infos);
 
     let consumer = |title: String, text: String| {

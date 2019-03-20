@@ -36,7 +36,7 @@ fn print_probably_missing_safe(wikipedia_yowords: &Vec<YowordInfo>, hcodes_safe:
 // 2. найти пересечение этого списка с deyoficate(hcodes.safe)
 fn main() {
     let yoword_infos = backend::dictionary::wikipedia::fetch_wikipedia_yoword_infos().unwrap();
-    let hcodes_safe = backend_common::hcodes::fetch_hcodes_yowords("safe.txt").unwrap();
+    let hcodes_safe = backend_common::hcodes::fetch_hcodes_yowords(true).unwrap();
 
     let hcodes_safe: HashSet<String> = HashSet::from_iter(hcodes_safe);
 

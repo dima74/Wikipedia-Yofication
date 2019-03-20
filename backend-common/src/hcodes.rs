@@ -2,8 +2,9 @@ use std::error::Error;
 
 use regex::Regex;
 
-pub fn fetch_hcodes_yowords(filename: &str) -> Result<Vec<String>, Box<dyn Error>> {
-    let url = format!("https://raw.githubusercontent.com/hcodes/eyo-kernel/master/dict_src/{}", filename);
+pub fn fetch_hcodes_yowords(is_safe: bool) -> Result<Vec<String>, Box<dyn Error>> {
+    let file_name = if is_safe { "safe.txt" } else { "not_safe.txt" };
+    let url = format!("https://raw.githubusercontent.com/hcodes/eyo-kernel/master/dict_src/{}", file_name);
     let response = reqwest::get(&url)?.text()?;
 
     let re1 = Regex::new(" *#.*").unwrap();

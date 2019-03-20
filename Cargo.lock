@@ -289,6 +289,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 name = "frequencies"
 version = "0.1.0"
 dependencies = [
+ "backend-common 0.1.0",
  "bzip2 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "itertools 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "reqwest 0.9.11 (registry+https://github.com/rust-lang/crates.io-index)",

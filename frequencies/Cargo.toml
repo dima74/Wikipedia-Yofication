@@ -8,3 +8,4 @@ edition = "2018"
 bzip2 = "0.3.3"
 reqwest = "0.9.11"
 itertools = "0.8.0"
+backend-common = { path = "../backend-common" }

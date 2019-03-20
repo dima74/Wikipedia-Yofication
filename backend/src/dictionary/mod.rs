@@ -3,10 +3,11 @@ use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::error::Error;
 
+use backend_common::hcodes;
+
 use crate::string_utils;
 
 pub mod wikipedia;
-use backend_common::hcodes;
 
 #[derive(Debug)]
 pub struct YowordInfo {
@@ -53,8 +54,8 @@ pub fn get_ewords_map() -> Result<HashMap<Vec<u16>, YowordInfo>, Box<dyn Error>>
         ewords.insert(eword, yoword_info);
     }
 
-    for (filename, is_safe) in vec![("safe.txt", true), ("not_safe.txt", false)] {
-        let yowords = hcodes::fetch_hcodes_yowords(filename)?;
+    for is_safe in vec![true, false] {
+        let yowords = hcodes::fetch_hcodes_yowords(is_safe)?;
         for yoword in yowords {
             let eword: Vec<_> = string_utils::deyoficate(&yoword.encode_utf16().collect::<Vec<_>>());
 
