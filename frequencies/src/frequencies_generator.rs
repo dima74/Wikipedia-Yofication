@@ -27,7 +27,9 @@ impl FrequenciesGenerator {
     pub fn new(old_yoword_infos: &Vec<YowordInfo>) -> Result<FrequenciesGenerator, Box<dyn Error>> {
         let mut all_yowords = Vec::new();
 
-        let wikipedia_yowords = old_yoword_infos.iter().map(|yoword| yoword.yoword.to_owned());
+        let wikipedia_yowords = old_yoword_infos.iter()
+            .filter(|yoword| yoword.number_with_yo > 0)
+            .map(|yoword| yoword.yoword.to_owned());
         all_yowords.extend(wikipedia_yowords);
 
         for is_safe in vec![true, false] {

@@ -7,7 +7,8 @@ import { YO_IMAGE_URL_20, YO_IMAGE_URL_22 } from './constants';
 import { IS_MOBILE_DEVICE, IS_MOBILE_SITE } from './base';
 
 // todo оптимизации переходов между заменами
-// todo горячая клавиша для unwrap замены (если в этом слове ошибка/опечатка)
+// todo улучшить минификацию
+// todo горячая клавиша для unwrap замены (если в этом слове ошибка/опечатка). отложено, так как пока это было нужно только в 1 статье
 
 class Main {
     start() {

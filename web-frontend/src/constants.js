@@ -1,4 +1,5 @@
-export const BACKEND_HOST = process.env.NODE_ENV === 'development'
+const USE_REMOTE_REPLACES = true;
+export const BACKEND_HOST = process.env.NODE_ENV === 'development' && !USE_REMOTE_REPLACES
     ? 'http://localhost:8000'
     : 'https://yofication.herokuapp.com';
 

@@ -117,8 +117,10 @@ export default class BaseYoficator {
             'KeyW': this.openYowordWiktionaryPage,
             // открыть страницу с дополнительной статистикой о слове (общее число слов и число слов с «ё» в Википедии
             'KeyS': this.openYowordStatPage,
-            // открыть статья в новой вкладке
+            // открыть статью в новой вкладке
             'KeyN': this.openArticlePage,
+            // если замена находится внутри ссылки на статью, открыть эту статью в новой вкладке
+            'KeyL': this.openLink,
         };
 
         this.onKeydown = event => {
@@ -284,5 +286,31 @@ export default class BaseYoficator {
 
     openArticlePage() {
         window.open('/wiki/' + currentPageName);
+    }
+
+    openLink() {
+        if (this.isPageMode) return;
+        const replace = this.currentReplace;
+
+        const openIndex = this.wikitext.lastIndexOf('[[', replace.wordStartIndex);
+        if (openIndex === -1) return;
+
+        const closeIndex = this.wikitext.indexOf(']]', openIndex);
+        if (closeIndex === -1) return;
+
+        if (replace.wordStartIndex < closeIndex) {
+            const linkStartIndex = openIndex + '[['.length;
+            const linkEndIndex = this.wikitext.indexOf('|', openIndex);
+            if (linkEndIndex === -1) return;
+
+            let linkPage = this.wikitext.substring(linkStartIndex, linkEndIndex);
+            for (const replace of this.replaces) {
+                if (linkStartIndex <= replace.wordStartIndex && replace.wordEndIndex <= linkEndIndex) {
+                    linkPage = linkPage.replace(new RegExp(deyoficate(replace.yoword), 'g'), replace.yoword);
+                }
+            }
+
+            window.open('/wiki/' + encodeURIComponent(linkPage.replace(/ /g, '_')));
+        }
     }
 }
