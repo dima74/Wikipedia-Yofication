@@ -3,7 +3,6 @@
 use std::error::Error;
 
 use rocket::routes;
-use rocket_contrib::serve::StaticFiles;
 
 use crate::continuous_yofication_pages::ContinuousYoficationPages;
 use crate::yofication::Yofication;
@@ -19,6 +18,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let routes = routes![
         routes::index,
+        routes::static_files,
         routes::get_word_frequency,
         routes::yoficate::yoficate,
         routes::wiktionary::redirect_to_wiktionary_article,
@@ -31,7 +31,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         .attach(cors::CORS())
         .manage(ContinuousYoficationPages::new())
         .manage(Yofication::new()?)
-        .mount("/static", StaticFiles::from("static"))
         .mount("/", routes)
         .launch();
     Ok(())

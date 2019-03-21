@@ -300,8 +300,10 @@ export default class BaseYoficator {
 
         if (replace.wordStartIndex < closeIndex) {
             const linkStartIndex = openIndex + '[['.length;
-            const linkEndIndex = this.wikitext.indexOf('|', openIndex);
-            if (linkEndIndex === -1) return;
+            let linkEndIndex = this.wikitext.indexOf('|', openIndex);
+            if (linkEndIndex === -1 || linkEndIndex > closeIndex) {
+                linkEndIndex = closeIndex;
+            }
 
             let linkPage = this.wikitext.substring(linkStartIndex, linkEndIndex);
             for (const replace of this.replaces) {

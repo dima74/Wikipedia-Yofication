@@ -1,7 +1,8 @@
 use std::io;
+use std::path::{Path, PathBuf};
 
-use rocket::{get, State};
-use rocket::response::NamedFile;
+use rocket::{get, Request, response, Response, State};
+use rocket::response::{NamedFile, Responder};
 
 use crate::yofication::Yofication;
 
@@ -12,6 +13,22 @@ pub mod wiktionary;
 #[get("/")]
 pub fn index() -> io::Result<NamedFile> {
     NamedFile::open("static/index.html")
+}
+
+// https://github.com/SergioBenitez/Rocket/issues/95#issuecomment-354824883
+pub struct CachedFile(NamedFile);
+
+impl<'r> Responder<'r> for CachedFile {
+    fn respond_to(self, req: &Request) -> response::Result<'r> {
+        Response::build_from(self.0.respond_to(req)?)
+            .raw_header("Cache-Control", "max-age=2592000")  // 1 month (30*24*60*60)
+            .ok()
+    }
+}
+
+#[get("/static/<file..>")]
+pub fn static_files(file: PathBuf) -> Option<CachedFile> {
+    NamedFile::open(Path::new("static/").join(file)).ok().map(|nf| CachedFile(nf))
 }
 
 #[get("/stat/<word>")]
