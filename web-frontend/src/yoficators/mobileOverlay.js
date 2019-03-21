@@ -13,6 +13,7 @@ export default function createOverlay(abortYofication, acceptReplace, rejectRepl
         //         правая половина →   принять замену
         //          левая половина → отклонить замену
         event.preventDefault();
+        event.stopPropagation();
         const touch = event.touches[0];
         const y = touch.clientY;
         const x = touch.clientX;
@@ -30,7 +31,13 @@ export default function createOverlay(abortYofication, acceptReplace, rejectRepl
             }
         }
     };
-    window.addEventListener('touchstart', onTouch, { passive: false });
+    window.addEventListener('touchstart', onTouch, { passive: false, capture: true });
+
+    // https://github.com/dima74/Wikipedia-Yofication/issues/26
+    const preventDefault = event => event.preventDefault();
+    for (const event of ['scroll', 'touchmove', 'touchend']) {
+        window.addEventListener(event, preventDefault, { passive: false });
+    }
 
     return () => window.removeEventListener('touchstart', onTouch);
 }
