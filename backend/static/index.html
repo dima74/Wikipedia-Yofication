@@ -55,6 +55,7 @@
                             hide-details
                             placeholder="Введите текст для ёфикации"
                             @paste="onPaste"
+                            @keydown="onKeydown"
                         ></v-textarea>
                         <v-text-field
                             v-model="minimumReplaceFrequency"
@@ -111,7 +112,8 @@
                 this.snackbarModel = true;
             },
             async onPaste() {
-                if (this.text.length > 0) return;
+                const isSelectedAll = window.getSelection().toString() === this.text;
+                if (this.text.length > 0 && !isSelectedAll) return;
 
                 const sleep = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
                 await sleep(0);
@@ -120,6 +122,11 @@
             onSubmit(event) {
                 event.preventDefault();
                 this.yoficate();
+            },
+            onKeydown(event) {
+                if (event.ctrlKey && event.code === 'Enter') {
+                    this.yoficate();
+                }
             },
             async yoficate() {
                 const text = this.text;
