@@ -123,7 +123,7 @@
             },
             async yoficate() {
                 const text = this.text;
-                const minimumReplaceFrequency = this.minimumReplaceFrequency || 60;
+                const minimumReplaceFrequency = this.minimumReplaceFrequency ? +this.minimumReplaceFrequency : 60;
                 const data = { text, minimumReplaceFrequency };
 
                 this.isLoading = true;
