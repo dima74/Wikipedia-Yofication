@@ -90,7 +90,7 @@ export default class BaseYoficator {
         await this.init();
 
         if (this.replaces.length === 0) {
-            toast('Эта страница и так уже ёфицирована. \n(Не найдено замен для этой страницы)');
+            toast('Эта страница и так уже ёфицирована. \n(Не найдено замен для этой страницы)', 7000);
             this.tryContinueContinuousYofication(false);
             return;
         }
