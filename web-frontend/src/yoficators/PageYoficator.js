@@ -48,6 +48,10 @@ class StringHelper {
     }
 }
 
+function removeYoficationArgumentFromUrl() {
+    window.history.pushState('', '', window.location.href.replace('?yofication', ''));
+}
+
 // todo deprecate and remove
 export default class PageYoficator extends BaseYoficator {
     async init() {
@@ -56,6 +60,10 @@ export default class PageYoficator extends BaseYoficator {
         this.rootInner = $('.mw-parser-output')[0];
 
         await this.loadReplacesAndWikitext();
+        if (this.replaces.length === 0) {
+            removeYoficationArgumentFromUrl();
+            return;
+        }
         this.groupReplacesByYoword();
         this.createHighlights();
         this.createReplaces();
@@ -349,9 +357,7 @@ export default class PageYoficator extends BaseYoficator {
 
     async cleanUp() {
         await super.cleanUp();
-
-        // remove arguments from url
-        window.history.pushState('', '', window.location.href.replace('?yofication', ''));
+        removeYoficationArgumentFromUrl();
     }
 
     async onYoficationEnd() {
