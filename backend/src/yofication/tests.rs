@@ -1,42 +1,49 @@
 use lazy_static::lazy_static;
 
+use backend::string_utils::deyoficate_str;
+
 use super::*;
 
 lazy_static! {
     static ref YOFICATION: Yofication = Yofication::new().unwrap();
 }
 
-fn test_yofication(text: &str, expected: &str) {
+fn test_yofication_generic(text: &str, expected: &str) {
     let (yoficated_text, _) = YOFICATION.yoficate(text, 60);
     assert_eq!(expected, yoficated_text);
 }
 
+fn test_yofication(expected: &str) {
+    let text = deyoficate_str(expected);
+    test_yofication_generic(&text, expected);
+}
+
 fn test_noyofication(text: &str) {
-    test_yofication(text, text);
+    test_yofication_generic(text, text);
 }
 
 #[test]
 fn test_basic() {
-    test_yofication("зеленый", "зелёный");
-    test_yofication("при нем был", "при нём был");
+    test_yofication("зелёный");
+    test_yofication("при нём был");
 }
 
 #[test]
 fn test_hyphens() {
-    test_yofication("абвгд-зеленый", "абвгд-зелёный");
-    test_yofication("абвгд-желто-зеленый", "абвгд-жёлто-зелёный");
-    test_yofication("24-зеленый", "24-зелёный");
+    test_yofication("абвгд-зелёный");
+    test_yofication("абвгд-жёлто-зелёный");
+    test_yofication("24-зелёный");
 }
 
 #[test]
 fn test_utf32() {
-    test_yofication("𝄞 зеленый 𝄞 зеленый 𝄞", "𝄞 зелёный 𝄞 зелёный 𝄞");
+    test_yofication("𝄞 зелёный 𝄞 зелёный 𝄞");
 }
 
 #[test]
 fn test_modifiers() {
-    test_yofication("ефика́тор", "ёфика́тор");
-    test_yofication("зеле­ный", "зелё­ный");
+    test_yofication("ёфика́тор");
+    test_yofication("зелё­ный");
 }
 
 #[test]
@@ -47,14 +54,21 @@ fn test_apostrophes() {
 
 #[test]
 fn test_words_with_yo() {
-    test_yofication("четырёхзвездочный", "четырёхзвёздочный");
-    test_yofication("четырехзвёздочный", "четырёхзвёздочный");
+    // не все «ё»
+    test_yofication_generic("четырёхзвездочный", "четырёхзвёздочный");
+    test_yofication_generic("четырехзвёздочный", "четырёхзвёздочный");
+
+    // лишняя «ё»
+    test_yofication_generic("чётырёхзвёздочный", "четырёхзвёздочный");
+
+    // «ё» не в том месте
+    test_yofication_generic("чётырехзвездочный", "четырёхзвёздочный");
 }
 
 #[test]
 fn test_abbreviation() {
     test_noyofication("нем.");
-    test_yofication("зеленый.", "зелёный.");
+    test_yofication("зелёный.");
 }
 
 #[test]
@@ -65,10 +79,10 @@ fn test_after_link() {
 
 #[test]
 fn test_inside_link() {
-    test_yofication("[[ее]]", "[[её]]");
-    test_yofication("[[ее да ее]]", "[[её да её]]");
-    test_yofication("[[ее|ее]]", "[[её|её]]");
-    test_yofication("[[ ее ]]", "[[ её ]]");
+    test_yofication("[[её]]");
+    test_yofication("[[её да её]]");
+    test_yofication("[[её|её]]");
+    test_yofication("[[ её ]]");
 }
 
 #[test]
@@ -79,4 +93,11 @@ fn test_inside_tags() {
     test_noyofication("<blockquote>       ее  </blockquote>");
     test_noyofication("<ref>              ее  </ref>");
     test_noyofication("<poem>             ее  </poem>");
+    test_noyofication("<nowiki>           ее  </nowiki>");
+}
+
+#[test]
+fn test_self_closed_tags() {
+    test_noyofication("<ref>ее</ref>");
+    test_yofication(r#"<ref name="...">...</ref><ref name="..." /> её <ref name="..." /><ref name="...">...</ref>"#);
 }

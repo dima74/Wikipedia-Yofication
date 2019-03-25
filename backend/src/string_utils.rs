@@ -1,5 +1,13 @@
 use std::ops::Range;
 
+pub fn deyoficate_str(s: &str) -> String {
+    s.chars().map(|c| match c {
+        'ё' => 'е',
+        'Ё' => 'Е',
+        _ => c,
+    }).collect()
+}
+
 pub fn deyoficate(word: &[u16]) -> Vec<u16> {
     let mut word = word.to_owned();
     for c in word.iter_mut() {

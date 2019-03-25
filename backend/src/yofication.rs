@@ -71,18 +71,19 @@ impl Yofication {
             ("<blockquote", "</blockquote"),
             ("<ref", "</ref"),
             ("<poem", "</poem"),
+            ("<nowiki", "</nowiki"),
         ].iter().map(|tag| (tag.0.encode_utf16().collect(), tag.1.encode_utf16().collect())).collect();
 
         for tag in tags.iter() {
-            let tag_start = text[..range.start].windows(tag.0.len()).rposition(|window| tag.0 == window);
+            let tag_end = text[range.end..].windows(tag.1.len()).position(|window| tag.1 == window);
+            if tag_end.is_none() { continue; }
+            let tag_end = range.end + tag_end.unwrap();
+
+            let tag_start = text[..tag_end].windows(tag.0.len()).rposition(|window| tag.0 == window);
             if tag_start.is_none() { continue; }
             let tag_start = tag_start.unwrap();
 
-            let tag_end = text[tag_start + tag.0.len()..].windows(tag.1.len()).position(|window| tag.1 == window);
-            if tag_end.is_none() { continue; }
-            let tag_end = tag_start + tag.0.len() + tag_end.unwrap();
-
-            if range.start < tag_end {
+            if tag_start < range.start {
                 return true;
             }
         }
