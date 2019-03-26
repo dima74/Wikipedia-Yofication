@@ -2,6 +2,7 @@ use std::collections::HashSet;
 use std::iter::FromIterator;
 
 use backend::dictionary::YowordInfo;
+use backend::string_utils::deyoficate_str;
 
 fn print_words(mut words: Vec<&String>) {
     words.sort();
@@ -13,11 +14,14 @@ fn print_words(mut words: Vec<&String>) {
 
 fn print_probably_not_safe(wikipedia_yowords: &Vec<YowordInfo>, hcodes_safe: &HashSet<String>) {
     let yowords = wikipedia_yowords.iter()
-        .filter(|info| info.frequency() < 20)
+        .filter(|info| info.frequency() < 7 && info.number_all > 100)
         .map(|info| info.yoword.clone());
     let yowords: HashSet<String> = HashSet::from_iter(yowords);
 
-    let words: Vec<_> = yowords.intersection(&hcodes_safe).collect();
+    let words = hcodes_safe.iter()
+        .filter(|word| yowords.contains(&deyoficate_str(&word))).collect();
+
+//    let words: Vec<_> = yowords.intersection(&hcodes_safe).collect();
     print_words(words);
 }
 

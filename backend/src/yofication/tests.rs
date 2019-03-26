@@ -1,6 +1,6 @@
 use lazy_static::lazy_static;
 
-use backend::string_utils::deyoficate_str;
+use crate::string_utils::deyoficate_str;
 
 use super::*;
 

@@ -4,7 +4,7 @@ use std::path::{Path, PathBuf};
 use rocket::{get, Request, response, Response, State};
 use rocket::response::{NamedFile, Responder};
 
-use crate::yofication::Yofication;
+use backend::yofication::Yofication;
 
 pub mod yoficate;
 pub mod wikipedia;

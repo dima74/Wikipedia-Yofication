@@ -6,8 +6,8 @@ use std::ops::Range;
 use itertools::Itertools;
 use serde::Serialize;
 
-use backend::dictionary::{self, YowordInfo};
-use backend::string_utils;
+use crate::dictionary::{self, YowordInfo};
+use crate::string_utils;
 
 #[derive(Serialize, Debug)]
 pub struct Replace {
@@ -17,7 +17,7 @@ pub struct Replace {
     yoword_normalized: String,
     #[serde(rename = "wordStartIndex")]
     word_start_index: usize,
-    frequency: u8,
+    pub frequency: u8,
     #[serde(rename = "frequencyWikipedia")]
     frequency_wikipedia: Option<u8>,
     #[serde(rename = "isSafe")]

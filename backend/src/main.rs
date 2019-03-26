@@ -1,14 +1,14 @@
-#![feature(proc_macro_hygiene, decl_macro, iter_copied, inner_deref)]
+#![feature(proc_macro_hygiene, decl_macro, inner_deref)]
 
 use std::error::Error;
 
 use rocket::routes;
 
+use backend::yofication::Yofication;
+
 use crate::continuous_yofication_pages::ContinuousYoficationPages;
-use crate::yofication::Yofication;
 
 mod continuous_yofication_pages;
-mod yofication;
 mod routes;
 mod cors;
 mod mixpanel;

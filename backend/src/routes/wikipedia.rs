@@ -6,9 +6,10 @@ use rocket::request::Form;
 use rocket_contrib::json::Json;
 use serde_json::json;
 
+use backend::yofication::{Replace, Yofication};
+
 use crate::continuous_yofication_pages::ContinuousYoficationPages;
 use crate::mixpanel;
-use crate::yofication::{Replace, Yofication};
 
 #[get("/wikipedia/randomPageName?<minimum_number_replaces_for_continuous_yofication>&<flag>")]
 pub fn random_page_name(minimum_number_replaces_for_continuous_yofication: Option<usize>, continuous_yofication_pages: State<ContinuousYoficationPages>, flag: Option<bool>) -> String {
