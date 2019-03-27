@@ -1,4 +1,5 @@
-#![allow(warnings)]
+#![allow(dead_code)]
+#![allow(unused_variables)]
 #![allow(unreachable_code)]
 
 use std::{env, fs, io};

@@ -12,6 +12,14 @@ const NAMESPACE_END: &str = "</ns>";
 const TEXT_START: &str = "      <text xml:space=\"preserve\">";
 const TEXT_END: &str = "</text>";
 
+fn normalize(text: &str) -> String {
+    text
+        .replace("&lt;", "<")
+        .replace("&gt;", ">")
+        .replace("&quot;", "\"")
+        .replace("&amp;", "&")
+}
+
 pub fn iterate_articles<T: FnMut(String, String) -> ()>(mut consumer: T, mut number_articles: u32) -> Result<(), Box<dyn Error>> {
     let response = reqwest::get(WIKIPEDIA_DUMP_URL)?;
     let decompressor = BzDecoder::new(response);
@@ -53,7 +61,7 @@ pub fn iterate_articles<T: FnMut(String, String) -> ()>(mut consumer: T, mut num
                 panic!("Перед <text> не было встречено <title> или <namespace>");
             }
 
-            let title = title.take().unwrap();
+            let title = normalize(&title.take().unwrap());
             let namespace = namespace.take().unwrap();
             if namespace != "0" { continue; }
 
