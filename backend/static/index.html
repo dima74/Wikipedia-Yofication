@@ -49,7 +49,7 @@
 
                         <v-textarea
                             v-model="text"
-                            height="50vh"
+                            :height="$vuetify.breakpoint.smAndDown ? '40vh' : '50vh'"
                             class="text"
                             autofocus
                             hide-details
