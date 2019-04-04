@@ -1,6 +1,6 @@
 use lazy_static::lazy_static;
 
-use crate::string_utils::deyoficate_str;
+use crate::common::string_utils::deyoficate_str;
 
 use super::*;
 
@@ -33,6 +33,7 @@ fn test_hyphens() {
     test_yofication("абвгд-зелёный");
     test_yofication("абвгд-жёлто-зелёный");
     test_yofication("24-зелёный");
+    test_yofication("трёх- и четырёх- ...");
 }
 
 #[test]

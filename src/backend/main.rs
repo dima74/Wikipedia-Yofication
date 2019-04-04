@@ -4,7 +4,7 @@ use std::error::Error;
 
 use rocket::routes;
 
-use backend::yofication::Yofication;
+use yofication::Yofication;
 
 use crate::continuous_yofication_pages::ContinuousYoficationPages;
 

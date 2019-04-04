@@ -10,17 +10,14 @@ jobs:
           name: Test
           command: cargo test
   frequencies:
-    working_directory: ~/project/frequencies
     docker:
       - image: circleci/rust
     steps:
-      - checkout:
-          path: ~/project
       - run:
           name: Generate frequencies and all-pages
           command: |
             mkdir results
-            cargo run --release
+            cargo run --bin frequencies --release
           no_output_timeout: 60m
       - run:
           name: Update frequencies on github

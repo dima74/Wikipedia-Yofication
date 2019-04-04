@@ -1,9 +1,43 @@
-[workspace]
-members = [
-    "backend",
-    "frequencies",
-    "backend-common",
-]
+[package]
+name = "yofication"
+version = "0.1.0"
+authors = ["Dmitry Murzin <diraria@yandex.ru>"]
+edition = "2018"
 
 [profile.release]
 codegen-units = 1
+
+[[bin]]
+name = "backend"
+path = "src/backend/main.rs"
+
+[[bin]]
+name = "frequencies"
+path = "src/frequencies/main.rs"
+
+[[bin]]
+name = "compare-with-hcodes-dictionary"
+path = "src/various/compare-with-hcodes-dictionary/main.rs"
+
+[[bin]]
+name = "wikipedia-count-number-hours-to-yoficate-all-articles"
+path = "src/various/wikipedia-count-number-hours-to-yoficate-all-articles/main.rs"
+
+[[bin]]
+name = "wikipedia-yoficate-titles"
+path = "src/various/wikipedia-yoficate-titles/main.rs"
+
+[dependencies]
+rocket = "0.4.0"
+rocket_contrib = "0.4.0"
+lazy_static = "1.3.0"
+reqwest = "0.9.11"
+rand = "0.6.5"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0.39"
+base64 = "0.10.1"
+itertools = "0.8.0"
+bzip2 = "0.3.3"
+cookie = "0.11.0"
+url = "1.7.2"
+regex = "1.1.2"

@@ -2,7 +2,7 @@ use rocket::{post, State};
 use rocket_contrib::json::Json;
 use serde::{Deserialize, Serialize};
 
-use backend::yofication::Yofication;
+use yofication::Yofication;
 
 #[derive(Deserialize)]
 pub struct YoficateForm {

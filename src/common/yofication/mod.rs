@@ -6,8 +6,8 @@ use std::ops::Range;
 use itertools::Itertools;
 use serde::Serialize;
 
-use crate::dictionary::{self, YowordInfo};
-use crate::string_utils;
+use crate::common::dictionary::{self, YowordInfo};
+use crate::common::string_utils;
 
 #[derive(Serialize, Debug)]
 pub struct Replace {

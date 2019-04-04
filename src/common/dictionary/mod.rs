@@ -3,10 +3,9 @@ use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::error::Error;
 
-use backend_common::hcodes;
+use crate::common::string_utils;
 
-use crate::string_utils;
-
+pub mod hcodes;
 pub mod wikipedia;
 
 #[derive(Debug)]

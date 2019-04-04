@@ -3,8 +3,7 @@ use std::error::Error;
 use std::fs::File;
 use std::io::{LineWriter, Write};
 
-use backend_common::hcodes;
-
+use yofication::dictionary::hcodes;
 use crate::string_utils::*;
 use crate::yoword_info::YowordInfo;
 

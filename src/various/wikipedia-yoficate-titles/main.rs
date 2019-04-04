@@ -14,12 +14,10 @@ use regex::Regex;
 use reqwest::{Client, header};
 use url::percent_encoding::{DEFAULT_ENCODE_SET, define_encode_set, utf8_percent_encode};
 
-use backend::yofication::Yofication;
-use yoficate_titles::session::Session;
+use session::Session;
+use yofication::Yofication;
 
-mod yoficate_titles {
-    pub mod session;
-}
+mod session;
 
 define_encode_set! { pub CUSTOM_ENCODE_SET = [DEFAULT_ENCODE_SET] | {'(', ')'} }
 
@@ -106,7 +104,7 @@ fn save_all_titles() {
 }
 
 fn save_excluded_articles() {
-    let excluded_categories = include_str!("yoficate_titles/ignored_categories.txt").lines();
+    let excluded_categories = include_str!("exclusions/ignored_categories.txt").lines();
     let excluded_articles = excluded_categories
         .flat_map(|category| get_all_category_pages(category))
         .collect();
@@ -117,9 +115,9 @@ fn save_excluded_articles() {
 
 fn get_titles_to_yoficate() -> Vec<(String, String, u8)> {
     let excluded_articles = get_excluded_articles();
-    let ignored_regexes: Vec<Regex> = include_str!("yoficate_titles/ignored_yowords.txt").lines()
+    let ignored_regexes: Vec<Regex> = include_str!("exclusions/ignored_yowords.txt").lines()
         .map(|yoword| Regex::new(&format!("\\b{}\\b", yoword)).unwrap()).collect();
-    let ignored_pages: Vec<&str> = include_str!("yoficate_titles/ignored_titles.txt").lines().collect();
+    let ignored_pages: Vec<&str> = include_str!("exclusions/ignored_titles.txt").lines().collect();
 
     let minimum_replace_frequency = 60;
     let mut result = Vec::new();

@@ -6,7 +6,7 @@ use rocket::request::Form;
 use rocket_contrib::json::Json;
 use serde_json::json;
 
-use backend::yofication::{Replace, Yofication};
+use yofication::{Replace, Yofication};
 
 use crate::continuous_yofication_pages::ContinuousYoficationPages;
 use crate::mixpanel;

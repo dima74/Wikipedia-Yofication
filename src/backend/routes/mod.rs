@@ -4,7 +4,7 @@ use std::path::{Path, PathBuf};
 use rocket::{get, Request, response, Response, State};
 use rocket::response::{NamedFile, Responder};
 
-use backend::yofication::Yofication;
+use yofication::Yofication;
 
 pub mod yoficate;
 pub mod wikipedia;
@@ -12,7 +12,7 @@ pub mod wiktionary;
 
 #[get("/")]
 pub fn index() -> io::Result<NamedFile> {
-    NamedFile::open("static/index.html")
+    NamedFile::open("backend-static/index.html")
 }
 
 // https://github.com/SergioBenitez/Rocket/issues/95#issuecomment-354824883
@@ -26,9 +26,9 @@ impl<'r> Responder<'r> for CachedFile {
     }
 }
 
-#[get("/static/<file..>")]
+#[get("/backend-static/<file..>")]
 pub fn static_files(file: PathBuf) -> Option<CachedFile> {
-    NamedFile::open(Path::new("static/").join(file)).ok().map(|nf| CachedFile(nf))
+    NamedFile::open(Path::new("backend-static/").join(file)).ok().map(|nf| CachedFile(nf))
 }
 
 #[get("/stat/<word>")]
