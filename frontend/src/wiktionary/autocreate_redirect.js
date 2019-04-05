@@ -1,5 +1,5 @@
-let currentArticle = mw.config.get('wgPageName');
-window.addEventListener('keydown', function (event) {
+const currentArticle = mw.config.get('wgPageName');
+window.addEventListener('keydown', event => {
     if (event.code === 'KeyR') {
         redirect();
     }
@@ -46,25 +46,23 @@ function toast(status) {
 }
 
 async function redirect() {
-    if (!currentArticle.includes('ё')) {
-        return;
-    }
+    if (!currentArticle.includes('ё')) return;
     toast('секунду...');
-    let articleWithoutYo = deyoficate(currentArticle);
-    let data = {
+    const articleWithoutYo = deyoficate(currentArticle);
+    const data = {
         format: 'json',
         action: 'query',
         prop: 'revisions',
         rvprop: 'content|timestamp',
-        titles: articleWithoutYo
+        titles: articleWithoutYo,
     };
-    let response = await $.ajax(`/w/api.php`, {data});
-    let articleInfo = Object.values(response.query.pages)[0];
-    let exists = !('missing' in articleInfo);
+    const response = await $.ajax(`/w/api.php`, { data });
+    const articleInfo = Object.values(response.query.pages)[0];
+    const exists = !('missing' in articleInfo);
     if (exists) {
-        let wikitext = articleInfo.revisions[0]['*'];
-        let wikitextLower = wikitext.toLowerCase();
-        let isRedirect = wikitextLower.includes('redirect') || wikitextLower.includes('перенаправление');
+        const wikitext = articleInfo.revisions[0]['*'];
+        const wikitextLower = wikitext.toLowerCase();
+        const isRedirect = wikitext.length < 200 && wikitextLower.includes('redirect') || wikitextLower.includes('перенаправление');
         if (!isRedirect) {
             toast('Существует версия страницы без «ё», не являющаяся перенаправлением, переходим к ней');
             window.location.href = 'https://ru.wiktionary.org/wiki/' + articleWithoutYo;
@@ -72,16 +70,16 @@ async function redirect() {
             toast('существует');
         }
     } else {
-        let wikitext = `#перенаправление [[${currentArticle}]]`;
-        let data = {
+        const wikitext = `#перенаправление [[${currentArticle}]]`;
+        const data = {
             format: 'json',
             action: 'edit',
             title: articleWithoutYo,
             text: wikitext,
-            token: mw.user.tokens.get('editToken')
+            token: mw.user.tokens.get('editToken'),
         };
         toast('создаём...');
-        let response = await $.post('/w/api.php', data);
+        const response = await $.post('/w/api.php', data);
         if (!response.edit || response.edit.result !== 'Success') {
             console.log(response);
             toast('Не удалось создать перенаправление: ' + (response.edit ? response.edit.info : 'неизвестная ошибка'));
