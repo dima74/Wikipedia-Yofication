@@ -42,14 +42,17 @@ pub fn get_word_frequency(word: String, yofication: State<Yofication>) -> String
                 Some(false) => "no",
                 None => "unknown",
             };
-            format!("\n\n
+            format!("
+{}
+
+
 частота: {}
 is_safe: {}
 
 
 общее число вхождений: {:7}
 число вхождений с ё:   {:7}",
-                    frequency, is_safe, yoword.number_all, yoword.number_with_yo)
+                    yoword.yoword, frequency, is_safe, yoword.number_all, yoword.number_with_yo)
         }
     }
 }
