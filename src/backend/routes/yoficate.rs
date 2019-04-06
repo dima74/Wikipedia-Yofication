@@ -21,6 +21,7 @@ pub struct YoficateResponse {
 
 #[post("/yoficate", data = "<form>")]
 pub fn yoficate(form: Json<YoficateForm>, yofication: State<Yofication>) -> Json<YoficateResponse> {
-    let (text_yoficated, number_replaces) = yofication.yoficate(&form.text, form.minimum_replace_frequency);
+    let (text_yoficated, info) = yofication.yoficate(&form.text, form.minimum_replace_frequency);
+    let number_replaces = info.number_replaces;
     Json(YoficateResponse { text_yoficated, number_replaces })
 }

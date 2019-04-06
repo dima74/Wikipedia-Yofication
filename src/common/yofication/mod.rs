@@ -28,6 +28,12 @@ pub struct Yofication {
     ewords: HashMap<Vec<u16>, YowordInfo>,
 }
 
+pub struct YoficationInfo {
+    pub number_replaces: usize,
+    pub has_replaces: bool,
+    pub minimum_frequency: u8,
+}
+
 impl Yofication {
     pub fn new() -> Result<Yofication, Box<dyn Error>> {
         let ewords = dictionary::get_ewords_map()?;
@@ -179,10 +185,11 @@ impl Yofication {
         replaces
     }
 
-    pub fn yoficate(self: &Self, text: &str, minimum_replace_frequency: u8) -> (String, usize) {
+    pub fn yoficate(self: &Self, text: &str, minimum_replace_frequency: u8) -> (String, YoficationInfo) {
         let replaces = self.generate_replaces(text, minimum_replace_frequency);
         let mut text: Vec<u16> = text.encode_utf16().collect();
 
+        let minimum_frequency = replaces.iter().map(|replace| replace.frequency).min().unwrap_or(0);
         let number_replaces = replaces.len();
         for replace in replaces.into_iter() {
             let yoword: Vec<_> = replace.yoword.encode_utf16().collect();
@@ -191,7 +198,12 @@ impl Yofication {
             text.splice(start..end, yoword);
         }
 
-        (String::from_utf16(&text).unwrap(), number_replaces)
+        let info = YoficationInfo {
+            number_replaces,
+            has_replaces: number_replaces > 0,
+            minimum_frequency,
+        };
+        (String::from_utf16(&text).unwrap(), info)
     }
 
     pub fn get_yoword_info<'a>(self: &'a Self, word: &str) -> Option<&'a YowordInfo> {
