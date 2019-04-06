@@ -27,6 +27,10 @@ path = "src/various/wikipedia-count-number-hours-to-yoficate-all-articles/main.r
 name = "wikipedia-yoficate-titles"
 path = "src/various/wikipedia-yoficate-titles/main.rs"
 
+[[bin]]
+name = "wiktionary-yoficate-titles"
+path = "src/various/wiktionary-yoficate-titles/main.rs"
+
 [dependencies]
 rocket = "0.4.0"
 rocket_contrib = "0.4.0"
