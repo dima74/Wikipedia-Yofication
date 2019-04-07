@@ -115,6 +115,8 @@ export default class BaseYoficator {
             'KeyQ': this.abortYofication,
             // открыть страницу со словом в викисловаре
             'KeyW': this.openYowordWiktionaryPage,
+            // открыть страницу слова на gramota.ru
+            'KeyR': this.openYowordGramotaRuPage,
             // открыть страницу с дополнительной статистикой о слове (общее число слов и число слов с «ё» в Википедии
             'KeyS': this.openYowordStatPage,
             // открыть статью в новой вкладке
@@ -277,6 +279,11 @@ export default class BaseYoficator {
     openYowordWiktionaryPage() {
         const yoword = this.currentReplace.yowordNormalized.toLowerCase();
         window.open(BACKEND_HOST + '/redirectToWiktionaryArticle/' + yoword);
+    }
+
+    openYowordGramotaRuPage() {
+        const yoword = this.currentReplace.yowordNormalized.toLowerCase();
+        window.open(BACKEND_HOST + '/redirectToGramotaRuPage/' + yoword);
     }
 
     openYowordStatPage() {

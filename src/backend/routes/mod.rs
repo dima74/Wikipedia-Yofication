@@ -9,6 +9,7 @@ use yofication::Yofication;
 pub mod yoficate;
 pub mod wikipedia;
 pub mod wiktionary;
+pub mod gramota;
 
 #[get("/")]
 pub fn index() -> io::Result<NamedFile> {

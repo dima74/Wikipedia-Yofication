@@ -4,6 +4,7 @@ use std::error::Error;
 
 use rocket::routes;
 
+use yofication::lemmatization;
 use yofication::Yofication;
 
 use crate::continuous_yofication_pages::ContinuousYoficationPages;
@@ -15,6 +16,7 @@ mod mixpanel;
 
 fn main() -> Result<(), Box<dyn Error>> {
     mixpanel::init();
+    lemmatization::init();
 
     let routes = routes![
         routes::index,
@@ -26,6 +28,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         routes::wikipedia::random_page_name,
         routes::wikipedia::generate_replaces_by_wikitext,
         routes::wikipedia::generate_replaces_by_title,
+        routes::gramota::redirect_to_gramota_ru_page,
     ];
     rocket::ignite()
         .attach(cors::CORS())
