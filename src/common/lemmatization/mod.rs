@@ -21,7 +21,7 @@ pub fn init() {
 }
 
 pub fn lemmatize(word: &str) -> String {
-    let mystem_file = if is_development() { "temp/lemmatization/mystem" } else { "mystem" };
+    let mystem_file = if is_development() { "./temp/lemmatization/mystem" } else { "./mystem" };
     let mut child = Command::new(mystem_file)
         .arg("-nld")
         .stdin(Stdio::piped())
