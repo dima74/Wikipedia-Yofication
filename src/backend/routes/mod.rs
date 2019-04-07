@@ -27,7 +27,7 @@ impl<'r> Responder<'r> for CachedFile {
     }
 }
 
-#[get("/backend-static/<file..>")]
+#[get("/static/<file..>")]
 pub fn static_files(file: PathBuf) -> Option<CachedFile> {
     NamedFile::open(Path::new("backend-static/").join(file)).ok().map(|nf| CachedFile(nf))
 }
