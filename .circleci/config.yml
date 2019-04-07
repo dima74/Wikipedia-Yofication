@@ -13,6 +13,7 @@ jobs:
     docker:
       - image: circleci/rust
     steps:
+      - checkout
       - run:
           name: Generate frequencies and all-pages
           command: |
