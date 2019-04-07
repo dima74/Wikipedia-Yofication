@@ -20,7 +20,7 @@ fn count_number_hours_to_yoficate_the_whole_russian_wikipedia() {
 }
 
 fn main() {
-    let yowords = yofication::dictionary::wikipedia::fetch_wikipedia_yoword_infos().unwrap();
+    let yowords = yofication::dictionary::wikipedia::fetch_wikipedia_yoword_infos();
 
     let yowords = yowords.iter()
         .filter(|yoword| yoword.frequency_wikipedia().map(|frequency| frequency > 90) == Some(true))

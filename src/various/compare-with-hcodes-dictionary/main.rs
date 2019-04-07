@@ -41,7 +41,7 @@ fn print_probably_missing_safe(wikipedia_yowords: &Vec<YowordInfo>, hcodes_safe:
 // 1. составить список всех слов, встречающихся в Википедии только с «е»
 // 2. найти пересечение этого списка с deyoficate(hcodes.safe)
 fn main() {
-    let yoword_infos = dictionary::wikipedia::fetch_wikipedia_yoword_infos().unwrap();
+    let yoword_infos = dictionary::wikipedia::fetch_wikipedia_yoword_infos();
     let hcodes_safe = dictionary::hcodes::fetch_hcodes_yowords(true).unwrap();
 
     let hcodes_safe: HashSet<String> = HashSet::from_iter(hcodes_safe);

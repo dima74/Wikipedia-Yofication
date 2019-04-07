@@ -47,7 +47,7 @@ impl YowordInfo {
 pub fn get_ewords_map() -> Result<HashMap<Vec<u16>, YowordInfo>, Box<dyn Error>> {
     let mut ewords = HashMap::<Vec<u16>, YowordInfo>::new();
 
-    let wikipedia_yoword_infos = wikipedia::fetch_wikipedia_yoword_infos()?;
+    let wikipedia_yoword_infos = wikipedia::fetch_wikipedia_yoword_infos();
     for yoword_info in wikipedia_yoword_infos {
         let eword: Vec<_> = string_utils::deyoficate(&yoword_info.yoword.encode_utf16().collect::<Vec<_>>());
         ewords.insert(eword, yoword_info);

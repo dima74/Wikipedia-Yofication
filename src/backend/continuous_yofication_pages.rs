@@ -1,6 +1,9 @@
 use std::cmp::min;
+use std::fs;
 
 use rand::seq::SliceRandom;
+
+use yofication::is_development;
 
 pub struct ContinuousYoficationPages {
     // для каждого числа k от 0 до <максимальное число замен в страницах> найдём число страниц n, у которых больше чем k замен
@@ -13,8 +16,12 @@ impl ContinuousYoficationPages {
     pub fn new() -> Self {
         // в файле хранятся строки — пары (число замен, имя страницы)
         // причём эти пары уже отсортированы по числу замен по убыванию
-        const ALL_PAGES_URL: &str = "https://raw.githubusercontent.com/dima74/Wikipedia-Yofication/frequencies/all-pages.txt";
-        let response = reqwest::get(ALL_PAGES_URL).unwrap().text().unwrap();
+        let response = if is_development() {
+            fs::read_to_string("temp/github-cache/frequencies/all-pages.txt").unwrap()
+        } else {
+            const ALL_PAGES_URL: &str = "https://raw.githubusercontent.com/dima74/Wikipedia-Yofication/frequencies/all-pages.txt";
+            reqwest::get(ALL_PAGES_URL).unwrap().text().unwrap()
+        };
 
         let mut all_pages = Vec::new();
         let mut pages_number_replaces: Vec<usize> = Vec::new();
