@@ -76,8 +76,8 @@ fn main() {
 //    let api = mediawiki::Api::new("https://ru.wiktionary.org/w/api.php");
 //    save_russian_words(&api);
 
-//    print_titles_to_yoficate();
+    print_titles_to_yoficate();
 //    print_wikitext_for_obvious_titles();
-    print_wikitext_for_delete_request();
+//    print_wikitext_for_delete_request();
 //    rename_articles(api);
 }
