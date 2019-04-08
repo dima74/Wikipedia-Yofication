@@ -2,12 +2,15 @@ const settingsDefault = {
     editSummary: 'Ёфикация с помощью [[Участник:Дима74/Скрипт-Ёфикатор|скрипта-ёфикатора]]',
     minimumReplaceFrequency: 35,
     minimumNumberReplacesForContinuousYofication: 10,
+    maximumNumberReplacesForContinuousYofication: null,
 };
 const html = `
 <p>Минимальная частота слов для ёфикации в процентах (0-100). Чем меньше значение, тем больше замен будет предлагаться.
 <input id="yoficator-minimumReplaceFrequency" type="number" placeholder="${settingsDefault.minimumReplaceFrequency}">
 <p>Минимальное число замен, при которых статья будет рассматриваться при непрерывной ёфикации</p>
 <input id="yoficator-minimumNumberReplacesForContinuousYofication" type="number" placeholder="${settingsDefault.minimumNumberReplacesForContinuousYofication}">
+<p>Максимальное число замен, при которых статья будет рассматриваться при непрерывной ёфикации</p>
+<input id="yoficator-maximumNumberReplacesForContinuousYofication" type="number" placeholder="нет ограничения">
 <p>Описание правки</p>
 <input id="yoficator-editSummary" type="text" value="${settingsDefault.editSummary}" placeholder="${settingsDefault.editSummary}">
 <p>Параметры сохраняются автоматически.</p>

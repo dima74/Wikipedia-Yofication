@@ -11,15 +11,20 @@ use yofication::{Replace, Yofication};
 use crate::continuous_yofication_pages::ContinuousYoficationPages;
 use crate::mixpanel;
 
-#[get("/wikipedia/randomPageName?<minimum_number_replaces_for_continuous_yofication>&<flag>")]
-pub fn random_page_name(minimum_number_replaces_for_continuous_yofication: Option<usize>, continuous_yofication_pages: State<ContinuousYoficationPages>, flag: Option<bool>) -> String {
+#[get("/wikipedia/randomPageName?<minimum_number_replaces_for_continuous_yofication>&<maximum_number_replaces_for_continuous_yofication>&<flag>")]
+pub fn random_page_name(
+    minimum_number_replaces_for_continuous_yofication: Option<usize>,
+    maximum_number_replaces_for_continuous_yofication: Option<usize>,
+    continuous_yofication_pages: State<ContinuousYoficationPages>,
+    flag: Option<bool>,
+) -> String {
     if flag.is_none() {
         let id = minimum_number_replaces_for_continuous_yofication.map_or("default".to_owned(), |v| v.to_string());
         mixpanel::track("random_page_name", &id, json!({}));
     }
 
     let minimum_number_replaces_for_continuous_yofication = minimum_number_replaces_for_continuous_yofication.unwrap_or(10);
-    continuous_yofication_pages.get_random_page(minimum_number_replaces_for_continuous_yofication)
+    continuous_yofication_pages.get_random_page(minimum_number_replaces_for_continuous_yofication, maximum_number_replaces_for_continuous_yofication)
 }
 
 #[derive(FromForm)]

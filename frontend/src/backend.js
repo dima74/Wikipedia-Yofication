@@ -9,6 +9,7 @@ class Backend {
             errorMessage: 'Не удалось получить следующую страницу для ёфикации',
             data: {
                 minimum_number_replaces_for_continuous_yofication: settings.minimumNumberReplacesForContinuousYofication,
+                maximum_number_replaces_for_continuous_yofication: settings.maximumNumberReplacesForContinuousYofication,
             },
         };
         return await fetchJson(BACKEND_HOST + '/wikipedia/randomPageName', options);
