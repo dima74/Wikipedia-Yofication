@@ -137,7 +137,7 @@ export default class BaseYoficator {
             if (event.code in actions) {
                 if (event.code === 'KeyN' && !main.isContinuousYofication) return;
                 event.preventDefault();
-                actions[event.code].call(this);
+                actions[event.code].call(this, event);
             }
         };
         document.addEventListener('keydown', this.onKeydown);
@@ -295,7 +295,7 @@ export default class BaseYoficator {
         window.open('/wiki/' + currentPageName);
     }
 
-    openLink() {
+    openLink(event) {
         if (this.isPageMode) return;
         const replace = this.currentReplace;
 
@@ -313,9 +313,11 @@ export default class BaseYoficator {
             }
 
             let linkPage = this.wikitext.substring(linkStartIndex, linkEndIndex);
-            for (const replace of this.replaces) {
-                if (linkStartIndex <= replace.wordStartIndex && replace.wordEndIndex <= linkEndIndex) {
-                    linkPage = linkPage.replace(new RegExp(deyoficate(replace.yoword), 'g'), replace.yoword);
+            if (event.shiftKey) {
+                for (const replace of this.replaces) {
+                    if (linkStartIndex <= replace.wordStartIndex && replace.wordEndIndex <= linkEndIndex) {
+                        linkPage = linkPage.replace(new RegExp(deyoficate(replace.yoword), 'g'), replace.yoword);
+                    }
                 }
             }
 
