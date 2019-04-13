@@ -1,8 +1,7 @@
 use std::fs;
 
 use crate::is_development;
-
-use super::YowordInfo;
+use crate::dictionary::YowordInfo;
 
 pub fn fetch_wikipedia_yoword_infos() -> Vec<YowordInfo> {
     let response = if is_development() {

@@ -42,9 +42,7 @@ fn print_probably_missing_safe(wikipedia_yowords: &Vec<YowordInfo>, hcodes_safe:
 // 2. найти пересечение этого списка с deyoficate(hcodes.safe)
 fn main() {
     let yoword_infos = dictionary::wikipedia::fetch_wikipedia_yoword_infos();
-    let hcodes_safe = dictionary::hcodes::fetch_hcodes_yowords(true).unwrap();
-
-    let hcodes_safe: HashSet<String> = HashSet::from_iter(hcodes_safe);
+    let hcodes_safe = HashSet::from_iter(dictionary::hcodes::fetch_hcodes_yowords(true).unwrap());
 
 //    print_probably_not_safe(&yoword_infos, &hcodes_safe);
     print_probably_missing_safe(&yoword_infos, &hcodes_safe);

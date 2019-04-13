@@ -5,7 +5,7 @@ use std::error::Error;
 use rocket::routes;
 
 use yofication::lemmatization;
-use yofication::Yofication;
+use yofication::yofication::Yofication;
 
 use crate::continuous_yofication_pages::ContinuousYoficationPages;
 

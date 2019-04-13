@@ -3,11 +3,12 @@ use std::collections::HashSet;
 use std::fs::File;
 use std::io::{LineWriter, Write};
 
+use yofication::yofication::Yofication;
+
 use crate::string_utils::deyoficate;
-use crate::yoword_info::YowordInfo;
 
 const MINIMUM_NUMBER_REPLACES: u32 = 5;
-const MINIMUM_REPLACE_FREQUENCY: f32 = 0.35;
+const MINIMUM_REPLACE_FREQUENCY: u8 = 35;
 
 struct PageInfo {
     title: String,
@@ -20,8 +21,8 @@ pub struct PagesGenerator {
 }
 
 impl PagesGenerator {
-    pub fn new(old_yoword_infos: &Vec<YowordInfo>) -> PagesGenerator {
-        let ewords: HashSet<_> = old_yoword_infos.iter()
+    pub fn new(yofication: &Yofication) -> PagesGenerator {
+        let ewords: HashSet<_> = yofication.iter_yowords()
             .filter(|yoword| yoword.frequency() > MINIMUM_REPLACE_FREQUENCY)
             .map(|yoword| deyoficate(&yoword.yoword))
             .collect();

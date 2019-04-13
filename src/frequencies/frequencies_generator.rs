@@ -1,11 +1,13 @@
+use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::error::Error;
 use std::fs::File;
 use std::io::{LineWriter, Write};
 
-use yofication::dictionary::hcodes;
+use yofication::dictionary::{hcodes, YowordInfo};
+use yofication::yofication::Yofication;
+
 use crate::string_utils::*;
-use crate::yoword_info::YowordInfo;
 
 struct EwordInfo {
     number_all: u32,
@@ -23,10 +25,10 @@ pub struct FrequenciesGenerator {
 }
 
 impl FrequenciesGenerator {
-    pub fn new(old_yoword_infos: &Vec<YowordInfo>) -> Result<FrequenciesGenerator, Box<dyn Error>> {
+    pub fn new(yofication: &Yofication) -> Result<FrequenciesGenerator, Box<dyn Error>> {
         let mut all_yowords = Vec::new();
 
-        let wikipedia_yowords = old_yoword_infos.iter()
+        let wikipedia_yowords = yofication.iter_yowords()
             .filter(|yoword| yoword.number_with_yo > 0)
             .map(|yoword| yoword.yoword.to_owned());
         all_yowords.extend(wikipedia_yowords);
@@ -64,18 +66,26 @@ impl FrequenciesGenerator {
         }
     }
 
+    pub fn compare_lowercase_first(yoword1: &YowordInfo, yoword2: &YowordInfo) -> Ordering {
+        fn get_sort_tuple(yoword: &YowordInfo) -> (bool, bool, &str) {
+            (yoword.number_with_yo == 0, yoword.yoword.chars().next().unwrap().is_uppercase(), &yoword.yoword)
+        }
+
+        get_sort_tuple(yoword1).cmp(&get_sort_tuple(yoword2))
+    }
+
     pub fn save_result(self, file_name: &str) {
         fn get_best_yword_info(entry: (String, EwordInfo)) -> YowordInfo {
             let (eword, eword_info) = entry;
             let best_entry = eword_info.yoword_counts.into_iter().max_by_key(|entry| entry.1)
                 .unwrap_or((eword, 0));
-            YowordInfo { yoword: best_entry.0, number_with_yo: best_entry.1, number_all: eword_info.number_all }
+            YowordInfo { yoword: best_entry.0, number_with_yo: best_entry.1, number_all: eword_info.number_all, is_safe: None }
         }
 
         let mut yowords: Vec<_> = self.eword_infos.into_iter()
             .filter(|entry| entry.1.number_all > 0)
             .map(get_best_yword_info).collect();
-        yowords.sort_by(|yoword1, yoword2| yoword1.cmp(&yoword2));
+        yowords.sort_by(FrequenciesGenerator::compare_lowercase_first);
 
         let file = File::create(file_name).unwrap();
         let mut file = LineWriter::new(file);

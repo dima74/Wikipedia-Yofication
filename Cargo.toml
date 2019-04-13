@@ -16,8 +16,8 @@ name = "frequencies"
 path = "src/frequencies/main.rs"
 
 [[bin]]
-name = "compare-with-hcodes-dictionary"
-path = "src/various/compare-with-hcodes-dictionary/main.rs"
+name = "hcodes-dictionary-comparison"
+path = "src/various/hcodes-dictionary-comparison/main.rs"
 
 [[bin]]
 name = "wikipedia-count-number-hours-to-yoficate-all-articles"
@@ -30,6 +30,14 @@ path = "src/various/wikipedia-yoficate-titles/main.rs"
 [[bin]]
 name = "wiktionary-yoficate-titles"
 path = "src/various/wiktionary-yoficate-titles/main.rs"
+
+[[bin]]
+name = "wikipedia-estimate-size-for-word-pages"
+path = "src/various/wikipedia-estimate-size-for-word-pages.rs"
+
+[[bin]]
+name = "wikipedia-print-possible-yowords-to-deyoficate"
+path = "src/various/wikipedia-print-possible-yowords-to-deyoficate.rs"
 
 [dependencies]
 rocket = "0.4.0"

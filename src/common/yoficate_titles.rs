@@ -8,7 +8,7 @@ use std::io::{BufRead, BufReader, LineWriter, Write};
 use lazy_static::lazy_static;
 use regex::Regex;
 
-use crate::Yofication;
+use crate::yofication::Yofication;
 
 lazy_static! { pub static ref YOFICATION: Yofication = Yofication::new().unwrap(); }
 

@@ -6,8 +6,9 @@ use std::ops::Range;
 use itertools::Itertools;
 use serde::Serialize;
 
-use crate::common::dictionary::{self, YowordInfo};
+use crate::common::dictionary;
 use crate::common::string_utils;
+use crate::dictionary::YowordInfo;
 
 #[derive(Serialize, Debug)]
 pub struct Replace {
@@ -204,6 +205,10 @@ impl Yofication {
             minimum_frequency,
         };
         (String::from_utf16(&text).unwrap(), info)
+    }
+
+    pub fn iter_yowords(self: &Self) -> impl Iterator<Item=&YowordInfo> {
+        self.ewords.values()
     }
 
     pub fn get_yoword_info<'a>(self: &'a Self, word: &str) -> Option<&'a YowordInfo> {
