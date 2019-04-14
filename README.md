@@ -4,6 +4,10 @@
 [![Website yofication.herokuapp.com](https://img.shields.io/website-up-down-green-red/https/yofication.herokuapp.com.svg)](https://yofication.herokuapp.com/)
 [![Heroku](https://heroku-badge.herokuapp.com/?app=yofication&svg=1)](https://yofication.herokuapp.com/)
 
+# Описание
+
+Скрипт-Ёфикатор это [персональный скрипт](https://ru.wikipedia.org/wiki/Википедия:Персональные_скрипты) для Википедии, производящий [ёфикацию](https://ru.wikipedia.org/wiki/Ёфикатор) в полуавтоматическом режиме. Ёфикация это процесс замены буквы «е» на букву «ё», в соответствии с правилами русского языка.
+
 # Использование
 1. [Зарегистрируйтесь](https://ru.wikipedia.org/w/index.php?title=Служебная:Создать_учётную_запись) в Википедии.
 2. Откройте страницу [common.js](https://ru.wikipedia.org/wiki/Служебная:Моя_страница/common.js).
