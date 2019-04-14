@@ -55,7 +55,7 @@ impl ContinuousYoficationPages {
         ContinuousYoficationPages { number_pages_with_number_replaces_more_than, all_pages }
     }
 
-    pub fn get_random_page(self: &Self, mut minimum_number_replaces: usize, maximum_number_replaces: Option<usize>) -> String {
+    pub fn get_random_page(&self, mut minimum_number_replaces: usize, maximum_number_replaces: Option<usize>) -> String {
         let maximum_possible_number_replaces = self.number_pages_with_number_replaces_more_than.len() - 1;
         minimum_number_replaces = min(max(minimum_number_replaces, 1), maximum_possible_number_replaces - 1);
         let end_index = self.number_pages_with_number_replaces_more_than[minimum_number_replaces - 1];

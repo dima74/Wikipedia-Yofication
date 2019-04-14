@@ -119,7 +119,7 @@ impl Yofication {
         yoword_original
     }
 
-    pub fn generate_replaces(self: &Self, text: &str, minimum_replace_frequency: u8) -> Vec<Replace> {
+    pub fn generate_replaces(&self, text: &str, minimum_replace_frequency: u8) -> Vec<Replace> {
         let text: Vec<u16> = text.encode_utf16().collect();
         let ranges = string_utils::find_word_ranges(&text);
 
@@ -186,7 +186,7 @@ impl Yofication {
         replaces
     }
 
-    pub fn yoficate(self: &Self, text: &str, minimum_replace_frequency: u8) -> (String, YoficationInfo) {
+    pub fn yoficate(&self, text: &str, minimum_replace_frequency: u8) -> (String, YoficationInfo) {
         let replaces = self.generate_replaces(text, minimum_replace_frequency);
         let mut text: Vec<u16> = text.encode_utf16().collect();
 
@@ -207,7 +207,7 @@ impl Yofication {
         (String::from_utf16(&text).unwrap(), info)
     }
 
-    pub fn iter_yowords(self: &Self) -> impl Iterator<Item=&YowordInfo> {
+    pub fn iter_yowords(&self) -> impl Iterator<Item=&YowordInfo> {
         self.ewords.values()
     }
 

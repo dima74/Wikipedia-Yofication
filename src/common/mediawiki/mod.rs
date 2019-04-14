@@ -18,7 +18,7 @@ impl Api {
         Api { api_url: url, session }
     }
 
-    pub fn get_token(self: &mut Self, token_type: &str) -> String {
+    pub fn get_token(&mut self, token_type: &str) -> String {
         let params = [
             ("format", "json"),
             ("formatversion", "2"),
@@ -38,7 +38,7 @@ impl Api {
         token.to_owned()
     }
 
-    fn iterate_all<T: FnMut(serde_json::Value) -> ()>(self: &Self, request_continue: &str, response_continue: &str, params: &[(&str, &str)], mut consumer: T) {
+    fn iterate_all<T: FnMut(serde_json::Value) -> ()>(&self, request_continue: &str, response_continue: &str, params: &[(&str, &str)], mut consumer: T) {
         let mut from_page = "".to_owned();
         loop {
             let mut response = Client::new()
@@ -59,7 +59,7 @@ impl Api {
         }
     }
 
-    fn get_all_category_members(self: &Self, category: &str, cmtype: &str) -> Vec<String> {
+    fn get_all_category_members(&self, category: &str, cmtype: &str) -> Vec<String> {
         let mut all_titles = Vec::new();
 
         let params = [
@@ -79,15 +79,15 @@ impl Api {
         all_titles
     }
 
-    pub fn get_all_category_pages(self: &Self, category: &str) -> Vec<String> {
+    pub fn get_all_category_pages(&self, category: &str) -> Vec<String> {
         self.get_all_category_members(category, "page")
     }
 
-    pub fn get_all_category_subcategories(self: &Self, category: &str) -> Vec<String> {
+    pub fn get_all_category_subcategories(&self, category: &str) -> Vec<String> {
         self.get_all_category_members(category, "subcat")
     }
 
-    fn get_all_titles(self: &Self, apfilterredir: &str) -> Vec<String> {
+    fn get_all_titles(&self, apfilterredir: &str) -> Vec<String> {
         let mut all_titles = Vec::new();
 
         let params = [
@@ -106,15 +106,15 @@ impl Api {
         all_titles
     }
 
-    pub fn get_all_titles_non_redirects(self: &Self) -> Vec<String> {
+    pub fn get_all_titles_non_redirects(&self) -> Vec<String> {
         self.get_all_titles("nonredirects")
     }
 
-    pub fn get_all_titles_redirects(self: &Self) -> Vec<String> {
+    pub fn get_all_titles_redirects(&self) -> Vec<String> {
         self.get_all_titles("redirects")
     }
 
-    pub fn client_login(self: &mut Self, username: &str, password: &str) {
+    pub fn client_login(&mut self, username: &str, password: &str) {
         let token = self.get_token("login");
 
         let params = [
@@ -136,7 +136,7 @@ impl Api {
         assert_eq!(response["clientlogin"]["status"].as_str(), Some("PASS"));
     }
 
-    pub fn rename_page(self: &mut Self, title_old: &str, title_new: &str, reason: &str) {
+    pub fn rename_page(&mut self, title_old: &str, title_new: &str, reason: &str) {
         let token = self.get_token("csrf");
 
         let params = [
