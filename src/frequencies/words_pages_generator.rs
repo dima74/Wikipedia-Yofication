@@ -3,10 +3,9 @@ use std::collections::HashMap;
 use std::fs;
 
 use yofication::lowercase_first_string::LowercaseFirstString;
+use yofication::string_utils::deyoficate;
 use yofication::words_pages_generator::get_yoword_number_pages;
 use yofication::yofication::Yofication;
-
-use crate::string_utils::deyoficate;
 
 pub struct WordsPagesGenerator {
     words_pages: HashMap<String, Vec<String>>,
@@ -14,7 +13,7 @@ pub struct WordsPagesGenerator {
 
 impl WordsPagesGenerator {
     pub fn new(yofication: &Yofication) -> Self {
-        let ewords_pages: HashMap<_, _> = yofication.iter_yowords()
+        let words_pages: HashMap<_, _> = yofication.iter_yowords()
             .filter_map(|yoword| {
                 let (to_yoficate, yoword_number_pages) = get_yoword_number_pages(yoword);
                 if 0 < yoword_number_pages && yoword_number_pages < 10 {
@@ -24,7 +23,7 @@ impl WordsPagesGenerator {
                     None
                 }
             }).collect();
-        Self { words_pages: ewords_pages }
+        Self { words_pages }
     }
 
     pub fn parse(&mut self, title: String, words: &Vec<String>) {

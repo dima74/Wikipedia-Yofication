@@ -3,9 +3,8 @@ use std::collections::HashSet;
 use std::fs::File;
 use std::io::{LineWriter, Write};
 
+use yofication::string_utils::deyoficate;
 use yofication::yofication::Yofication;
-
-use crate::string_utils::deyoficate;
 
 const MINIMUM_NUMBER_REPLACES: u32 = 5;
 const MINIMUM_REPLACE_FREQUENCY: u8 = 35;

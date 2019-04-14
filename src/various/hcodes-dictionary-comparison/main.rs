@@ -4,7 +4,7 @@ use std::collections::HashSet;
 use std::iter::FromIterator;
 
 use yofication::dictionary::{self, YowordInfo};
-use yofication::string_utils::deyoficate_str;
+use yofication::string_utils::deyoficate;
 
 fn print_words(mut words: Vec<&String>) {
     words.sort();
@@ -21,7 +21,7 @@ fn print_probably_not_safe(wikipedia_yowords: &Vec<YowordInfo>, hcodes_safe: &Ha
     let yowords: HashSet<String> = HashSet::from_iter(yowords);
 
     let words = hcodes_safe.iter()
-        .filter(|word| yowords.contains(&deyoficate_str(&word))).collect();
+        .filter(|word| yowords.contains(&deyoficate(&word))).collect();
 
 //    let words: Vec<_> = yowords.intersection(&hcodes_safe).collect();
     print_words(words);

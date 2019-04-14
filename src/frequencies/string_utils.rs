@@ -1,13 +1,5 @@
 use itertools::Itertools;
 
-pub fn deyoficate(s: &str) -> String {
-    s.chars().map(|c| match c {
-        'ё' => 'е',
-        'Ё' => 'Е',
-        _ => c,
-    }).collect()
-}
-
 pub fn is_russian_lower(c: char) -> bool {
     ('а' <= c && c <= 'я') || c == 'ё'
 }

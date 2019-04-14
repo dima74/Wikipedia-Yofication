@@ -19,7 +19,7 @@ jobs:
           command: |
             mkdir results
             cargo run --bin frequencies --release
-          no_output_timeout: 60m
+          no_output_timeout: 70m
       - run:
           name: Update frequencies on github
           command: ./update_frequencies_on_github.sh

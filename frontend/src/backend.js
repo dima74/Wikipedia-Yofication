@@ -15,12 +15,20 @@ class Backend {
         return await fetchJson(BACKEND_HOST + '/wikipedia/randomPageName', options);
     }
 
+    async getWordPageName(word, pageIndex) {
+        const options = {
+            errorMessage: 'Не удалось получить следующую страницу для ёфикации',
+            data: { word, pageIndex },
+        };
+        return await fetchJson(BACKEND_HOST + '/wikipedia/wordPage', options);
+    }
+
     async getReplacesByPageName(title) {
         const options = {
             errorMessage: 'Произошла ошибка при загрузке списка замен',
             data: {
                 minimumReplaceFrequency: settings.minimumReplaceFrequency,
-                title
+                title,
             },
         };
         return await fetchJson(BACKEND_HOST + '/wikipedia/replacesByTitle', options);

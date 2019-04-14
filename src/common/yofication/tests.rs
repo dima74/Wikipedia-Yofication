@@ -1,6 +1,6 @@
 use lazy_static::lazy_static;
 
-use crate::common::string_utils::deyoficate_str;
+use crate::common::string_utils::deyoficate;
 
 use super::*;
 
@@ -14,7 +14,7 @@ fn test_yofication_generic(text: &str, expected: &str) {
 }
 
 fn test_yofication(expected: &str) {
-    let text = deyoficate_str(expected);
+    let text = deyoficate(expected);
     test_yofication_generic(&text, expected);
 }
 

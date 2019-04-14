@@ -5,9 +5,8 @@ use std::fs::File;
 use std::io::{LineWriter, Write};
 
 use yofication::dictionary::{hcodes, YowordInfo};
+use yofication::string_utils::deyoficate;
 use yofication::yofication::Yofication;
-
-use crate::string_utils::*;
 
 struct EwordInfo {
     number_all: u32,

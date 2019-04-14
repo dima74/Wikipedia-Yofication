@@ -4,7 +4,7 @@ use std::error::Error;
 
 pub use yoword_info::YowordInfo;
 
-use crate::common::string_utils;
+use crate::common::string16_utils;
 
 pub mod hcodes;
 pub mod wikipedia;
@@ -15,14 +15,14 @@ pub fn get_ewords_map() -> Result<HashMap<Vec<u16>, YowordInfo>, Box<dyn Error>>
 
     let wikipedia_yoword_infos = wikipedia::fetch_wikipedia_yoword_infos();
     for yoword_info in wikipedia_yoword_infos {
-        let eword: Vec<_> = string_utils::deyoficate(&yoword_info.yoword.encode_utf16().collect::<Vec<_>>());
+        let eword: Vec<_> = string16_utils::deyoficate(&yoword_info.yoword.encode_utf16().collect::<Vec<_>>());
         ewords.insert(eword, yoword_info);
     }
 
     for is_safe in vec![true, false] {
         let yowords = hcodes::fetch_hcodes_yowords(is_safe)?;
         for yoword in yowords {
-            let eword: Vec<_> = string_utils::deyoficate(&yoword.encode_utf16().collect::<Vec<_>>());
+            let eword: Vec<_> = string16_utils::deyoficate(&yoword.encode_utf16().collect::<Vec<_>>());
 
             match ewords.entry(eword) {
                 Entry::Occupied(entry) => entry.into_mut().is_safe = Some(is_safe),

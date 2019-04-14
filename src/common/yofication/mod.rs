@@ -7,7 +7,7 @@ use itertools::Itertools;
 use serde::Serialize;
 
 use crate::common::dictionary;
-use crate::common::string_utils;
+use crate::common::string16_utils;
 use crate::dictionary::YowordInfo;
 
 #[derive(Serialize, Debug)]
@@ -98,7 +98,7 @@ impl Yofication {
     }
 
     fn normalize(word: &[u16]) -> Vec<u16> {
-        word.iter().copied().filter(|&c| !string_utils::is_modifier(c)).collect()
+        word.iter().copied().filter(|&c| !string16_utils::is_modifier(c)).collect()
     }
 
     fn get_original_yoword(yoword: &[u16], eword_original: &[u16]) -> Vec<u16> {
@@ -109,7 +109,7 @@ impl Yofication {
         let mut yoword_original = Vec::with_capacity(eword_original.len());
         let mut i = 0;
         for &c in eword_original.iter() {
-            if string_utils::is_modifier(c) {
+            if string16_utils::is_modifier(c) {
                 yoword_original.push(c);
             } else {
                 yoword_original.push(yoword[i]);
@@ -121,10 +121,10 @@ impl Yofication {
 
     pub fn generate_replaces(&self, text: &str, minimum_replace_frequency: u8) -> Vec<Replace> {
         let text: Vec<u16> = text.encode_utf16().collect();
-        let ranges = string_utils::find_word_ranges(&text);
+        let ranges = string16_utils::find_word_ranges(&text);
 
         let text_lowercase: Vec<u16> = text.iter().map(|&c| {
-            if string_utils::is_russian_upper(c) { char::from_u32(c as u32).unwrap().to_lowercase().next().unwrap() as u16 } else { c }
+            if string16_utils::is_russian_upper(c) { char::from_u32(c as u32).unwrap().to_lowercase().next().unwrap() as u16 } else { c }
         }).collect();
 
         // возвращает true если стоит попробовать замены для подчастей слова, то есть слово содержит дефис и
@@ -133,7 +133,7 @@ impl Yofication {
             let word_original = &text[range.start..range.end];
             let word = Yofication::normalize(word_original);
             // deyoficate нужен для поддержки ёфикации слов, содержащих ё
-            let eword = string_utils::deyoficate(&word);
+            let eword = string16_utils::deyoficate(&word);
 
             let contains_hyphen = word_original.contains(&('-' as u16));
 
@@ -213,7 +213,7 @@ impl Yofication {
 
     pub fn get_yoword_info<'a>(self: &'a Self, word: &str) -> Option<&'a YowordInfo> {
         let word: Vec<_> = word.encode_utf16().collect();
-        let eword = string_utils::deyoficate(&word);
+        let eword = string16_utils::deyoficate(&word);
         self.ewords.get(&eword)
     }
 }

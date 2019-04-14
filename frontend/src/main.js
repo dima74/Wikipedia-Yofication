@@ -25,6 +25,12 @@ class Main {
         } else if (currentPageName === 'Служебная:Ёфикация/M') {
             localStorage.setItem('yoficator-m', 'true');
             this.performContinuousYofication();
+        } else if (currentPageName.startsWith('Служебная:Ёфикация/')) {
+            // непрерывная ёфикация статей, содержащих замену с конкретным словом
+            const word = currentPageName.substring('Служебная:Ёфикация/'.length);
+            sessionStorage.setItem('yoficator:word', word);
+            sessionStorage.setItem('yoficator:pageIndex', '0');
+            this.performContinuousYofication();
         } else if (currentPageName === 'Участник:Дима74/Скрипт-Ёфикатор/Параметры') {
             settings.initEditing();
         } else if (window.location.search.includes('yofication')) {
@@ -32,7 +38,10 @@ class Main {
             this.isMobile = this.isContinuousYofication && IS_MOBILE_DEVICE;  // по сути флаг означающий нужно ли добавлять overlay (и делать сопутствующие действия)
             startYofication();
             if (this.isContinuousYofication) {
-                this.nextPageNamePromise = backend.getRandomPageName();
+                const pageIndex = +sessionStorage.getItem('yoficator:pageIndex');
+                sessionStorage.setItem('yoficator:pageIndex', pageIndex + 1);
+
+                this.nextPageNamePromise = this.getNextContinousYoficationPage();
             }
         } else if (process.env.NODE_ENV === 'development' || wikipediaApi.isMainNamespace() && !IS_MOBILE_SITE) {
             if (wikipediaApi.isUsualPageView()) {
@@ -87,14 +96,28 @@ class Main {
         }
 
         toast('Переходим к следующей странице: \nЗагружаем название статьи для ёфикации...');
-        const pageName = await (this.isContinuousYofication ? this.nextPageNamePromise : backend.getRandomPageName());
+        const pageName = await (this.isContinuousYofication ? this.nextPageNamePromise : this.getNextContinousYoficationPage());
         toast(`Переходим к странице «${pageName}»`);
         this.redirectContinuousYofication(pageName);
     }
 
     redirectContinuousYofication(pageName) {
-        const pageNameEncoded = encodeURIComponent(pageName.replace(/ /g, '_'));
-        window.location.href = `//ru.wikipedia.org/w/index.php?title=${pageNameEncoded}&action=edit&continuous_yofication`;
+        if (pageName !== '') {
+            const pageNameEncoded = encodeURIComponent(pageName.replace(/ /g, '_'));
+            window.location.href = `//ru.wikipedia.org/w/index.php?title=${pageNameEncoded}&action=edit&continuous_yofication`;
+        } else {
+            toast('Закончились страницы для непрерываной ёфикации');
+        }
+    }
+
+    getNextContinousYoficationPage() {
+        const word = sessionStorage.getItem('yoficator:word');
+        if (word) {
+            const pageIndex = sessionStorage.getItem('yoficator:pageIndex');
+            return backend.getWordPageName(word, pageIndex);
+        } else {
+            return backend.getRandomPageName();
+        }
     }
 }
 
