@@ -98,6 +98,7 @@ pub struct WordPagesForm {
     word: String,
     #[form(field = "pageIndex")]
     page_index: Option<usize>,
+    #[allow(dead_code)]
     flag: Option<bool>,
 }
 
