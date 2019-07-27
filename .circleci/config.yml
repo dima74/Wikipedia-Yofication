@@ -41,6 +41,16 @@ workflows:
       - deploy:
           requires:
             - test
+  regular_test:
+    jobs:
+      - test
+    triggers:
+      - schedule:
+          cron: "0 0 * * *"
+          filters:
+            branches:
+              only:
+                - master
   frequencies_cron:
     jobs:
       - frequencies

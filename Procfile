@@ -1,1 +1,1 @@
-web: ROCKET_PORT=$PORT ./target/release/backend
+web: RUST_BACKTRACE=1 ROCKET_PORT=$PORT ./target/release/backend

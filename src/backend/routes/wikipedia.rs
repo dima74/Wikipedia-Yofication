@@ -42,7 +42,7 @@ pub struct ReplacesByWikitextForm {
 pub fn generate_replaces_by_wikitext(form: Form<ReplacesByWikitextForm>, yofication: State<Yofication>) -> Json<Vec<Replace>> {
     if form.flag.is_none() {
         let properties = json!({ "minimum_replace_frequency": form.minimum_replace_frequency });
-        mixpanel::track("replaces_by_wikitext", form.current_page_name.deref().unwrap_or("unknown"), properties);
+        mixpanel::track("replaces_by_wikitext", form.current_page_name.as_deref().unwrap_or("unknown"), properties);
     }
     Json(yofication.generate_replaces(&form.wikitext, form.minimum_replace_frequency))
 }
