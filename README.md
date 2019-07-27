@@ -2,7 +2,7 @@
 
 [![CircleCI](https://circleci.com/gh/dima74/Wikipedia-Yofication.svg?style=svg)](https://circleci.com/gh/dima74/Wikipedia-Yofication)
 [![Website yofication.herokuapp.com](https://img.shields.io/website-up-down-green-red/https/yofication.herokuapp.com.svg)](https://yofication.herokuapp.com/)
-[![Heroku](https://heroku-badge.herokuapp.com/?app=yofication&svg=1)](https://yofication.herokuapp.com/)
+[![Heroku](https://pyheroku-badge.herokuapp.com/?app=yofication)](https://yofication.herokuapp.com/)
 
 # Описание
 
