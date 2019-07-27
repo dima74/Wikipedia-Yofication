@@ -2,6 +2,6 @@
   "name": "Wikipedia Yofication",
   "description": "Backend for Wikipedia Yofication user script",
   "buildpacks": [ {"url": "emk/rust"} ],
-  "repository": "hhttps://github.com/dima74/Wikipedia-Yofication",
-  "keywords": ["wikipedia", "yofication" ]
+  "repository": "https://github.com/dima74/Wikipedia-Yofication",
+  "keywords": ["wikipedia", "yofication", "yo"]
 }
