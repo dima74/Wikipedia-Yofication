@@ -7,12 +7,14 @@ use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::Path;
 
-use url::percent_encoding::{DEFAULT_ENCODE_SET, define_encode_set, utf8_percent_encode};
+use percent_encoding::{AsciiSet, CONTROLS, utf8_percent_encode};
 
 use yofication::{mediawiki, yoficate_titles};
 use yofication::yoficate_titles::save_strings_to_file;
 
-define_encode_set! { pub CUSTOM_ENCODE_SET = [DEFAULT_ENCODE_SET] | {'(', ')'} }
+// нехорошие разработчики percent_encoding, почему они убрали удобный DEFAULT_ENCODE_SET (и define_encode_set)?
+const CUSTOM_ENCODE_SET: &AsciiSet = &CONTROLS
+    .add(b' ').add(b'"').add(b'#').add(b'<').add(b'>').add(b'`').add(b'?').add(b'{').add(b'}').add(b'(').add(b')');
 
 fn initial_one_time_setup(api: &mediawiki::Api) {
     fs::create_dir_all("temp").unwrap();
