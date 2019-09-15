@@ -16,12 +16,20 @@ name = "frequencies"
 path = "src/frequencies/main.rs"
 
 [[bin]]
+name = "hcodes-dictionary-additions"
+path = "src/various/hcodes-dictionary-additions/main.rs"
+
+[[bin]]
 name = "hcodes-dictionary-comparison"
 path = "src/various/hcodes-dictionary-comparison/main.rs"
 
 [[bin]]
 name = "wikipedia-count-number-hours-to-yoficate-all-articles"
 path = "src/various/wikipedia-count-number-hours-to-yoficate-all-articles/main.rs"
+
+[[bin]]
+name = "wikipedia-wikificator-additions"
+path = "src/various/wikipedia-wikificator-additions/main.rs"
 
 [[bin]]
 name = "wikipedia-yoficate-titles"

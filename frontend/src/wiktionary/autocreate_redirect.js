@@ -12,9 +12,9 @@ function deyoficate(yoword) {
 let toastInitialized = false;
 
 function initToast() {
-    const SNACKBAR_HTML = `
+    const TOAST_HTML = `
     <div 
-        id="yoficator-snackbar" 
+        id="yoficator-toast" 
         style="
             min-width: 250px; 
             transform: translateX(-50%); 
@@ -28,7 +28,7 @@ function initToast() {
             left: 50%; 
             bottom: 30px;"
     >...</div>`;
-    $('body').append(SNACKBAR_HTML);
+    $('body').append(TOAST_HTML);
 }
 
 function toast(status) {
@@ -37,12 +37,12 @@ function toast(status) {
         initToast();
     }
     console.log(status);
-    let snackbar = $('#yoficator-snackbar');
+    const toast = $('#yoficator-toast');
 
     status = status.replace(/\n/g, '<br />');
     // [[ссылка|имя]] -> <a href="/wiki/ссылка">имя</a>
     status = status.replace(/\[\[([^|]*)\|([^\]]*)]]/g, '<a href="/wiki/$1" style="color: #0ff;">$2</a>');
-    snackbar.html(status);
+    toast.html(status);
 }
 
 async function redirect() {

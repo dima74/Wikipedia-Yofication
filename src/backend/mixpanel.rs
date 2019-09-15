@@ -5,7 +5,7 @@ use reqwest;
 use serde_json::json;
 
 lazy_static! {
-    static ref MIXPANEL_TOKEN: String = env::var("MIXPANEL_TOKEN").unwrap();
+    static ref MIXPANEL_TOKEN: String = env::var("MIXPANEL_TOKEN").expect("MIXPANEL_TOKEN env variable is missing");
 }
 
 pub fn init() {
