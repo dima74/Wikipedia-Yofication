@@ -76,9 +76,11 @@ impl FrequenciesGenerator {
     pub fn save_result(self, file_name: &str) {
         fn get_best_yword_info(entry: (String, EwordInfo)) -> YowordInfo {
             let (eword, eword_info) = entry;
-            let best_entry = eword_info.yoword_counts.into_iter().max_by_key(|entry| entry.1)
-                .unwrap_or((eword, 0));
-            YowordInfo { yoword: best_entry.0, number_with_yo: best_entry.1, number_all: eword_info.number_all, is_safe: None }
+            let (best_yoword_count, best_yoword) = eword_info.yoword_counts.into_iter()
+                .map(|(yoword, count)| (count, yoword))
+                .max()
+                .unwrap_or((0, eword));
+            YowordInfo { yoword: best_yoword, number_with_yo: best_yoword_count, number_all: eword_info.number_all, is_safe: None }
         }
 
         let mut yowords: Vec<_> = self.eword_infos.into_iter()
