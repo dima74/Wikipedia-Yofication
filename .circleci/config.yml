@@ -54,9 +54,18 @@ workflows:
   frequencies_cron:
     jobs:
       - frequencies
+    # twice per month (1th and 15th day of month)
     triggers:
       - schedule:
-          cron: "0 0 * * 6"
+          # https://crontab.guru/#33_3_1_*_*
+          cron: "33 3 1 * *"
+          filters:
+            branches:
+              only:
+                - master
+      - schedule:
+          # https://crontab.guru/#33_3_15_*_*
+          cron: "33 3 15 * *"
           filters:
             branches:
               only:
@@ -65,7 +74,7 @@ workflows:
 #    чтобы инициировать подсчёт частот нужно добавить тег frequencies_trigger к коммиту:
 #        git tag frequencies_trigger && git push origin frequencies_trigger
 #    затем его можно удалить
-#        git tag -d frequencies_trigger && git push origin :frequencies_trigger
+#        sleep 120 && git tag -d frequencies_trigger && git push origin :frequencies_trigger
     jobs:
       - frequencies:
           filters:
