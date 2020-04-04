@@ -2,6 +2,9 @@ use std::error::Error;
 use std::io::{BufRead, BufReader};
 
 use bzip2::read::BzDecoder;
+use regex::Regex;
+
+use lazy_static::lazy_static;
 
 const WIKIPEDIA_DUMP_URL: &str = "https://dumps.wikimedia.org/ruwiki/latest/ruwiki-latest-pages-articles.xml.bz2";
 
@@ -9,7 +12,9 @@ const TITLE_START: &str = "    <title>";
 const TITLE_END: &str = "</title>";
 const NAMESPACE_START: &str = "    <ns>";
 const NAMESPACE_END: &str = "</ns>";
-const TEXT_START: &str = "      <text xml:space=\"preserve\">";
+lazy_static! {
+    static ref TEXT_START: Regex = Regex::new(r#"      <text bytes="\d+" xml:space="preserve">"#).unwrap();
+}
 const TEXT_END: &str = "</text>";
 
 fn normalize(text: &str) -> String {
@@ -45,8 +50,8 @@ pub fn iterate_articles<T: FnMut(String, String) -> ()>(mut consumer: T, mut num
             namespace = Some(line[start..end].to_string());
         }
 
-        if line.starts_with(TEXT_START) {
-            let mut text = line[TEXT_START.len()..].to_string();
+        if let Some(match_) = TEXT_START.find(&line) {
+            let mut text = line[match_.end()..].to_string();
             while !text.ends_with(TEXT_END) {
                 let line = iterator.next();
                 if line.is_none() { return Ok(()); }
