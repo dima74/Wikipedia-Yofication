@@ -11,9 +11,9 @@
     "update_script_at_wikipedia": "yarn build && python update-script-at-wikipedia.py"
   },
   "devDependencies": {
-    "webpack": "^4.40.2",
-    "webpack-cli": "^3.3.8",
-    "webpack-dev-server": "^3.8.0",
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11",
+    "webpack-dev-server": "^3.10.3",
     "webpack-merge": "^4.2.2"
   }
 }

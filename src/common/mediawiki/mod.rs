@@ -1,4 +1,5 @@
-use reqwest::{Client, header};
+use reqwest::blocking::Client;
+use reqwest::header;
 
 mod session;
 
@@ -12,7 +13,7 @@ impl Api {
         let url = if code_or_url.starts_with("http") {
             code_or_url.to_owned()
         } else {
-            format!("https://{}.wikipedia.org/w/apiphp", code_or_url)
+            format!("https://{}.wikipedia.org/w/api.php", code_or_url)
         };
         let session = session::Session::new();
         Api { api_url: url, session }
@@ -26,7 +27,7 @@ impl Api {
             ("meta", "tokens"),
             ("type", token_type),
         ];
-        let mut response = Client::new()
+        let response = Client::new()
             .get(&self.api_url)
             .query(&params)
             .header(header::COOKIE, self.session.get_cookie_header())
@@ -41,7 +42,7 @@ impl Api {
     fn iterate_all<T: FnMut(serde_json::Value) -> ()>(&self, request_continue: &str, response_continue: &str, params: &[(&str, &str)], mut consumer: T) {
         let mut from_page = "".to_owned();
         loop {
-            let mut response = Client::new()
+            let response = Client::new()
                 .get(&self.api_url)
                 .query(params)
                 .query(&[(request_continue, &from_page)])
@@ -126,7 +127,7 @@ impl Api {
             ("username", username),
             ("password", password),
         ];
-        let mut response = Client::new()
+        let response = Client::new()
             .post(&self.api_url)
             .form(&params)
             .header(header::COOKIE, self.session.get_cookie_header())
@@ -150,7 +151,7 @@ impl Api {
             ("watchlist", "watch"),
             ("token", &token),
         ];
-        let mut response = Client::new()
+        let response = Client::new()
             .post(&self.api_url)
             .form(&params)
             .header(header::COOKIE, self.session.get_cookie_header())

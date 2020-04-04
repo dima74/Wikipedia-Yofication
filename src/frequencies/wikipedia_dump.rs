@@ -21,7 +21,7 @@ fn normalize(text: &str) -> String {
 }
 
 pub fn iterate_articles<T: FnMut(String, String) -> ()>(mut consumer: T, mut number_articles: u32) -> Result<(), Box<dyn Error>> {
-    let response = reqwest::get(WIKIPEDIA_DUMP_URL)?;
+    let response = reqwest::blocking::get(WIKIPEDIA_DUMP_URL)?;
     let decompressor = BzDecoder::new(response);
     let reader = BufReader::new(decompressor);
 

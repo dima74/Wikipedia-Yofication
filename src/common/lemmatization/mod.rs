@@ -9,7 +9,7 @@ pub fn init() {
     if is_development() { return; }
 
     const MYSTEM_URL: &str = "https://download.cdn.yandex.net/mystem/mystem-3.1-linux-64bit.tar.gz";
-    let mut response = reqwest::get(MYSTEM_URL).expect("mystem: Failed to fetch binary");
+    let mut response = reqwest::blocking::get(MYSTEM_URL).expect("mystem: Failed to fetch binary");
     let mut file = File::create("mystem.tar.gz").expect("mystem: Failed to save binary");
     response.copy_to(&mut file).expect("mystem: Failed to save binary");
 

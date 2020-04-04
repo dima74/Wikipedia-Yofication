@@ -1,6 +1,7 @@
 use cookie::{Cookie, CookieJar};
 use itertools::Itertools;
-use reqwest::{header, Response};
+use reqwest::blocking::Response;
+use reqwest::header;
 
 pub struct Session {
     cookie_jar: CookieJar,

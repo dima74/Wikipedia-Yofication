@@ -11,7 +11,7 @@ pub fn fetch_hcodes_yowords(is_safe: bool) -> Result<Vec<String>, Box<dyn Error>
         fs::read_to_string(format!("temp/github-cache/dict_src/{}", file_name))?
     } else {
         let url = format!("https://raw.githubusercontent.com/hcodes/eyo-kernel/master/dict_src/{}", file_name);
-        reqwest::get(&url)?.text()?
+        reqwest::blocking::get(&url)?.text()?
     };
 
     let re1 = Regex::new(" *#.*").unwrap();

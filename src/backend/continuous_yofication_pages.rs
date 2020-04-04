@@ -20,7 +20,7 @@ impl ContinuousYoficationPages {
             fs::read_to_string("temp/github-cache/frequencies/all-pages.txt").unwrap()
         } else {
             const ALL_PAGES_URL: &str = "https://raw.githubusercontent.com/dima74/Wikipedia-Yofication/frequencies/all-pages.txt";
-            reqwest::get(ALL_PAGES_URL).unwrap().text().unwrap()
+            reqwest::blocking::get(ALL_PAGES_URL).unwrap().text().unwrap()
         };
 
         let mut all_pages = Vec::new();

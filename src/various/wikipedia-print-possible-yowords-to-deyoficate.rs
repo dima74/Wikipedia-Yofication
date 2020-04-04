@@ -1,4 +1,5 @@
 use itertools::Itertools;
+
 use yofication::dictionary;
 
 fn main() {

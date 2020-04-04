@@ -1,6 +1,6 @@
 use std::error::Error;
 
-use reqwest::Client;
+use reqwest::blocking::Client;
 use rocket::{FromForm, get, post, State};
 use rocket::request::Form;
 use rocket_contrib::json::Json;
@@ -57,7 +57,7 @@ fn fetch_wikipedia_page(title: &str) -> Result<(u64, String, String), Box<dyn Er
         ("rvprop", "ids|content|timestamp"),
         ("rvslots", "main")
     ];
-    let mut response = Client::new()
+    let response = Client::new()
         .get("https://ru.wikipedia.org/w/api.php")
         .query(&params)
         .send()?;
