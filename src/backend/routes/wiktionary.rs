@@ -1,6 +1,6 @@
 use std::error::Error;
 
-use reqwest::Client;
+use reqwest::blocking::Client;
 use rocket::get;
 use rocket::http::uri::Uri;
 use rocket::response::Redirect;
@@ -13,7 +13,7 @@ fn get_wiktionary_article_by_prefix(prefix: &str) -> Result<Option<String>, Box<
         ("generator", "allpages"),
         ("gapprefix", prefix),
     ];
-    let mut response = Client::new()
+    let response = Client::new()
         .get("https://ru.wiktionary.org/w/api.php")
         .query(&params)
         .send()?;

@@ -14,7 +14,7 @@ impl WordsPages {
             fs::read_to_string("temp/github-cache/frequencies/pages-for-words-with-few-replaces.json").unwrap()
         } else {
             const WORDS_PAGES_URL: &str = "https://raw.githubusercontent.com/dima74/Wikipedia-Yofication/frequencies/pages-for-words-with-few-replaces.json";
-            reqwest::get(WORDS_PAGES_URL).unwrap().text().unwrap()
+            reqwest::blocking::get(WORDS_PAGES_URL).unwrap().text().unwrap()
         };
 
         let words_pages: HashMap<String, Vec<String>> = serde_json::from_str(&response).unwrap();

@@ -1,11 +1,12 @@
 #![allow(dead_code)]
 
-use itertools::Itertools;
 use std::cmp::Reverse;
+
+use itertools::Itertools;
 
 fn count_number_hours_to_yoficate_the_whole_russian_wikipedia() {
     const ALL_PAGES_URL: &str = "https://raw.githubusercontent.com/dima74/Wikipedia-Yofication/frequencies/all-pages.txt";
-    let response = reqwest::get(ALL_PAGES_URL).unwrap().text().unwrap();
+    let response = reqwest::blocking::get(ALL_PAGES_URL).unwrap().text().unwrap();
 
     let mut number_seconds = 0;
     for line in response.lines() {

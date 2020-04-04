@@ -5,8 +5,9 @@ use std::fs;
 use std::fs::File;
 use std::io::{BufRead, BufReader, LineWriter, Write};
 
-use lazy_static::lazy_static;
 use regex::Regex;
+
+use lazy_static::lazy_static;
 
 use crate::yofication::Yofication;
 

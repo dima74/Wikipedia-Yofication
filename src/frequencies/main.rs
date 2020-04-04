@@ -1,12 +1,12 @@
 use std::error::Error;
 
+use yofication::is_development;
 use yofication::yofication::Yofication;
 
 use crate::frequencies_generator::FrequenciesGenerator;
 use crate::pages_generator::PagesGenerator;
 use crate::string_utils::find_words;
 use crate::words_pages_generator::WordsPagesGenerator;
-use yofication::is_development;
 
 mod wikipedia_dump;
 mod string_utils;
@@ -28,7 +28,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         words_pages_generator.parse(title.clone(), &words);
     };
     let number_articles = if is_development() { 100 } else { std::u32::MAX };
-    crate::wikipedia_dump::iterate_articles(consumer, number_articles)?;
+    wikipedia_dump::iterate_articles(consumer, number_articles)?;
 
     frequencies_generator.save_result("./results/frequencies.txt");
     pages_generator.save_result("./results/all-pages.txt");
