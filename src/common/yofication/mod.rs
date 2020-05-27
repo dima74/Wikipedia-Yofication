@@ -10,6 +10,9 @@ use crate::common::dictionary;
 use crate::common::string16_utils;
 use crate::dictionary::YowordInfo;
 
+#[cfg(test)]
+mod tests;
+
 #[derive(Serialize, Debug)]
 pub struct Replace {
     yoword: String,
@@ -217,6 +220,3 @@ impl Yofication {
         self.ewords.get(&eword)
     }
 }
-
-#[cfg(test)]
-mod tests;

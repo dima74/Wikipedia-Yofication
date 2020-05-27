@@ -102,3 +102,8 @@ fn test_self_closed_tags() {
     test_noyofication("<ref>ее</ref>");
     test_yofication(r#"<ref name="...">...</ref><ref name="..." /> её <ref name="..." /><ref name="...">...</ref>"#);
 }
+
+#[test]
+fn test_seven() {
+    test_noyofication(" семь ");
+}

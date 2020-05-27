@@ -14,21 +14,23 @@ pub fn fetch_hcodes_yowords(is_safe: bool) -> Result<Vec<String>, Box<dyn Error>
         reqwest::blocking::get(&url)?.text()?
     };
 
-    let re1 = Regex::new(" *#.*").unwrap();
-    let re2 = Regex::new("[(|)]").unwrap();
+    let re_comment = Regex::new(" *#.*").unwrap();
+    let re_base_and_suffixes = Regex::new(r"^([^(|)]+)\(([^()]+)\)$").unwrap();
 
     let mut result = Vec::new();
     for line in response.lines() {
-        let line = re1.replace(line, "");
+        let line = re_comment.replace(line, "");
 
-        if line.contains('(') {
-            let mut suffixes = re2.split(&line);
-            let base = suffixes.next().ok_or("failed to parse dictionary entry")?;
-            for suffix in suffixes {
-                result.push(base.to_owned() + suffix);
-            }
-        } else {
+        if !line.contains('(') {
             result.push(line.into_owned());
+            continue;
+        }
+
+        let captures = re_base_and_suffixes.captures(&line).ok_or("failed to parse dictionary entry")?;
+        let base = &captures[1];
+        let suffixes = &captures[2];
+        for suffix in suffixes.split('|') {
+            result.push(base.to_owned() + suffix);
         }
     }
     Ok(result)
