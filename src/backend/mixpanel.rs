@@ -1,6 +1,5 @@
 use std::env;
 
-use reqwest;
 use serde_json::json;
 
 use lazy_static::lazy_static;

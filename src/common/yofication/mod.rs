@@ -1,7 +1,7 @@
 use std::char;
 use std::collections::HashMap;
 use std::error::Error;
-use std::ops::Range;
+use std::ops::{Range, Deref};
 
 use itertools::Itertools;
 use serde::Serialize;
@@ -44,7 +44,7 @@ impl Yofication {
         Ok(Yofication { ewords })
     }
 
-    fn check_match(text: &Vec<u16>, eword: &Vec<u16>, range: Range<usize>) -> bool {
+    fn check_match(text: &[u16], eword: &[u16], range: Range<usize>) -> bool {
         let start = range.start;
         let end = range.end;
 
@@ -62,7 +62,7 @@ impl Yofication {
         if next_char == '.' && end - start <= 4 {
             // сокращения: нем.
             let ignored_shorted_word: Vec<u16> = "нем".encode_utf16().collect();
-            if *eword == ignored_shorted_word { return false; }
+            if eword == ignored_shorted_word.deref() { return false; }
 
             let is_this_word_last_in_sentence = end + 1 >= text.len() || u16_option_to_char(text[end + 1]).is_uppercase();
             if !is_this_word_last_in_sentence { return false; }
@@ -73,7 +73,7 @@ impl Yofication {
         true
     }
 
-    fn is_word_inside_tags(text: &Vec<u16>, range: Range<usize>) -> bool {
+    fn is_word_inside_tags(text: &[u16], range: Range<usize>) -> bool {
         let tags: Vec<(Vec<u16>, Vec<u16>)> = vec![
             ("{{начало цитаты", "{{конец цитаты"),
             ("{{цитата", "}}"),

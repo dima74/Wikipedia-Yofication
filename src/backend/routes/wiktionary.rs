@@ -27,7 +27,7 @@ fn get_wiktionary_article_by_prefix(prefix: &str) -> Result<Option<String>, Box<
 
 fn get_wiktionary_article(yoword: &str) -> Result<Option<String>, Box<dyn Error>> {
     let mut yoword = yoword.to_owned();
-    while yoword.len() > 0 {
+    while !yoword.is_empty() {
         let article = get_wiktionary_article_by_prefix(&yoword)?;
         if article.is_some() {
             return Ok(article);

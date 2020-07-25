@@ -19,7 +19,7 @@ pub fn get_ewords_map() -> Result<HashMap<Vec<u16>, YowordInfo>, Box<dyn Error>>
         ewords.insert(eword, yoword_info);
     }
 
-    for is_safe in vec![true, false] {
+    for &is_safe in &[true, false] {
         let yowords = hcodes::fetch_hcodes_yowords(is_safe)?;
         for yoword in yowords {
             let eword: Vec<_> = string16_utils::deyoficate(&yoword.encode_utf16().collect::<Vec<_>>());

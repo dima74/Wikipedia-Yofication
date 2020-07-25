@@ -14,7 +14,7 @@ fn print_words(mut words: Vec<&String>) {
     println!("\nlen: {}", words.len());
 }
 
-fn print_probably_not_safe(wikipedia_yowords: &Vec<YowordInfo>, hcodes_safe: &HashSet<String>) {
+fn print_probably_not_safe(wikipedia_yowords: &[YowordInfo], hcodes_safe: &HashSet<String>) {
     let yowords = wikipedia_yowords.iter()
         .filter(|info| info.frequency() < 7 && info.number_all > 100)
         .map(|info| info.yoword.clone());
@@ -27,7 +27,7 @@ fn print_probably_not_safe(wikipedia_yowords: &Vec<YowordInfo>, hcodes_safe: &Ha
     print_words(words);
 }
 
-fn print_probably_missing_safe(wikipedia_yowords: &Vec<YowordInfo>, hcodes_safe: &HashSet<String>) {
+fn print_probably_missing_safe(wikipedia_yowords: &[YowordInfo], hcodes_safe: &HashSet<String>) {
     let yowords = wikipedia_yowords.iter()
         .filter(|info| info.yoword.chars().next().unwrap().is_lowercase() && info.number_with_yo > 100 && info.frequency() > 90)
         .map(|info| info.yoword.clone());

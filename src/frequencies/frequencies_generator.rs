@@ -32,7 +32,7 @@ impl FrequenciesGenerator {
             .map(|yoword| yoword.yoword.to_owned());
         all_yowords.extend(wikipedia_yowords);
 
-        for is_safe in vec![true, false] {
+        for &is_safe in &[true, false] {
             let mut hcodes_yowords = hcodes::fetch_hcodes_yowords(is_safe)?;
             all_yowords.append(&mut hcodes_yowords);
         }
@@ -44,7 +44,7 @@ impl FrequenciesGenerator {
         Ok(FrequenciesGenerator { eword_infos })
     }
 
-    pub fn parse(&mut self, words: &Vec<String>) {
+    pub fn parse(&mut self, words: &[String]) {
         for word in words.iter() {
             let contains_yo = word.contains('ё') || word.contains('Ё');
             if contains_yo {

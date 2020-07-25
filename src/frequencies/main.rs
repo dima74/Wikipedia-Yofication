@@ -25,7 +25,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         let words = find_words(text);
         frequencies_generator.parse(&words);
         pages_generator.parse(title.clone(), &words);
-        words_pages_generator.parse(title.clone(), &words);
+        words_pages_generator.parse(title, &words);
     };
     let number_articles = if is_development() { 100 } else { std::u32::MAX };
     wikipedia_dump::iterate_articles(consumer, number_articles)?;

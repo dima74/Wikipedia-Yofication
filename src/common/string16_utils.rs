@@ -39,7 +39,7 @@ pub fn is_modifier(c: u16) -> bool {
     c == '\u{00AD}' as u16 || c == '\u{0301}' as u16
 }
 
-pub fn find_word_ranges(text: &Vec<u16>) -> Vec<Range<usize>> {
+pub fn find_word_ranges(text: &[u16]) -> Vec<Range<usize>> {
     let mut ranges = Vec::new();
 
     let n = text.len();

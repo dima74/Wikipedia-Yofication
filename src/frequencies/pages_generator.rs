@@ -28,9 +28,9 @@ impl PagesGenerator {
         PagesGenerator { ewords, page_infos: Vec::new() }
     }
 
-    pub fn parse(&mut self, title: String, words: &Vec<String>) {
+    pub fn parse(&mut self, title: String, words: &[String]) {
         let number_replaces = words
-            .into_iter()
+            .iter()
             .filter(|word| self.ewords.contains(*word))
             .count() as u32;
 

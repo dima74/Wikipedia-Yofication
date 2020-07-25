@@ -26,7 +26,7 @@ impl WordsPagesGenerator {
         Self { words_pages }
     }
 
-    pub fn parse(&mut self, title: String, words: &Vec<String>) {
+    pub fn parse(&mut self, title: String, words: &[String]) {
         for word in words {
             if let Some(eword_pages) = self.words_pages.get_mut(word) {
                 if eword_pages.last() != Some(&title) {
