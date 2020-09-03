@@ -3,8 +3,7 @@ import toast from './toast';
 import backend from './backend';
 import settings from './settings';
 import { startYofication } from './yoficators';
-import { YO_IMAGE_URL_20, YO_IMAGE_URL_22 } from './constants';
-import { IS_MOBILE_DEVICE, IS_MOBILE_SITE } from './base';
+import { IS_MOBILE_DEVICE, IS_MOBILE_SITE, YO_IMAGE_URL_20, YO_IMAGE_URL_22 } from './constants';
 
 // todo оптимизации переходов между заменами
 // todo улучшить минификацию

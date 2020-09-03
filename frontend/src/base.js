@@ -1,7 +1,5 @@
 import toast from './toast';
 
-export const IS_MOBILE_SITE = window.location.hostname.includes('.m.wikipedia');
-export const IS_MOBILE_DEVICE = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 const flag = localStorage.getItem('yoficator-m');
 
 export function assert(expression, message = 'Непредвиденная ошибка. Пожалуйста, сообщите название текущей страницы [[Участник:Дима74|автору скрипта]].') {

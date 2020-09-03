@@ -1,5 +1,6 @@
 import { sleep } from './base';
 import main from './main';
+import { IS_MOBILE_DEVICE } from './constants';
 
 const TOAST_WRAPPER_CSS = `
 position: fixed;
@@ -8,7 +9,7 @@ left: 0;
 right: 0;
 display: flex;
 z-index: 1;
-pointer-events: none;
+${IS_MOBILE_DEVICE ? 'pointer-events: none;' : ''}
 `;
 const TOAST_CSS = `
 margin: auto;
