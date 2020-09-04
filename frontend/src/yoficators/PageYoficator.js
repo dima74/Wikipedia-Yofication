@@ -2,7 +2,7 @@ import BaseYoficator, { getReplaceHintColor } from './BaseYoficator';
 import wikipediaApi, { currentPageName } from '../wikipedia-api';
 import toast from '../toast';
 import backend from '../backend';
-import { assert, fetchJson, sleep } from '../base';
+import { assert, sleep } from '../base';
 import { addConvientPropertiesToReplaces, checkReplacesMatchWikitext, deyoficate, isNewWikitextYoficatedVersionOfOld } from './utility';
 import settings from '../settings';
 
@@ -377,28 +377,21 @@ export default class PageYoficator extends BaseYoficator {
         assert(isNewWikitextYoficatedVersionOfOld(this.wikitext, wikitext));
 
         toast('Делаем правку: \nОтправляем изменения...');
-        const response = await fetchJson('/w/api.php', {
-            errorMessage: 'Не удалось произвести правку',
-            type: 'POST',
-            data: {
-                format: 'json',
-                action: 'edit',
-                title: currentPageName,
-                minor: true,
+        const mvApi = new mw.Api();
+        const response = await mvApi.edit(currentPageName, revision => {
+            assert(
+                revision.content === this.wikitext,
+                'Кто-то другой редактирует эту страницу прямо сейчас. Попробуйте ещё раз.',
+            );
+            return {
                 text: wikitext,
                 summary: settings.editSummary,
-                basetimestamp: this.timestamp,
-                token: mw.user.tokens.get('editToken'),
-            },
+                minor: true,
+            };
         });
-        if (!response.edit || response.edit.result !== 'Success') {
+        if (response.result !== 'Success') {
             console.log(response);
-
-            const errorMessage = response.error
-                ? response.error.info
-                : (response.edit
-                    ? response.edit.info
-                    : 'неизвестная ошибка');
+            const errorMessage = response.info || 'неизвестная ошибка';
             assert(false, 'Не удалось произвести правку: ' + errorMessage);
         }
     }
