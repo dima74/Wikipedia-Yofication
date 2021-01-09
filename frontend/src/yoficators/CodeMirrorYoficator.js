@@ -20,7 +20,11 @@ export default class CodeMirrorYoficator extends WikitextBaseYoficator {
 
         if ($('.CodeMirror').length === 0) {
             toast('Ожидаем завершения загрузки редактора...');
-            await new Promise(resolve => $('#wpTextbox1').on('wikiEditor-toolbar-doneInitialSections', resolve));
+            while ($('.CodeMirror').length === 0) {
+                await sleep(50);
+            }
+            // нестабильно работает начиная с января 2021
+            // await new Promise(resolve => $('#wpTextbox1').on('wikiEditor-toolbar-doneInitialSections', resolve));
         }
 
         assert($('.CodeMirror').length > 0);
