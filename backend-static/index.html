@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Ёфикация</title>
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,400|Material+Icons" rel="stylesheet">
-    <link href="https://unpkg.com/vuetify/dist/vuetify.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
     <link rel="shortcut icon" href="/static/yo_22.png">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
 
@@ -40,7 +40,7 @@
 
 <div id="app" v-cloak>
     <v-app>
-        <v-content>
+        <v-main>
             <v-container fill-height>
 
                 <v-card>
@@ -80,7 +80,7 @@
                 </v-card>
 
             </v-container>
-        </v-content>
+        </v-main>
 
         <v-snackbar
             v-model="snackbarModel"
@@ -92,10 +92,18 @@
     </v-app>
 </div>
 
-<script src="https://unpkg.com/vue/dist/vue.min.js"></script>
-<script src="https://unpkg.com/vuetify/dist/vuetify.min.js"></script>
-<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
 <script>
+    async function postRequest(url, data) {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+        });
+        return await response.json();
+    }
+
     new Vue({
         el: '#app',
         vuetify: new Vuetify(),
@@ -136,7 +144,7 @@
 
                 this.isLoading = true;
                 try {
-                    const { textYoficated, numberReplaces } = (await axios.post('/yoficate', data)).data;
+                    const { textYoficated, numberReplaces } = await postRequest('/yoficate', data);
                     if (numberReplaces === 0) {
                         this.toast('Замен не найдено');
                         return;
