@@ -42,8 +42,8 @@ class Main {
 
                 this.nextPageNamePromise = this.getNextContinousYoficationPage();
             }
-        } else if (process.env.NODE_ENV === 'development' || wikipediaApi.isMainNamespace() && !IS_MOBILE_SITE) {
-            if (wikipediaApi.isUsualPageView()) {
+        } else if (process.env.NODE_ENV === 'development' || !IS_MOBILE_SITE) {
+            if (wikipediaApi.isUsualPageView() && wikipediaApi.isMainNamespace()) {
                 this.addPortletLink();
             }
             this.addYoficateButtonToToolbar();
