@@ -1,4 +1,4 @@
-#![feature(proc_macro_hygiene, decl_macro, inner_deref)]
+#![feature(proc_macro_hygiene, decl_macro)]
 
 use std::error::Error;
 

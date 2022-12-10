@@ -159,7 +159,7 @@ impl Api {
         let response: serde_json::Value = response.json().unwrap();
         if response.get("error").is_some() {
             println!("{}", serde_json::to_string_pretty(&response).unwrap());
-            panic!(serde_json::to_string_pretty(&response).unwrap());
+            panic!("{}", serde_json::to_string_pretty(&response).unwrap());
         }
     }
 }
