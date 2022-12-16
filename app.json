@@ -1,7 +1,0 @@
-{
-  "name": "Wikipedia Yofication",
-  "description": "Backend for Wikipedia Yofication user script",
-  "buildpacks": [ {"url": "emk/rust"} ],
-  "repository": "https://github.com/dima74/Wikipedia-Yofication",
-  "keywords": ["wikipedia", "yofication", "yo"]
-}

@@ -1,0 +1,5 @@
+target/
+.git/
+frontend/
+mystem.tar.gz
+mystem
