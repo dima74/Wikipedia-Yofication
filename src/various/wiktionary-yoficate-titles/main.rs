@@ -40,7 +40,7 @@ fn print_titles_to_yoficate() {
     dbg!(titles.len());
     for (title, title_yoficated, minimum_frequency) in titles {
         let title = title.replace(' ', "_");
-        let links = format!("[http://gramota.ru/slovari/dic/?word={0}&all=x gramota], [https://yofication.herokuapp.com/stat/{0} stat]", title);
+        let links = format!("[http://gramota.ru/slovari/dic/?word={0}&all=x gramota], [https://yofication-diralik.amvera.io/stat/{0} stat]", title);
         println!("* {3:3}  ([[Обсуждение:{0}|обс0]], [[Обсуждение:{1}|обс1]])  {0} [[{0}]] → [[{1}]]  ({2})", title, title_yoficated, links, minimum_frequency);
     }
 }
@@ -49,7 +49,7 @@ fn print_wikitext_for_obvious_titles() {
     for title in include_str!("./results/articles-to-rename_obvious.txt").lines() {
         let (title_yoficated, _) = YOFICATION.yoficate(title, 50);
         let title = title.replace(' ', "_");
-        let links = format!("[http://gramota.ru/slovari/dic/?word={0}&all=x gramota], [https://yofication.herokuapp.com/stat/{0} stat]", title);
+        let links = format!("[http://gramota.ru/slovari/dic/?word={0}&all=x gramota], [https://yofication-diralik.amvera.io/stat/{0} stat]", title);
         println!("* [[Обсуждение:{0}|(обс)]]  [[{0}]] → [[{1}]]  ({2})", title, title_yoficated, links);
     }
 }
