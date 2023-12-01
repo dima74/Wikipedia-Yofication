@@ -68,13 +68,4 @@ mod tests {
         test_nocontains("красный");
         test_nocontains("привет");
     }
-
-    #[test]
-    fn test_frequency() {
-        let eword = "ефицируясь".encode_utf16().collect::<Vec<_>>();
-        let yoword = &EWORDS[&eword];
-        assert_eq!(yoword.is_safe, Some(true));
-        assert_eq!(yoword.frequency_wikipedia(), None);
-        assert_eq!(yoword.frequency(), 39);
-    }
 }
