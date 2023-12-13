@@ -1,3 +1,8 @@
 [global.limits]
 forms = 10485760
 json = 10485760
+
+[production]
+address = "0.0.0.0"
+cli_colors = false
+port = 8080

@@ -1,7 +1,7 @@
 # Скрипт-Ёфикатор для Википедии
 
 [![CircleCI](https://circleci.com/gh/dima74/Wikipedia-Yofication.svg?style=svg)](https://circleci.com/gh/dima74/Wikipedia-Yofication)
-[![Website](https://img.shields.io/website-up-down-green-red/https/yofication-diralik.amvera.io.svg)](https://yofication-diralik.amvera.io/)
+[![Website](https://img.shields.io/website-up-down-green-red/https/yofication.fly.dev.svg)](https://yofication.fly.dev/)
 
 # Описание
 
