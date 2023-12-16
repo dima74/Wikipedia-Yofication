@@ -33,4 +33,4 @@
 # Как скрипт находит слова для ёфикации?
 Используются два источника:
 * [ежемесячно обновляемая статистика встречаемости слов](https://github.com/dima74/Wikipedia-Yofication/tree/frequencies) в [дампе Википедии](https://dumps.wikimedia.org/backup-index.html)
-* [словарь](https://github.com/hcodes/eyo-kernel/tree/master/dict_src) библиотеки [hcodes/eyo-kernel](https://github.com/hcodes/eyo-kernel), опубликованной под лицензией MIT.
+* [словарь](https://github.com/hcodes/eyo-kernel/tree/master/dictionary) библиотеки [hcodes/eyo-kernel](https://github.com/hcodes/eyo-kernel), опубликованной под лицензией MIT.

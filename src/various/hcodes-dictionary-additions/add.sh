@@ -6,7 +6,7 @@ mkdir -p temp
 cd temp
 
 #wget https://raw.githubusercontent.com/e2yo/eyo-kernel/master/tools/packer.js
-wget https://raw.githubusercontent.com/e2yo/eyo-kernel/master/dict_src/safe.txt -O safe0.txt
+wget https://raw.githubusercontent.com/e2yo/eyo-kernel/master/dictionary/safe.txt -O safe0.txt
 node ../depack.js safe0.txt safe0.unpacked.txt
 
 echo '' >>safe0.unpacked.txt

@@ -68,4 +68,30 @@ mod tests {
         test_nocontains("красный");
         test_nocontains("привет");
     }
+
+    #[test]
+    fn test_safe() {
+        let eword = "зеленый".encode_utf16().collect::<Vec<_>>();
+        let yoword = &EWORDS[&eword];
+        assert_eq!(yoword.is_safe, Some(true));
+        assert!(yoword.frequency_wikipedia().is_some());
+    }
+
+    #[test]
+    fn test_not_safe() {
+        let eword = "все".encode_utf16().collect::<Vec<_>>();
+        let yoword = &EWORDS[&eword];
+        assert_eq!(yoword.is_safe, Some(false));
+        assert!(yoword.frequency_wikipedia().is_some());
+    }
+
+    #[test]
+    fn test_frequency() {
+        let eword = "ефицируясь".encode_utf16().collect::<Vec<_>>();
+        let yoword = &EWORDS[&eword];
+        assert_eq!(yoword.is_safe, Some(true));
+        assert_eq!(yoword.frequency_wikipedia(), None);
+        // 39 это специальная частота для слов из safe словаря hcodes не встречающихся в Википедии
+        assert_eq!(yoword.frequency(), 39);
+    }
 }

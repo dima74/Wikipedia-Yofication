@@ -8,11 +8,12 @@ use crate::is_development;
 pub fn fetch_hcodes_yowords(is_safe: bool) -> Result<Vec<String>, Box<dyn Error>> {
     let file_name = if is_safe { "safe.txt" } else { "not_safe.txt" };
     let response = if is_development() {
-        fs::read_to_string(format!("temp/github-cache/dict_src/{}", file_name))?
+        fs::read_to_string(format!("temp/github-cache/dictionary/{}", file_name))?
     } else {
-        let url = format!("https://raw.githubusercontent.com/hcodes/eyo-kernel/master/dict_src/{}", file_name);
+        let url = format!("https://raw.githubusercontent.com/dima74/eyo-kernel/master/dictionary/{}", file_name);
         reqwest::blocking::get(&url)?.text()?
     };
+    assert_ne!(response, "404: Not Found");
 
     let re_comment = Regex::new(" *#.*").unwrap();
     let re_base_and_suffixes = Regex::new(r"^([^(|)]+)\(([^()]+)\)$").unwrap();
