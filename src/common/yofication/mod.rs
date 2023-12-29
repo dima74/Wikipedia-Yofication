@@ -4,6 +4,7 @@ use std::error::Error;
 use std::ops::{Range, Deref};
 
 use itertools::Itertools;
+use lazy_static::lazy_static;
 use serde::Serialize;
 use slice_arena::SliceArena;
 
@@ -29,8 +30,8 @@ pub struct Replace {
     is_safe: Option<bool>,
 }
 
-pub struct Yofication<'arena> {
-    ewords: HashMap<&'arena [u16], YowordInfo>,
+pub struct Yofication {
+    ewords: HashMap<&'static [u16], YowordInfo>,
 }
 
 pub struct YoficationInfo {
@@ -39,9 +40,9 @@ pub struct YoficationInfo {
     pub minimum_frequency: u8,
 }
 
-impl<'arena> Yofication<'arena> {
-    pub fn new(arena16: &SliceArena<u16>) -> Result<Yofication, Box<dyn Error>> {
-        let ewords = dictionary::get_ewords_map(&arena16)?;
+impl Yofication {
+    pub fn new() -> Result<Yofication, Box<dyn Error>> {
+        let ewords = dictionary::get_ewords_map()?;
         Ok(Yofication { ewords })
     }
 
@@ -141,7 +142,7 @@ impl<'arena> Yofication<'arena> {
 
             let contains_hyphen = word_original.contains(&('-' as u16));
 
-            let yoword_info = self.ewords.get(&eword);
+            let yoword_info = self.ewords.get(&eword.deref());
             if yoword_info.is_none() { return contains_hyphen; }
             let yoword_info = yoword_info.unwrap();
 
@@ -218,6 +219,7 @@ impl<'arena> Yofication<'arena> {
     pub fn get_yoword_info<'a>(self: &'a Self, word: &str) -> Option<&'a YowordInfo> {
         let word: Vec<_> = word.encode_utf16().collect();
         let eword = string16_utils::deyoficate(&word);
+        let eword: &[u16] = &eword;
         self.ewords.get(&eword)
     }
 }

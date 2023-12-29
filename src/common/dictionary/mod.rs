@@ -2,6 +2,7 @@ use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::error::Error;
 use std::ops::Deref;
+use lazy_static::lazy_static;
 use slice_arena::SliceArena;
 
 pub use yoword_info::YowordInfo;
@@ -12,7 +13,10 @@ pub mod hcodes;
 pub mod wikipedia;
 mod yoword_info;
 
-pub fn get_ewords_map(arena16: &SliceArena<u16>) -> Result<HashMap<&[u16], YowordInfo>, Box<dyn Error>> {
+lazy_static! { pub static ref ARENA16: SliceArena<u16> = SliceArena::new(); }
+
+pub fn get_ewords_map() -> Result<HashMap<&'static [u16], YowordInfo>, Box<dyn Error>> {
+    let arena16 = &ARENA16;
     let mut ewords = HashMap::<&[u16], YowordInfo>::new();
 
     let wikipedia_yoword_infos = wikipedia::fetch_wikipedia_yoword_infos();
