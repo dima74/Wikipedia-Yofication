@@ -16,7 +16,13 @@ mod cors;
 mod mixpanel;
 mod words_pages;
 
-fn main() -> Result<(), Box<dyn Error>> {
+fn main() {
+    let x = ContinuousYoficationPages::new();
+    let y = Yofication::new().unwrap();
+    let z = WordsPages::new();
+}
+
+fn main2() -> Result<(), Box<dyn Error>> {
     mixpanel::init();
     lemmatization::init();
 

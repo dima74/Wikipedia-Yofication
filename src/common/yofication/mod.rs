@@ -29,7 +29,7 @@ pub struct Replace {
 }
 
 pub struct Yofication {
-    ewords: HashMap<Vec<u16>, YowordInfo>,
+    pub ewords: HashMap<Vec<u16>, YowordInfo>,
 }
 
 pub struct YoficationInfo {

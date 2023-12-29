@@ -10,7 +10,7 @@ pub mod hcodes;
 pub mod wikipedia;
 mod yoword_info;
 
-const FREQUENCY_LIMIT: u8 = 10;
+const FREQUENCY_LIMIT: u8 = 0;
 
 pub fn get_ewords_map() -> Result<HashMap<Vec<u16>, YowordInfo>, Box<dyn Error>> {
     let mut ewords = HashMap::<Vec<u16>, YowordInfo>::new();
@@ -18,7 +18,7 @@ pub fn get_ewords_map() -> Result<HashMap<Vec<u16>, YowordInfo>, Box<dyn Error>>
     let wikipedia_yoword_infos = wikipedia::fetch_wikipedia_yoword_infos();
     for yoword_info in wikipedia_yoword_infos {
         let eword: Vec<_> = string16_utils::deyoficate(&yoword_info.yoword.encode_utf16().collect::<Vec<_>>());
-        if yoword_info.frequency() <= FREQUENCY_LIMIT { continue; }
+        if yoword_info.frequency() < FREQUENCY_LIMIT { continue; }
         ewords.insert(eword, yoword_info);
     }
 
@@ -31,7 +31,7 @@ pub fn get_ewords_map() -> Result<HashMap<Vec<u16>, YowordInfo>, Box<dyn Error>>
                 Entry::Occupied(entry) => entry.into_mut().is_safe = Some(is_safe),
                 Entry::Vacant(entry) => {
                     let yoword_info = YowordInfo { yoword, number_with_yo: 0, number_all: 0, is_safe: Some(is_safe) };
-                    if yoword_info.frequency() <= FREQUENCY_LIMIT { continue; }
+                    if yoword_info.frequency() < FREQUENCY_LIMIT { continue; }
                     entry.insert(yoword_info);
                 }
             };
