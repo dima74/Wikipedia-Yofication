@@ -18,9 +18,9 @@ mod mixpanel;
 mod words_pages;
 
 fn main() {
-    let arena16 = SliceArena::new();
+    // let arena16 = SliceArena::new();
     // let x = ContinuousYoficationPages::new();
-    let y = Yofication::new(arena16).unwrap();
+    let y = Yofication::new().unwrap();
     // let z = WordsPages::new();
 }
 

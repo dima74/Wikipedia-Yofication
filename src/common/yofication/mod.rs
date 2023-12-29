@@ -220,6 +220,6 @@ impl Yofication {
         let word: Vec<_> = word.encode_utf16().collect();
         let eword = string16_utils::deyoficate(&word);
         let eword: &[u16] = &eword;
-        self.ewords.get(&eword)
+        self.ewords.get(eword)
     }
 }

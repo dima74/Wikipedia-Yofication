@@ -44,7 +44,19 @@ pub fn get_ewords_map() -> Result<HashMap<&'static [u16], YowordInfo>, Box<dyn E
     }
 
     dbg!(ewords.len());
-    dbg!(ewords.iter().map(|(s, _)| s.len()).sum::<usize>());
+    dbg!(ewords.values().filter(|e| e.frequency() <= 10).count());
+    dbg!(ewords.values().filter(|e| e.frequency() <= 15).count());
+    dbg!(ewords.values().filter(|e| e.frequency() <= 20).count());
+
+    // dbg!(ewords.len());
+    // dbg!(ewords.iter().map(|(s, _)| s.len()).sum::<usize>());
+    //
+    // let arenas = arena16.arenas.lock().unwrap();
+    // dbg!(arenas.len());
+    // for arena in arenas.iter() {
+    //     dbg!(arena.len());
+    // }
+
     Ok(ewords)
 }
 
