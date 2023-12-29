@@ -1,6 +1,8 @@
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::error::Error;
+use std::ops::Deref;
+use slice_arena::SliceArena;
 
 pub use yoword_info::YowordInfo;
 
@@ -10,12 +12,13 @@ pub mod hcodes;
 pub mod wikipedia;
 mod yoword_info;
 
-pub fn get_ewords_map() -> Result<HashMap<Vec<u16>, YowordInfo>, Box<dyn Error>> {
-    let mut ewords = HashMap::<Vec<u16>, YowordInfo>::new();
+pub fn get_ewords_map(arena16: &SliceArena<u16>) -> Result<HashMap<&[u16], YowordInfo>, Box<dyn Error>> {
+    let mut ewords = HashMap::<&[u16], YowordInfo>::new();
 
     let wikipedia_yoword_infos = wikipedia::fetch_wikipedia_yoword_infos();
     for yoword_info in wikipedia_yoword_infos {
         let eword: Vec<_> = string16_utils::deyoficate(&yoword_info.yoword.encode_utf16().collect::<Vec<_>>());
+        let eword = arena16.push(&eword);
         ewords.insert(eword, yoword_info);
     }
 
@@ -23,17 +26,21 @@ pub fn get_ewords_map() -> Result<HashMap<Vec<u16>, YowordInfo>, Box<dyn Error>>
         let yowords = hcodes::fetch_hcodes_yowords(is_safe)?;
         for yoword in yowords {
             let eword: Vec<_> = string16_utils::deyoficate(&yoword.encode_utf16().collect::<Vec<_>>());
-
-            match ewords.entry(eword) {
-                Entry::Occupied(entry) => entry.into_mut().is_safe = Some(is_safe),
-                Entry::Vacant(entry) => {
-                    let yoword_info = YowordInfo { yoword, number_with_yo: 0, number_all: 0, is_safe: Some(is_safe) };
-                    entry.insert(yoword_info);
+            match ewords.get_mut(eword.deref()) {
+                Some(entry) => {
+                    entry.is_safe = Some(is_safe);
                 }
-            };
+                None => {
+                    let eword = arena16.push(&eword);
+                    let yoword_info = YowordInfo { yoword, number_with_yo: 0, number_all: 0, is_safe: Some(is_safe) };
+                    ewords.insert(eword, yoword_info);
+                }
+            }
         }
     }
 
+    dbg!(ewords.len());
+    dbg!(ewords.iter().map(|(s, _)| s.len()).sum::<usize>());
     Ok(ewords)
 }
 

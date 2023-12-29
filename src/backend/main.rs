@@ -3,6 +3,7 @@
 use std::error::Error;
 
 use rocket::routes;
+use slice_arena::SliceArena;
 
 use yofication::lemmatization;
 use yofication::yofication::Yofication;
@@ -16,7 +17,14 @@ mod cors;
 mod mixpanel;
 mod words_pages;
 
-fn main() -> Result<(), Box<dyn Error>> {
+fn main() {
+    let arena16 = SliceArena::new();
+    // let x = ContinuousYoficationPages::new();
+    let y = Yofication::new(arena16).unwrap();
+    // let z = WordsPages::new();
+}
+
+fn main2() -> Result<(), Box<dyn Error>> {
     mixpanel::init();
     lemmatization::init();
 
@@ -35,9 +43,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     ];
     rocket::ignite()
         .attach(cors::CORS())
-        .manage(ContinuousYoficationPages::new())
-        .manage(Yofication::new()?)
-        .manage(WordsPages::new())
+        // .manage(ContinuousYoficationPages::new())
+        // .manage(Yofication::new()?)
+        // .manage(WordsPages::new())
         .mount("/", routes)
         .launch();
     Ok(())

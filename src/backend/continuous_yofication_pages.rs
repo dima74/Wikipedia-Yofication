@@ -52,6 +52,7 @@ impl ContinuousYoficationPages {
             *number_pages = current_number_pages;
         }
 
+        dbg!(all_pages.iter().map(|s| s.len()).sum::<usize>());
         ContinuousYoficationPages { number_pages_with_number_replaces_more_than, all_pages }
     }
 

@@ -4,9 +4,11 @@ use std::process::{Command, Stdio};
 
 use crate::is_development;
 
+const IS_ENABLED: bool = false;
+
 // https://tech.yandex.ru/mystem/
 pub fn init() {
-    if is_development() { return; }
+    if is_development() || !IS_ENABLED { return; }
 
     const MYSTEM_URL: &str = "https://download.cdn.yandex.net/mystem/mystem-3.1-linux-64bit.tar.gz";
     let mut response = reqwest::blocking::get(MYSTEM_URL).expect("mystem: Failed to fetch binary");
@@ -21,6 +23,7 @@ pub fn init() {
 }
 
 pub fn lemmatize(word: &str) -> String {
+    assert!(IS_ENABLED);
     let mystem_file = if is_development() { "./temp/lemmatization/mystem" } else { "./mystem" };
     let mut child = Command::new(mystem_file)
         .arg("-nld")

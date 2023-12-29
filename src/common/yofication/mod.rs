@@ -5,6 +5,7 @@ use std::ops::{Range, Deref};
 
 use itertools::Itertools;
 use serde::Serialize;
+use slice_arena::SliceArena;
 
 use crate::common::dictionary;
 use crate::common::string16_utils;
@@ -28,8 +29,8 @@ pub struct Replace {
     is_safe: Option<bool>,
 }
 
-pub struct Yofication {
-    ewords: HashMap<Vec<u16>, YowordInfo>,
+pub struct Yofication<'arena> {
+    ewords: HashMap<&'arena [u16], YowordInfo>,
 }
 
 pub struct YoficationInfo {
@@ -38,9 +39,9 @@ pub struct YoficationInfo {
     pub minimum_frequency: u8,
 }
 
-impl Yofication {
-    pub fn new() -> Result<Yofication, Box<dyn Error>> {
-        let ewords = dictionary::get_ewords_map()?;
+impl<'arena> Yofication<'arena> {
+    pub fn new(arena16: &SliceArena<u16>) -> Result<Yofication, Box<dyn Error>> {
+        let ewords = dictionary::get_ewords_map(&arena16)?;
         Ok(Yofication { ewords })
     }
 

@@ -61,4 +61,5 @@ rocket = "0.4.4"
 rocket_contrib = "0.4.4"
 serde = { version = "1.0.106", features = ["derive"] }
 serde_json = "1.0.50"
+slice-arena = "1.0.0"
 url = "2.1.1"

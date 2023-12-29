@@ -1531,6 +1531,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "slice-arena"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d4ee12fedc7fe8b27b70f020c5dffd04546bda531d780712e808705ac2aa9245"
+
+[[package]]
 name = "smallvec"
 version = "1.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2226,5 +2232,6 @@ dependencies = [
  "rocket_contrib",
  "serde",
  "serde_json",
+ "slice-arena",
  "url 2.3.1",
 ]
