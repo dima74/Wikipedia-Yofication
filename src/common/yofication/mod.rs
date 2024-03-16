@@ -28,8 +28,35 @@ pub struct Replace {
     is_safe: Option<bool>,
 }
 
+struct ArenaKey(pub u32);
+struct StringArena16 {
+    /// [b0, b1, b2, 0, b4, b5, b6, b7, 0, ...]
+    ///  ~~~~~~~~~~ value1 (key = 0)
+    ///                 ~~~~~~~~~~~~~~ value2 (key = 4)
+    inner: Vec<u16>,
+}
+
+impl StringArena16 {
+    fn put(&mut self, value: &[u16]) -> ArenaKey {
+        let key = self.inner.len() as u32;
+        assert!(value.iter().any(|b| b != 0));
+        self.inner.extend_from_slice(value);
+        self.inner.push(0);
+        ArenaKey(key)
+    }
+
+    fn get(&self, key: ArenaKey) -> &[u16] {
+        let start = key.0 as usize;
+        let mut end = start;
+        while self.inner[end] != 0 {
+            end += 1;
+        }
+        &self.inner[start..end]
+    }
+}
+
 pub struct Yofication {
-    pub ewords: HashMap<Vec<u16>, YowordInfo>,
+    ewords: HashMap<Vec<u16>, YowordInfo>,
 }
 
 pub struct YoficationInfo {
@@ -40,6 +67,7 @@ pub struct YoficationInfo {
 
 impl Yofication {
     pub fn new() -> Result<Yofication, Box<dyn Error>> {
+        HashMap::with_hasher()
         let ewords = dictionary::get_ewords_map()?;
         Ok(Yofication { ewords })
     }
