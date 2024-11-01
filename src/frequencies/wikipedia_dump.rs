@@ -13,7 +13,7 @@ const TITLE_END: &str = "</title>";
 const NAMESPACE_START: &str = "    <ns>";
 const NAMESPACE_END: &str = "</ns>";
 lazy_static! {
-    static ref TEXT_START: Regex = Regex::new(r#"      <text bytes="\d+" xml:space="preserve">"#).unwrap();
+    static ref TEXT_START: Regex = Regex::new(r#"      <text bytes="\d+" sha1="[a-z0-9]{31}" xml:space="preserve">"#).unwrap();
 }
 const TEXT_END: &str = "</text>";
 
