@@ -61,6 +61,10 @@ path = "src/various/wikipedia-estimate-size-for-word-pages.rs"
 name = "wikipedia-print-possible-yowords-to-deyoficate"
 path = "src/various/wikipedia-print-possible-yowords-to-deyoficate.rs"
 
+[[bin]]
+name = "yoficate-text"
+path = "src/various/yoficate-text.rs"
+
 [dependencies]
 base64 = "0.12.0"
 bzip2 = "0.3.3"
