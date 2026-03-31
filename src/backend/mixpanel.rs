@@ -1,3 +1,5 @@
+#![allow(unused)]
+
 use std::env;
 
 use serde_json::json;
@@ -9,10 +11,12 @@ lazy_static! {
 }
 
 pub fn init() {
+    return;
     assert!(!MIXPANEL_TOKEN.is_empty());
 }
 
 pub fn track(event: &str, id: &str, mut properties: serde_json::Value) {
+    return;
     properties["distinct_id"] = json!(id);
     properties["token"] = json!(MIXPANEL_TOKEN.to_owned());
 

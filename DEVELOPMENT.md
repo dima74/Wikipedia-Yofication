@@ -1,16 +1,40 @@
 ## Переменные окружения
 * MIXPANEL_TOKEN - project token in https://mixpanel.com/project/1932540/app/settings/#project/1932540
 
-## fly.io
+## Toolforge
+Выполнять в shell tool-аккаунта (после `become yofication`):
 ```sh
-fly secrets set MIXPANEL_TOKEN=...
-fly deploy --image-label $(git rev-parse HEAD)
+toolforge build start https://github.com/dima74/Wikipedia-Yofication.git --ref toolforge
+toolforge build show
+
+toolforge webservice buildservice start --mount=none --mem=1Gi
+# для следующих релизов после нового build:
+toolforge webservice buildservice restart
 ```
 
-### Узнать git commit hash для текущего релиза fly.io
-Столбец TAG
+### Новый релиз после push нового коммита
+На Toolforge (после `become yofication`) запустить build из этой ветки:
 ```sh
-fly image show
+toolforge build start https://github.com/dima74/Wikipedia-Yofication.git --ref toolforge --mem=1Gi
+toolforge build show
+toolforge build logs
+```
+
+Когда статус build станет `Succeeded`, перезапустить backend:
+```sh
+toolforge webservice buildservice restart
+toolforge webservice buildservice logs -f
+```
+
+### Логи и диагностика
+```sh
+toolforge build logs
+toolforge webservice buildservice logs -f
+
+# Current memory
+kubectl top pod
+# Max memory
+kubectl get pod POD_NAME -o jsonpath='{.spec.containers[*].resources.limits.memory}{"\n"}'
 ```
 
 ## Update script at wikipedia

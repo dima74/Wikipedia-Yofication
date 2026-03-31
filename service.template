@@ -1,0 +1,3 @@
+type: buildservice
+mem: 1Gi
+mount: none
