@@ -2,7 +2,7 @@ use rocket::{post, State};
 use rocket_contrib::json::Json;
 use serde::{Deserialize, Serialize};
 
-use yofication::yofication::Yofication;
+use crate::all_data::AllData;
 
 #[derive(Deserialize)]
 pub struct YoficateForm {
@@ -20,8 +20,9 @@ pub struct YoficateResponse {
 }
 
 #[post("/yoficate", data = "<form>")]
-pub fn yoficate(form: Json<YoficateForm>, yofication: State<Yofication>) -> Json<YoficateResponse> {
-    let (text_yoficated, info) = yofication.yoficate(&form.text, form.minimum_replace_frequency);
+pub fn yoficate(form: Json<YoficateForm>, all_data: State<AllData>) -> Json<YoficateResponse> {
+    let data = all_data.get_data();
+    let (text_yoficated, info) = data.yofication.yoficate(&form.text, form.minimum_replace_frequency);
     let number_replaces = info.number_replaces;
     Json(YoficateResponse { text_yoficated, number_replaces })
 }

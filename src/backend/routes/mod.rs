@@ -4,7 +4,7 @@ use std::path::{Path, PathBuf};
 use rocket::{get, Request, response, Response, State};
 use rocket::response::{NamedFile, Responder};
 
-use yofication::yofication::Yofication;
+use crate::all_data::AllData;
 
 pub mod yoficate;
 pub mod wikipedia;
@@ -33,8 +33,9 @@ pub fn static_files(file: PathBuf) -> Option<CachedFile> {
 }
 
 #[get("/stat/<word>")]
-pub fn get_word_frequency(word: String, yofication: State<Yofication>) -> String {
-    match yofication.get_yoword_info(&word) {
+pub fn get_word_frequency(word: String, all_data: State<AllData>) -> String {
+    let data = all_data.get_data();
+    match data.yofication.get_yoword_info(&word) {
         None => "Нет информации о слове".to_owned(),
         Some(yoword) => {
             let frequency = yoword.frequency_wikipedia().map_or("?".to_owned(), |frequency| format!("{}%", frequency));

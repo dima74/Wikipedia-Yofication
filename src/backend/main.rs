@@ -5,15 +5,14 @@ use std::error::Error;
 use rocket::routes;
 
 use yofication::lemmatization;
-use yofication::yofication::Yofication;
 
-use crate::continuous_yofication_pages::ContinuousYoficationPages;
-use crate::words_pages::WordsPages;
+use crate::all_data::AllData;
 
 mod routes;
 mod continuous_yofication_pages;
 mod cors;
 mod mixpanel;
+mod all_data;
 mod words_pages;
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -35,9 +34,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     ];
     rocket::ignite()
         .attach(cors::CORS())
-        .manage(ContinuousYoficationPages::new())
-        .manage(Yofication::new()?)
-        .manage(WordsPages::new())
+        .manage(AllData::new()?)
         .mount("/", routes)
         .launch();
     Ok(())

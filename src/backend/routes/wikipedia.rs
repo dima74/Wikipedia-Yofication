@@ -6,17 +6,16 @@ use rocket::request::Form;
 use rocket_contrib::json::Json;
 use serde_json::json;
 
-use yofication::yofication::{Replace, Yofication};
+use yofication::yofication::Replace;
 
-use crate::continuous_yofication_pages::ContinuousYoficationPages;
 use crate::mixpanel;
-use crate::words_pages::WordsPages;
+use crate::all_data::AllData;
 
 #[get("/wikipedia/randomPageName?<minimum_number_replaces_for_continuous_yofication>&<maximum_number_replaces_for_continuous_yofication>&<flag>")]
 pub fn random_page_name(
     minimum_number_replaces_for_continuous_yofication: Option<usize>,
     maximum_number_replaces_for_continuous_yofication: Option<usize>,
-    continuous_yofication_pages: State<ContinuousYoficationPages>,
+    all_data: State<AllData>,
     flag: Option<bool>,
 ) -> String {
     if flag.is_none() {
@@ -25,7 +24,8 @@ pub fn random_page_name(
     }
 
     let minimum_number_replaces_for_continuous_yofication = minimum_number_replaces_for_continuous_yofication.unwrap_or(10);
-    continuous_yofication_pages.get_random_page(minimum_number_replaces_for_continuous_yofication, maximum_number_replaces_for_continuous_yofication)
+    let data = all_data.get_data();
+    data.continuous_yofication_pages.get_random_page(minimum_number_replaces_for_continuous_yofication, maximum_number_replaces_for_continuous_yofication)
 }
 
 #[derive(FromForm)]
@@ -39,12 +39,13 @@ pub struct ReplacesByWikitextForm {
 }
 
 #[post("/wikipedia/replacesByWikitext", data = "<form>")]
-pub fn generate_replaces_by_wikitext(form: Form<ReplacesByWikitextForm>, yofication: State<Yofication>) -> Json<Vec<Replace>> {
+pub fn generate_replaces_by_wikitext(form: Form<ReplacesByWikitextForm>, all_data: State<AllData>) -> Json<Vec<Replace>> {
     if form.flag.is_none() {
         let properties = json!({ "minimum_replace_frequency": form.minimum_replace_frequency });
         mixpanel::track("replaces_by_wikitext", form.current_page_name.as_deref().unwrap_or("unknown"), properties);
     }
-    Json(yofication.generate_replaces(&form.wikitext, form.minimum_replace_frequency))
+    let data = all_data.get_data();
+    Json(data.yofication.generate_replaces(&form.wikitext, form.minimum_replace_frequency))
 }
 
 fn fetch_wikipedia_page(title: &str) -> Result<(u64, String, String), Box<dyn Error>> {
@@ -79,17 +80,18 @@ pub struct ReplacesByTitleForm {
 }
 
 #[get("/wikipedia/replacesByTitle?<form..>")]
-pub fn generate_replaces_by_title(form: Form<ReplacesByTitleForm>, yofication: State<Yofication>) -> Result<Json<serde_json::Value>, Box<dyn Error>> {
+pub fn generate_replaces_by_title(form: Form<ReplacesByTitleForm>, all_data: State<AllData>) -> Result<Json<serde_json::Value>, Box<dyn Error>> {
     if form.flag.is_none() {
         let properties = json!({ "minimum_replace_frequency": form.minimum_replace_frequency });
         mixpanel::track("replaces_by_title", &form.title, properties);
     }
     let (revision, timestamp, wikitext) = fetch_wikipedia_page(&form.title)?;
+    let data = all_data.get_data();
 
     Ok(Json(json!({
         "revision": revision,
         "timestamp": timestamp,
-        "replaces": yofication.generate_replaces(&wikitext, form.minimum_replace_frequency)
+        "replaces": data.yofication.generate_replaces(&wikitext, form.minimum_replace_frequency)
     })))
 }
 
@@ -103,7 +105,8 @@ pub struct WordPagesForm {
 }
 
 #[get("/wikipedia/wordPage?<form..>")]
-pub fn get_word_page(form: Form<WordPagesForm>, words_pages: State<WordsPages>) -> String {
+pub fn get_word_page(form: Form<WordPagesForm>, all_data: State<AllData>) -> String {
     let page_index = form.page_index.unwrap_or(0);
-    words_pages.get_word_page(&form.word, page_index).unwrap_or_default()
+    let data = all_data.get_data();
+    data.words_pages.get_word_page(&form.word, page_index).unwrap_or_default()
 }
