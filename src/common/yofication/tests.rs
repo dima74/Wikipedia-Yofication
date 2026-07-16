@@ -18,6 +18,11 @@ fn test_yofication(expected: &str) {
     test_yofication_generic(&text, expected);
 }
 
+fn test_yofication_with_frequency(text: &str, expected: &str, minimum_replace_frequency: u8) {
+    let (yoficated_text, _) = YOFICATION.yoficate(text, minimum_replace_frequency);
+    assert_eq!(expected, yoficated_text);
+}
+
 fn test_noyofication(text: &str) {
     test_yofication_generic(text, text);
 }
@@ -69,6 +74,11 @@ fn test_words_with_yo() {
 #[test]
 fn test_abbreviation() {
     test_noyofication("нем.");
+    test_noyofication("мед.");
+    test_noyofication("жен.");
+    test_yofication_with_frequency("нем.", "нём.", 25);
+    test_yofication_with_frequency("мед.", "мёд.", 25);
+    test_yofication_with_frequency("жен.", "жён.", 25);
     test_yofication("зелёный.");
 }
 
