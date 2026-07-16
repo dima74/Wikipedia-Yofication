@@ -1,8 +1,14 @@
 ## Переменные окружения
 * MIXPANEL_TOKEN - project token in https://mixpanel.com/project/1932540/app/settings/#project/1932540
 
-## Toolforge
-Выполнять в shell tool-аккаунта (после `become yofication`):
+## Toolforge login
+```sh
+ssh diralik@login.toolforge.org
+become yofication
+```
+
+## Toolforge first time setup
+Выполнять в shell tool-аккаунта:
 ```sh
 toolforge build start https://github.com/dima74/Wikipedia-Yofication.git --ref toolforge
 toolforge build show
@@ -13,9 +19,9 @@ toolforge webservice buildservice restart
 ```
 
 ### Новый релиз после push нового коммита
-На Toolforge (после `become yofication`) запустить build из этой ветки:
+На Toolforge запустить build из этой ветки:
 ```sh
-toolforge build start https://github.com/dima74/Wikipedia-Yofication.git --ref toolforge --mem=1Gi
+toolforge build start https://github.com/dima74/Wikipedia-Yofication.git --ref toolforge
 toolforge build show
 toolforge build logs
 ```
