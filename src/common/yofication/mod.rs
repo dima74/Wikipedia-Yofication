@@ -1,7 +1,7 @@
 use std::char;
 use std::collections::HashMap;
 use std::error::Error;
-use std::ops::{Range, Deref};
+use std::ops::Range;
 
 use itertools::Itertools;
 use serde::Serialize;
@@ -44,7 +44,7 @@ impl Yofication {
         Ok(Yofication { ewords })
     }
 
-    fn check_match(text: &[u16], eword: &[u16], range: Range<usize>) -> bool {
+    fn check_match(text: &[u16], eword: &[u16], range: Range<usize>, minimum_replace_frequency: u8) -> bool {
         let start = range.start;
         let end = range.end;
 
@@ -59,13 +59,8 @@ impl Yofication {
         // слова вида [[воздух]]е
         if prev_char == ']' { return false; }
 
-        if next_char == '.' && end - start <= 4 {
-            // сокращения: нем.
-            let ignored_shorted_word: Vec<u16> = "нем".encode_utf16().collect();
-            if eword == ignored_shorted_word.deref() { return false; }
-
-            let is_this_word_last_in_sentence = end + 1 >= text.len() || u16_option_to_char(text[end + 1]).is_uppercase();
-            if !is_this_word_last_in_sentence { return false; }
+        if next_char == '.' && Yofication::is_ignored_abbreviation(eword, minimum_replace_frequency) {
+            return false;
         }
 
         if Yofication::is_word_inside_tags(text, range) { return false; }
@@ -98,6 +93,11 @@ impl Yofication {
             }
         }
         false
+    }
+
+    fn is_ignored_abbreviation(eword: &[u16], minimum_replace_frequency: u8) -> bool {
+        if minimum_replace_frequency <= 30 { return false; }
+        ["нем", "мед", "жен"].iter().any(|word| eword == word.encode_utf16().collect::<Vec<u16>>().as_slice())
     }
 
     fn normalize(word: &[u16]) -> Vec<u16> {
@@ -152,7 +152,9 @@ impl Yofication {
                 return yoword_info.frequency() >= 1 && yoword_info.number_all < 1000 && contains_hyphen;
             }
 
-            if !Yofication::check_match(&text_lowercase, &eword, range.clone()) { return false; }
+            if !Yofication::check_match(&text_lowercase, &eword, range.clone(), minimum_replace_frequency) {
+                return false;
+            }
 
             if yoword_info.yoword.contains("гренадер") { return false; }
 
