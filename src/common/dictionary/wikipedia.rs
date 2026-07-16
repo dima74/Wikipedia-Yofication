@@ -1,6 +1,7 @@
 use std::fs;
 
 use crate::dictionary::YowordInfo;
+use crate::http;
 use crate::is_development;
 
 pub fn fetch_wikipedia_yoword_infos() -> Vec<YowordInfo> {
@@ -8,7 +9,7 @@ pub fn fetch_wikipedia_yoword_infos() -> Vec<YowordInfo> {
         fs::read_to_string("temp/github-cache/frequencies/frequencies.txt").unwrap()
     } else {
         const FREQUENCIES_URL: &str = "https://raw.githubusercontent.com/dima74/Wikipedia-Yofication/frequencies/frequencies.txt";
-        reqwest::blocking::get(FREQUENCIES_URL).unwrap().text().unwrap()
+        http::blocking_get(FREQUENCIES_URL).unwrap().text().unwrap()
     };
 
     let mut yowords = Vec::new();

@@ -3,6 +3,7 @@ use std::fs;
 
 use regex::Regex;
 
+use crate::http;
 use crate::is_development;
 
 pub fn fetch_hcodes_yowords(is_safe: bool) -> Result<Vec<String>, Box<dyn Error>> {
@@ -11,7 +12,7 @@ pub fn fetch_hcodes_yowords(is_safe: bool) -> Result<Vec<String>, Box<dyn Error>
         fs::read_to_string(format!("temp/github-cache/dictionary/{}", file_name))?
     } else {
         let url = format!("https://raw.githubusercontent.com/dima74/eyo-kernel/master/dictionary/{}", file_name);
-        reqwest::blocking::get(&url)?.text()?
+        http::blocking_get(&url)?.text()?
     };
     assert_ne!(response, "404: Not Found");
 

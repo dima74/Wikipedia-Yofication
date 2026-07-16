@@ -5,6 +5,7 @@ use bzip2::read::BzDecoder;
 use regex::Regex;
 
 use lazy_static::lazy_static;
+use yofication::http;
 
 const WIKIPEDIA_DUMP_URL: &str = "https://dumps.wikimedia.org/ruwiki/latest/ruwiki-latest-pages-articles.xml.bz2";
 
@@ -26,7 +27,7 @@ fn normalize(text: &str) -> String {
 }
 
 pub fn iterate_articles<T: FnMut(String, String) -> ()>(mut consumer: T, mut number_articles: u32) -> Result<(), Box<dyn Error>> {
-    let response = reqwest::blocking::get(WIKIPEDIA_DUMP_URL)?;
+    let response = http::blocking_get(WIKIPEDIA_DUMP_URL)?;
     let decompressor = BzDecoder::new(response);
     let reader = BufReader::new(decompressor);
 
