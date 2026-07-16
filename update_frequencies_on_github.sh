@@ -3,10 +3,12 @@ set -e
 set -x
 
 FREQUENCIES_DIRECTORY=/tmp/frequencies
+BUILD_NUMBER=${BUILD_NUMBER:-manual}
 
+rm -rf "$FREQUENCIES_DIRECTORY"
 git config --global user.email "<>"
 git config --global user.name "Frequencies bot"
-git clone --quiet --depth=1 --branch=frequencies https://${GH_TOKEN}@github.com/${GH_USER}/${GH_REPO}.git $FREQUENCIES_DIRECTORY
+git clone --quiet --depth=1 --branch=frequencies "https://x-access-token:${GH_TOKEN}@github.com/${GH_REPO}.git" $FREQUENCIES_DIRECTORY
 cp results/* $FREQUENCIES_DIRECTORY
 cd $FREQUENCIES_DIRECTORY
 
@@ -18,5 +20,5 @@ wc *
 [[ -s pages-for-words-with-few-replaces.json ]]
 
 git add .
-git commit -m "Build $CIRCLE_BUILD_NUM" || echo "No changes to commit"
+git commit -m "Build $BUILD_NUMBER" || echo "No changes to commit"
 git push

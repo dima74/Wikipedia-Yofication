@@ -1,6 +1,6 @@
 # Скрипт-Ёфикатор для Википедии
 
-[![CircleCI](https://circleci.com/gh/dima74/Wikipedia-Yofication.svg?style=svg)](https://circleci.com/gh/dima74/Wikipedia-Yofication)
+[![GitHub Actions](https://github.com/dima74/Wikipedia-Yofication/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/dima74/Wikipedia-Yofication/actions/workflows/ci.yml?query=branch%3Amaster)
 [![Website](https://img.shields.io/website-up-down-green-red/https/yofication.fly.dev.svg)](https://yofication.fly.dev/)
 
 # Описание

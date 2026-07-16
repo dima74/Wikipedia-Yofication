@@ -1,0 +1,40 @@
+name: Frequencies
+
+on:
+  schedule:
+    - cron: "33 3 1 * *"
+    - cron: "33 3 15 * *"
+  workflow_dispatch:
+  push:
+    tags:
+      - frequencies_trigger
+
+permissions:
+  contents: write
+
+concurrency:
+  group: frequencies
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        run: rustup toolchain install "$(cat rust-toolchain)" --profile minimal
+
+      - name: Generate frequencies and all-pages
+        run: |
+          mkdir results
+          cargo run --bin frequencies --release
+
+      - name: Publish frequencies branch
+        run: ./update_frequencies_on_github.sh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          BUILD_NUMBER: ${{ github.run_number }}

@@ -7,6 +7,9 @@ fly secrets set MIXPANEL_TOKEN=...
 fly deploy --image-label $(git rev-parse HEAD)
 ```
 
+### GitHub Actions
+* `FLY_API_TOKEN` - repo secret for Fly.io deploy from `master`
+
 ### Узнать git commit hash для текущего релиза fly.io
 Столбец TAG
 ```sh
