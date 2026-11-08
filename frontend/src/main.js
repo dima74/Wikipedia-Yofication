@@ -89,11 +89,6 @@ class Main {
     }
 
     async performContinuousYofication() {
-        if (IS_MOBILE_SITE && IS_MOBILE_DEVICE) {
-            $('#mw-mf-display-toggle')[0].click();
-            return;
-        }
-
         toast('Переходим к следующей странице: \nЗагружаем название статьи для ёфикации...');
         const pageName = await (this.isContinuousYofication ? this.nextPageNamePromise : this.getNextContinousYoficationPage());
         toast(`Переходим к странице «${pageName}»`);
@@ -103,7 +98,9 @@ class Main {
     redirectContinuousYofication(pageName) {
         if (pageName !== '') {
             const pageNameEncoded = encodeURIComponent(pageName.replace(/ /g, '_'));
-            window.location.href = `//ru.wikipedia.org/w/index.php?title=${pageNameEncoded}&action=edit&continuous_yofication`;
+            // useformat=desktop — на мобильных устройствах открываем десктопную версию редактора викитекста
+            // (редактор мобильной версии сайта не поддерживается), при этом мобильная версия остаётся включённой для остальных страниц
+            window.location.href = `//ru.wikipedia.org/w/index.php?title=${pageNameEncoded}&action=edit&useformat=desktop&continuous_yofication`;
         } else {
             toast('Закончились страницы для непрерываной ёфикации');
         }

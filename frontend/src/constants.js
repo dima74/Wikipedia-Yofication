@@ -6,5 +6,6 @@ export const BACKEND_HOST = process.env.NODE_ENV === 'development' && !USE_REMOT
 export const YO_IMAGE_URL_22 = 'https://raw.githubusercontent.com/dima74/Wikipedia-Yofication/master/backend-static/yo_22.png';
 export const YO_IMAGE_URL_20 = 'https://raw.githubusercontent.com/dima74/Wikipedia-Yofication/master/backend-static/yo_20.png';
 
-export const IS_MOBILE_SITE = window.location.hostname.includes('.m.wikipedia');
+// мобильная версия сайта (раньше была на отдельном домене *.m.wikipedia.org, теперь на том же домене, что и десктопная)
+export const IS_MOBILE_SITE = !!mw.config.get('wgMFMode');
 export const IS_MOBILE_DEVICE = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
