@@ -56,6 +56,13 @@ export default class CodeMirrorYoficator extends WikitextBaseYoficator {
         this.cm = await getActiveCodeMirror();
         assert(this.cm !== null);
         this.view = this.cm.view;
+        if (main.isMobile) {
+            // на телефоне ёфикация управляется касаниями, а CodeMirror фокусирует редактор при загрузке (настройка autofocus),
+            // из-за чего показывалась экранная клавиатура (сразу и после каждого действия), поэтому не даём редактору фокус
+            this.preventEditorFocus = () => this.view.contentDOM.blur();
+            this.view.contentDOM.addEventListener('focus', this.preventEditorFocus);
+            this.view.contentDOM.blur();
+        }
         const requireCodeMirror = await mw.loader.using('ext.CodeMirror.lib');
         const { Compartment, Decoration, EditorView, StateEffect, StateField, WidgetType } = requireCodeMirror('ext.CodeMirror.lib');
         this.EditorView = EditorView;
@@ -162,6 +169,7 @@ export default class CodeMirrorYoficator extends WikitextBaseYoficator {
         await super.cleanUp();
         if (main.isMobile) {
             this.removeOverlay();
+            this.view.contentDOM.removeEventListener('focus', this.preventEditorFocus);
         }
 
         // все принятые замены применяются одной транзакцией (одно действие для Ctrl+Z)
