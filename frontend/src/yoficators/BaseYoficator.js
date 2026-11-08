@@ -126,6 +126,9 @@ export default class BaseYoficator {
         };
 
         this.onKeydown = event => {
+            // CodeMirror 6 повторно отправляет каждое нажатие клавиши в скрытый textarea синтетическим событием
+            if (!event.isTrusted) return;
+
             // приостановка ёфикация по комбинация Alt+O для возможности редактировать викитекст
             const togglePause = event.code === 'KeyO' && event.altKey;
             if (togglePause) {

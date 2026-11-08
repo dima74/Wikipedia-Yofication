@@ -1,5 +1,5 @@
 import { assert } from '../base';
-import CodeMirrorYoficator from './CodeMirrorYoficator';
+import CodeMirrorYoficator, { getActiveCodeMirror } from './CodeMirrorYoficator';
 import WikiText2017Yoficator from './WikiText2017Yoficator';
 import TextAreaYoficator from './TextAreaYoficator';
 import PageYoficator from './PageYoficator';
@@ -24,8 +24,8 @@ async function identifyYoficator() {
         return WikiText2017Yoficator;
     }
     if (action === 'edit') {
-        const useCodeMirror = mw.user.options.get('usecodemirror') > 0;
-        return useCodeMirror ? CodeMirrorYoficator : TextAreaYoficator;
+        const codeMirror = await getActiveCodeMirror();
+        return codeMirror !== null ? CodeMirrorYoficator : TextAreaYoficator;
     }
 
     assert(false);
