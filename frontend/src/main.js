@@ -15,8 +15,13 @@ class Main {
         sessionStorage.removeItem('yoficator:continuous-yofication-next-page');
         // после page reload после нажатия на кнопку «Сохранить» при непрерываной ёфикации
         if (continuousYoficationNextPage) {
-            this.redirectContinuousYofication(continuousYoficationNextPage);
-            return;
+            // wgPostEdit есть только если правка сохранилась, иначе (конфликт редактирования, фильтр правок и т.п.)
+            // MediaWiki снова показывает форму редактирования с ошибкой
+            if (mw.config.get('wgPostEdit')) {
+                this.redirectContinuousYofication(continuousYoficationNextPage);
+                return;
+            }
+            toast('Правка не сохранена, непрерывная ёфикация остановлена');
         }
 
         if (currentPageName === 'Служебная:Ёфикация') {
