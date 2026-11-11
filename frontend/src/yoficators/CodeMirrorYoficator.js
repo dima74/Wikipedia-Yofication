@@ -159,6 +159,23 @@ export default class CodeMirrorYoficator extends WikitextBaseYoficator {
             this.view.dispatch({ effects, selection: { anchor: range.to } });
             this.view.focus();
         }
+
+        this.centerReplace(replace);
+    }
+
+    // workaround для https://phabricator.wikimedia.org/T444528
+    // (scrollIntoView с y: 'center' не центрирует)
+    async centerReplace(replace) {
+        // ждём, пока CodeMirror обработает прокрутку и отрисует строки
+        await nextAnimationFrame();
+        await nextAnimationFrame();
+        const scroller = this.view.scrollDOM;
+        const element = scroller.querySelector('.yoficator-replace-active');
+        if (this.currentReplace !== replace || element === null) return;
+
+        const scrollerRect = scroller.getBoundingClientRect();
+        const elementRect = element.getBoundingClientRect();
+        scroller.scrollTop += (elementRect.top + elementRect.bottom) / 2 - (scrollerRect.top + scrollerRect.bottom) / 2;
     }
 
     toggleReplaceAccept(replace, isAccept) {
@@ -183,6 +200,10 @@ export default class CodeMirrorYoficator extends WikitextBaseYoficator {
         }
         this.view.dispatch({ changes, effects: this.compartment.reconfigure([]) });
     }
+}
+
+function nextAnimationFrame() {
+    return new Promise(resolve => requestAnimationFrame(resolve));
 }
 
 function findDecorationRange(decorations, replace) {
